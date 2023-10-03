@@ -26,7 +26,6 @@ import {
   PRIMARY_900,
   PRIMARY_500,
 } from "@constants/colors";
-import { assetPrefix } from "@/constants";
 import { toggleSidebar } from "@redux/Slices/sidebarSlice";
 
 const Wrapper = styled(FlexBox)`
@@ -177,7 +176,7 @@ const Sidebar = () => {
             height={36}
             draggable="false"
             alt="Unispace logo"
-            src={assetPrefix + "/assets/images/unispace-logo.svg"}
+            src="/assets/images/unispace-logo.svg"
           />
 
           <TextContainer>

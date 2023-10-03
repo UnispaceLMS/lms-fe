@@ -2,13 +2,13 @@ const env = process.env.NEXT_PUBLIC_ENV;
 
 const basePath = {
   local: "",
-  staging: "/lms-fe",
+  staging: "",
   production: "",
 };
 
 const assetPrefix = {
   local: undefined,
-  staging: "/lms-fe/",
+  staging: undefined,
   production: undefined,
 };
 

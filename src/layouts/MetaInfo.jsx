@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { assetPrefix } from "@/constants";
 
 const MetaInfo = ({ children }) => {
   return (
@@ -9,7 +8,7 @@ const MetaInfo = ({ children }) => {
         <link
           rel="icon"
           type="image/x-icon"
-          href={assetPrefix + "/assets/images/unispace-logo.svg"}
+          href="/assets/images/unispace-logo.svg"
         />
       </Head>
 
