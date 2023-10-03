@@ -2,6 +2,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
+      "@urls": ["./src/urls"],
       "@hooks/*": ["./src/hooks/*"],
       "@redux/*": ["./src/redux/*"],
       "@styles/*": ["./src/styles/*"],
@@ -9,6 +10,7 @@
       "@metadata/*": ["./src/metadata/*"],
       "@constants/*": ["./src/constants/*"],
       "@components/*": ["./src/components/*"],
+      "@axiosInstance": ["./src/axiosInstance"],
       "@common/*": ["./src/components/common/*"]
     }
   }
