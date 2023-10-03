@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+const env = process.env.NEXT_PUBLIC_ENV;
 
 const basePath = {
   local: "",
@@ -8,15 +8,13 @@ const basePath = {
 
 const assetPrefix = {
   local: undefined,
-  staging: "https://unispacelms.github.io/lms-fe",
+  staging: "/lms-fe/",
   production: undefined,
 };
 
-const nextConfig = {
+module.exports = {
   distDir: ".next",
   reactStrictMode: true,
-  basePath: basePath[process.env.NEXT_PUBLIC_ENV],
-  assetPrefix: assetPrefix[process.env.NEXT_PUBLIC_ENV],
+  basePath: basePath[env],
+  assetPrefix: assetPrefix[env],
 };
-
-module.exports = nextConfig;
