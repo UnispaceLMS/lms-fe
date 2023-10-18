@@ -6,15 +6,15 @@ const Text = styled.span`
   letter-spacing: 0.1px;
   color: ${({ color }) => color};
   font-size: ${({ size }) => size};
-  line-height: ${({ lineHeight }) => lineHeight};
-  font-weight: ${({ bold }) => (bold ? "bold" : 500)};
+  text-align: ${({ align }) => align};
+  font-weight: ${({ bold, weight }) => weight || (bold ? "bold" : 500)};
 `;
 
 Text.defaultProps = {
   bold: false,
   color: BLACK,
   size: "1rem",
-  lineHeight: 1,
+  align: "left",
 };
 
 export default Text;
