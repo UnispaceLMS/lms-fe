@@ -157,10 +157,11 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const sidebarRef = useRef(null);
 
-  const isRosterPage = router?.pathname?.includes("roster");
-  const isProfilePage = router?.pathname?.includes("profile");
-  const isDashboard = router?.pathname?.includes("dashboard");
-  const expanded = useSelector((state) => state.sidebar?.expanded);
+  const isRosterPage = router?.pathname?.includes("/roster");
+  const isStudentPage = router?.pathname?.includes("/student");
+  const isProfilePage = router?.pathname?.includes("/profile");
+  const isDashboard = router?.pathname?.includes("/dashboard");
+  const expanded = useSelector(state => state.sidebar?.expanded);
 
   const toggleExpanded = () => dispatch(toggleSidebar());
 
@@ -209,37 +210,39 @@ const Sidebar = () => {
 
         <Divider />
 
-        <FlexBox column width="100%">
-          <Link href="/annual-plan">
-            <NavItem padding="0.875rem 0.8rem" selected={false}>
-              <MdOutlineEventNote size="1.25rem" />
+        {isStudentPage && (
+          <FlexBox column width="100%">
+            <Link href="/annual-plan">
+              <NavItem padding="0.875rem 0.8rem" selected={false}>
+                <MdOutlineEventNote size="1.25rem" />
 
-              <TextContainer>
-                <Text>Annual Plan</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
+                <TextContainer>
+                  <Text>Annual Plan</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
 
-          <Link href="/">
-            <NavItem padding="0.875rem 0.8rem" selected={false}>
-              <MdOutlineDonutSmall size="1.25rem" />
+            <Link href="/quarterly-report">
+              <NavItem padding="0.875rem 0.8rem" selected={false}>
+                <MdOutlineDonutSmall size="1.25rem" />
 
-              <TextContainer>
-                <Text>Quarterly Report</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
+                <TextContainer>
+                  <Text>Quarterly Report</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
 
-          <Link href="/profile">
-            <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
-              <MdPersonOutline size="1.25rem" />
+            <Link href="/profile">
+              <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
+                <MdPersonOutline size="1.25rem" />
 
-              <TextContainer>
-                <Text>Profile</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
-        </FlexBox>
+                <TextContainer>
+                  <Text>Profile</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
+          </FlexBox>
+        )}
       </TopHalf>
 
       <BottomHalf>
