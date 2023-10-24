@@ -12,31 +12,41 @@ const initialState = {
   loading: false,
 };
 
-export const login = createAsyncThunk("login", async payload => {
-  try {
-    const res = await axiosInstance.post(urls.login, payload);
+export const login = createAsyncThunk(
+  "login",
+  async (payload, { fulfillWithValue, rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(urls.login, payload);
 
-    return res?.data;
-  } catch (error) {
-    console.log(error, "Error in login");
+      window.location.href = "/";
+      return fulfillWithValue(res?.data);
+    } catch (error) {
+      console.log(error, "Error in login");
+      return rejectWithValue(error?.response?.data?.message);
+    }
   }
-});
+);
 
-export const validateToken = createAsyncThunk("validate-token", async () => {
-  try {
-    const res = await axiosInstance.get(urls.validateToken);
+export const validateToken = createAsyncThunk(
+  "validate-token",
+  async (_, { fulfillWithValue, rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(urls.validateToken);
 
-    return res?.data;
-  } catch (error) {
-    console.log(error, "Error validating token");
+      return fulfillWithValue(res?.data);
+    } catch (error) {
+      console.log(error, "Error validating token");
+      logout();
+      return rejectWithValue(error?.response?.data?.message);
+    }
   }
-});
+);
 
 export const logout = createAsyncThunk("logout", async () => {
   try {
     // TODO add api
     localStorage.clear();
-    cookies.remove("access-tokens");
+    cookies.remove("access-token");
   } catch (error) {
     console.log(error, "Error in logging out");
   }
@@ -62,17 +72,15 @@ const authSlice = createSlice({
     });
 
     builder.addCase(login.fulfilled, (state, { payload }) => {
-      if (payload) {
-        state.user = payload;
-        state.loading = false;
-      }
+      if (payload) state.user = payload;
 
-      window.location.href = "/";
+      state.error = initialState.error;
+      state.loading = initialState.loading;
     });
 
     builder.addCase(login.rejected, (state, { error }) => {
-      state.error = error;
-      state.loading = false;
+      if (error) state.error = error;
+      state.loading = initialState.loading;
     });
 
     builder.addCase(validateToken.pending, state => {
@@ -111,5 +119,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearErrors, setAuthLoading } = authSlice.actions;
+export const { clearErrors, setAuthLoading, setUserData } = authSlice.actions;
 export default authSlice.reducer;

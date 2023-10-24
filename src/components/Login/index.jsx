@@ -93,12 +93,19 @@ const Login = () => {
             value={password}
             onChange={handleInput}
             placeholder="Password"
+            onKeyDown={e => {
+              if (email && password && e.key === "Enter") {
+                e.preventDefault();
+                e.stopPropagation();
+                handleLogin();
+              }
+            }}
           />
         </InputContainer>
         <InputContainer>
           <PrimaryButton
-            disabled={!email || !password || authLoading}
             onClick={handleLogin}
+            disabled={!email || !password || authLoading}
           >
             Log in
           </PrimaryButton>

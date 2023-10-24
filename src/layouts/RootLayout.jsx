@@ -1,7 +1,9 @@
 import React from "react";
 
-import ReduxProvider from "@/redux/ReduxProvider";
+import HandleAuth from "./HandleAuth";
+
 import { montSerrat } from "@/styles/font";
+import ReduxProvider from "@redux/ReduxProvider";
 
 export const metadata = {
   title: "",
@@ -14,7 +16,9 @@ export const metadata = {
 const RootLayout = ({ children }) => {
   return (
     <main className={montSerrat.className}>
-      <ReduxProvider>{children}</ReduxProvider>
+      <ReduxProvider>
+        <HandleAuth>{children}</HandleAuth>
+      </ReduxProvider>
     </main>
   );
 };
