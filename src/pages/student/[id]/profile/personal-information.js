@@ -1,12 +1,15 @@
-import DashboardLayout from "@/layouts/DashboardLayout";
+import StudentProfile from "@layouts/StudentProfile";
+import DashboardLayout from "@layouts/DashboardLayout";
 
-import PersonalInformation from "@/components/StudentProfile/PersonalInformation";
+import PersonalInformation from "@components/StudentProfile/PersonalInformation";
 
 const PersonalInformationPage = () => {
   return (
-    <DashboardLayout>
-      <PersonalInformation />
-    </DashboardLayout>
+    <StudentProfile>
+      <DashboardLayout>
+        <PersonalInformation />
+      </DashboardLayout>
+    </StudentProfile>
   );
 };
 

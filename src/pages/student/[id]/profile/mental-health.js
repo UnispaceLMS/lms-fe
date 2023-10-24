@@ -1,12 +1,15 @@
+import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
 import MentalHealth from "@components/StudentProfile/MentalHealth";
 
 const MentalHealthPage = () => {
   return (
-    <DashboardLayout>
-      <MentalHealth />
-    </DashboardLayout>
+    <StudentProfile>
+      <DashboardLayout>
+        <MentalHealth />
+      </DashboardLayout>
+    </StudentProfile>
   );
 };
 

@@ -1,16 +1,16 @@
 import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
-import MedicalRecords from "@components/StudentProfile/MedicalRecords";
+import StrengthsConcerns from "@components/StudentProfile/StrengthsConcerns";
 
-const MedicalRecordsPage = () => {
+const StrengthsPage = () => {
   return (
     <StudentProfile>
       <DashboardLayout>
-        <MedicalRecords />
+        <StrengthsConcerns />
       </DashboardLayout>
     </StudentProfile>
   );
 };
 
-export default MedicalRecordsPage;
+export default StrengthsPage;

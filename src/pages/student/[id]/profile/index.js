@@ -1,16 +1,18 @@
+import React from "react";
+
 import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
-import MedicalRecords from "@components/StudentProfile/MedicalRecords";
+import ProfileView from "@components/StudentProfile/ProfileView";
 
-const MedicalRecordsPage = () => {
+const ProfilePage = () => {
   return (
     <StudentProfile>
       <DashboardLayout>
-        <MedicalRecords />
+        <ProfileView />
       </DashboardLayout>
     </StudentProfile>
   );
 };
 
-export default MedicalRecordsPage;
+export default ProfilePage;

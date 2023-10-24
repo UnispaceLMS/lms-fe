@@ -1,12 +1,15 @@
+import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
 import ContactInformation from "@components/StudentProfile/ContactInformation";
 
 const ContactInformationPage = () => {
   return (
-    <DashboardLayout>
-      <ContactInformation />
-    </DashboardLayout>
+    <StudentProfile>
+      <DashboardLayout>
+        <ContactInformation />
+      </DashboardLayout>
+    </StudentProfile>
   );
 };
 
