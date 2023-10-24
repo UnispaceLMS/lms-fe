@@ -3,6 +3,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@urls": ["./src/urls"],
+      "@utils/*": ["./src/utils/*"],
       "@hooks/*": ["./src/hooks/*"],
       "@redux/*": ["./src/redux/*"],
       "@styles/*": ["./src/styles/*"],
