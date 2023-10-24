@@ -15,7 +15,7 @@ export const profileSetupSteps = [
   "Medical Records",
   "Mental Health",
   "Personal Life",
-  "Assistance",
-  "Strengths",
-  "Concerns",
+  "Assistance & Support",
+  "Strengths & Concerns",
+  "Transition",
 ];
