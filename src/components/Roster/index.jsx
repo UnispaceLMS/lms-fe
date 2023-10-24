@@ -20,6 +20,7 @@ import {
   PRIMARY_600,
   SUCCESS_600,
 } from "@constants/colors";
+import { buildName } from "@utils/helpers";
 import { fetchRoster } from "@redux/Slices/rosterSlice";
 
 const Wrapper = styled(FlexBox)`
@@ -209,16 +210,6 @@ const Roster = () => {
 
   const toggleCreateStudentModal = () =>
     setShowCreateStudentModal(prev => !prev);
-
-  const buildName = (firstName, middleName, lastName) => {
-    const nameArr = [];
-
-    if (firstName) nameArr.push(firstName);
-    if (middleName) nameArr.push(middleName);
-    if (lastName) nameArr.push(lastName);
-
-    return nameArr?.join(" ");
-  };
 
   return (
     <Wrapper>

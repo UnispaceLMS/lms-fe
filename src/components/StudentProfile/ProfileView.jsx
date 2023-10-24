@@ -12,6 +12,8 @@ import {
   PRIMARY_500,
   WHITE,
 } from "@/constants/colors";
+import { useSelector } from "react-redux";
+import { buildName } from "@/utils/helpers";
 
 const Wrapper = styled(FlexBox)`
   width: 100%;
@@ -101,6 +103,12 @@ const commonIconProps = { size: "1.25rem", color: GRAY_600 };
 const Label = ({ children }) => <Text weight={500}>{children}</Text>;
 
 const ProfileView = () => {
+  const student = useSelector(state => state?.student?.profile);
+
+  const { firstName, middleName, lastName } = student || {};
+
+  const name = buildName(firstName, middleName, lastName);
+
   return (
     <Wrapper>
       <ProfileCard>
@@ -111,11 +119,12 @@ const ProfileView = () => {
 
           <LabelAndText>
             <Label>Name</Label>
-            <Text>Cami Henderson</Text>
+            <Text transform="capitalize">{name}</Text>
           </LabelAndText>
 
           <FlexBox align="center" justify="space-between">
             <LabelAndText>
+              {/* TODO handle */}
               <Label>Program</Label>
               <Text>Independent Student Program</Text>
             </LabelAndText>
@@ -142,7 +151,7 @@ const ProfileView = () => {
               alt="Profile Gradient"
               src="/assets/images/blue-gradient.svg"
             />
-            <Initial>C</Initial>
+            <Initial>{firstName?.[0]?.toUpperCase()}</Initial>
           </ProfileGradient>
           <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
         </FlexBox>
