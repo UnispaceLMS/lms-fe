@@ -52,6 +52,7 @@ const Footer = styled(FlexBox)`
 
 const CreateStudent = ({ toggleModal }) => {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [studentDetails, setStudentDetails] = useState({
     firstName: "",
     middleName: "",
@@ -63,11 +64,14 @@ const CreateStudent = ({ toggleModal }) => {
 
   const handleInput = e => {
     try {
+      setLoading(true);
       const { name, value } = e.target;
 
       setStudentDetails(prev => ({ ...prev, [name]: value }));
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,11 +139,13 @@ const CreateStudent = ({ toggleModal }) => {
       <Footer>
         <PrimaryButton
           onClick={createStudent}
-          disabled={!firstName || !lastName}
+          disabled={!firstName || !lastName || loading}
         >
           Create
         </PrimaryButton>
-        <SecondaryButton onClick={toggleModal}>Cancel</SecondaryButton>
+        <SecondaryButton disabled={loading} onClick={toggleModal}>
+          Cancel
+        </SecondaryButton>
       </Footer>
     </Wrapper>
   );

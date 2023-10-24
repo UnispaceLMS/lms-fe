@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
@@ -10,6 +13,44 @@ import ProfileCompletionWizard from "./ProfileCompletionWizard";
 import { GRAY_800 } from "@constants/colors";
 
 const PersonalInformation = () => {
+  const studentProfile = useSelector(state => state?.student?.profile);
+
+  const [personalInfo, setPersonalInfo] = useState({
+    dob: studentProfile?.dateOfBirth || "",
+    program: studentProfile?.program || "",
+    lastName: studentProfile?.lastName || "",
+    firstName: studentProfile?.firstName || "",
+    middleName: studentProfile?.middleName || "",
+    guardianName: "",
+  });
+
+  const { dob, firstName, lastName, middleName, program, guardianName } =
+    personalInfo || {};
+
+  useEffect(() => {
+    if (studentProfile) {
+      setPersonalInfo(prev => ({
+        ...prev,
+        dob: studentProfile?.dateOfBirth || "",
+        program: studentProfile?.program || "",
+        lastName: studentProfile?.lastName || "",
+        firstName: studentProfile?.firstName || "",
+        middleName: studentProfile?.middleName || "",
+        guardianName: "",
+      }));
+    }
+  }, [studentProfile]);
+
+  const handleInput = e => {
+    try {
+      const { name, value } = e.target;
+
+      setPersonalInfo(prev => ({ ...prev, [name]: value }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const onSave = () => {};
 
   return (
@@ -23,23 +64,63 @@ const PersonalInformation = () => {
 
         <FlexBox column rowGap="1.5rem" align="flex-start">
           <InputContainer>
-            <Text color={GRAY_800}>Student Name</Text>
-            <TextInput placeholder="Type Here" />
+            <Text color={GRAY_800}>Student First Name</Text>
+            <TextInput
+              name="firstName"
+              value={firstName}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Text color={GRAY_800}>Student Middle Name</Text>
+            <TextInput
+              name="middleName"
+              value={middleName}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
+          </InputContainer>
+
+          <InputContainer>
+            <Text color={GRAY_800}>Student Last Name</Text>
+            <TextInput
+              name="lastName"
+              value={lastName}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
           </InputContainer>
 
           <InputContainer>
             <Text color={GRAY_800}>Date of Birth</Text>
-            <TextInput placeholder="Type Here" />
+            <TextInput
+              name="dob"
+              value={dob}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
           </InputContainer>
 
           <InputContainer>
             <Text color={GRAY_800}>Legal Guardian&apos;s Full Name</Text>
-            <TextInput placeholder="Type Here" />
+            <TextInput
+              name="guardianName"
+              value={guardianName}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
           </InputContainer>
 
           <InputContainer>
             <Text color={GRAY_800}>Program</Text>
-            <TextInput placeholder="Type Here" />
+            <TextInput
+              name="program"
+              value={program}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
           </InputContainer>
         </FlexBox>
 
