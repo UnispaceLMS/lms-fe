@@ -1,20 +1,20 @@
 import styled from "styled-components";
 
-import { BLACK } from "@constants/colors";
+import { GRAY_800 } from "@constants/colors";
 
 const Text = styled.span`
   letter-spacing: 0.1px;
   color: ${({ color }) => color};
   font-size: ${({ size }) => size};
   text-align: ${({ align }) => align};
-  font-weight: ${({ bold, weight }) => weight || (bold ? "bold" : 500)};
+  font-weight: ${({ bold, weight }) => weight || (bold ? "bold" : 400)};
 `;
 
 Text.defaultProps = {
   bold: false,
-  color: BLACK,
   size: "1rem",
   align: "left",
+  color: GRAY_800,
 };
 
 export default Text;
