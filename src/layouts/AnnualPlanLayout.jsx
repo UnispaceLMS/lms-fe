@@ -4,6 +4,8 @@ import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import NameInitials from "@common/NameInitials";
 
+import { PRIMARY_25 } from "@constants/colors";
+
 const Wrapper = styled(FlexBox)`
   flex: 1;
   overflow: auto;
@@ -11,6 +13,7 @@ const Wrapper = styled(FlexBox)`
   max-height: 100vh;
   flex-direction: column;
   padding: 3.5rem 4rem 1.5rem;
+  background-color: ${PRIMARY_25};
 `;
 
 const Header = styled(FlexBox)`
