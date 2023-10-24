@@ -1,12 +1,15 @@
+import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
 import MedicalRecords from "@components/StudentProfile/MedicalRecords";
 
 const MedicalRecordsPage = () => {
   return (
-    <DashboardLayout>
-      <MedicalRecords />
-    </DashboardLayout>
+    <StudentProfile>
+      <DashboardLayout>
+        <MedicalRecords />
+      </DashboardLayout>
+    </StudentProfile>
   );
 };
 

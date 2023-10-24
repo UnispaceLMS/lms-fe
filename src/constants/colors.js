@@ -1,11 +1,6 @@
 export const WHITE = "#fff";
 export const BLACK = "#000";
-
-// TODO: REMOVE
-export const GREY = "#7A7E86";
-export const AZURE = "#1294f2";
-export const MIDNIGHT = "#001f31";
-export const WHITE_SMOKE = "#f3f4f6";
+export const MODAL_BACKDROP = "rgba(49, 49, 49, 0.7)";
 
 export const GRAY_25 = "#FCFCFD";
 export const GRAY_50 = "#F9FAFB";

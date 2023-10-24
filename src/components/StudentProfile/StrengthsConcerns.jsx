@@ -9,50 +9,42 @@ import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_800 } from "@constants/colors";
 
-const Assistance = () => {
+const StrengthsConcerns = () => {
   const onSave = () => {};
 
   return (
     <Wrapper>
-      <ProfileCompletionWizard currentStep={6} />
+      <ProfileCompletionWizard currentStep={7} />
 
       <FlexBox column rowGap="3rem" margin="0 0 0 2.25rem">
         <Text bold size="1.25rem">
-          Personal Information
+          Strengths & Concerns
         </Text>
 
         <FlexBox column rowGap="1.5rem" align="flex-start">
           <FlexBox colGap="2rem">
             <InputContainer>
-              <Text color={GRAY_800}>Morning Assistance</Text>
+              <Text color={GRAY_800}>Student Identified Strengths</Text>
               <TextInput placeholder="Type Here" />
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Afternoon Assistance</Text>
-              <TextInput placeholder="Type Here" />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Evening Assistance</Text>
+              <Text color={GRAY_800}>Student Identified Concerns</Text>
               <TextInput placeholder="Type Here" />
             </InputContainer>
           </FlexBox>
 
-          <InputContainer>
-            <Text color={GRAY_800}>Accommodations</Text>
-            <TextInput placeholder="Type Here" />
-          </InputContainer>
+          <FlexBox colGap="2rem">
+            <InputContainer>
+              <Text color={GRAY_800}>Family Identified Strengths</Text>
+              <TextInput placeholder="Type Here" />
+            </InputContainer>
 
-          <InputContainer>
-            <Text color={GRAY_800}>Independent Capabilities</Text>
-            <TextInput placeholder="Type Here" />
-          </InputContainer>
-
-          <InputContainer>
-            <Text color={GRAY_800}>Help Required in (Areas)</Text>
-            <TextInput placeholder="Type Here" />
-          </InputContainer>
+            <InputContainer>
+              <Text color={GRAY_800}>Family Identified Concerns</Text>
+              <TextInput placeholder="Type Here" />
+            </InputContainer>
+          </FlexBox>
         </FlexBox>
 
         <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
@@ -61,4 +53,4 @@ const Assistance = () => {
   );
 };
 
-export default Assistance;
+export default StrengthsConcerns;
