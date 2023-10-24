@@ -7,6 +7,7 @@ const Text = styled.span`
   color: ${({ color }) => color};
   font-size: ${({ size }) => size};
   text-align: ${({ align }) => align};
+  text-transform: ${({ transform }) => transform};
   font-weight: ${({ bold, weight }) => weight || (bold ? "bold" : 400)};
 `;
 
@@ -15,6 +16,7 @@ Text.defaultProps = {
   size: "1rem",
   align: "left",
   color: GRAY_800,
+  transform: "none",
 };
 
 export default Text;
