@@ -161,6 +161,7 @@ const Sidebar = () => {
   const isStudentPage = router?.pathname?.includes("/student");
   const isProfilePage = router?.pathname?.includes("/profile");
   const isDashboard = router?.pathname?.includes("/dashboard");
+  const student = useSelector(state => state?.student?.profile);
   const expanded = useSelector(state => state.sidebar?.expanded);
 
   const toggleExpanded = () => dispatch(toggleSidebar());
@@ -212,7 +213,7 @@ const Sidebar = () => {
 
         {isStudentPage && (
           <FlexBox column width="100%">
-            <Link href="/annual-plan">
+            <Link href={`/student/${student?.id}/annual-plan`}>
               <NavItem padding="0.875rem 0.8rem" selected={false}>
                 <MdOutlineEventNote size="1.25rem" />
 
@@ -222,7 +223,7 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href="/quarterly-report">
+            <Link href={`/student/${student?.id}/quarterly-report`}>
               <NavItem padding="0.875rem 0.8rem" selected={false}>
                 <MdOutlineDonutSmall size="1.25rem" />
 
@@ -232,7 +233,7 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href="/profile">
+            <Link href={`/student/${student?.id}/profile`}>
               <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
                 <MdPersonOutline size="1.25rem" />
 
