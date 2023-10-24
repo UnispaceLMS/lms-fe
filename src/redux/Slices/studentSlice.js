@@ -62,8 +62,8 @@ const studentSlice = createSlice({
     });
 
     builder.addCase(getStudentProfile.fulfilled, (state, { payload }) => {
+      if (payload) state.profile = payload;
       state.loading = false;
-      state.profile = payload;
       state.error = initialState.error;
     });
 
