@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { FiCheck } from "react-icons/fi";
 import styled, { css } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
 import { IoSearch, IoAddCircle } from "react-icons/io5";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import { ViewButton } from "@common/Buttons";
 import ModalBackDrop from "@common/ModalBackDrop";
@@ -17,17 +20,20 @@ import {
   PRIMARY_600,
   SUCCESS_600,
 } from "@constants/colors";
+import { fetchRoster } from "@redux/Slices/rosterSlice";
 
 const Wrapper = styled(FlexBox)`
   flex: 1;
+  overflow: auto;
   max-width: 100%;
   position: relative;
   align-items: center;
-  padding: 4rem 0 2rem;
+  padding: 3rem 0 2rem;
   flex-direction: column;
 `;
 
 const Container = styled(FlexBox)`
+  flex: 1;
   width: 95%;
   row-gap: 1.5rem;
   flex-direction: column;
@@ -69,6 +75,10 @@ const NewStudent = styled(FlexBox)`
   border-radius: 0.25rem;
   padding: 0.625rem 1.25rem;
   background-color: ${PRIMARY_600};
+`;
+
+const LoaderWrapper = styled(FlexBox)`
+  flex: 1;
 `;
 
 const Table = styled.div`
@@ -133,7 +143,37 @@ const Checkbox = styled(FlexBox)`
     `}
 `;
 
-const StudentEntry = () => (
+const TableHeader = () => (
+  <>
+    <CheckboxContainer head>
+      <Checkbox>
+        <FiCheck />
+      </Checkbox>
+    </CheckboxContainer>
+    <TextContainer head>
+      <Text bold size="0.75rem">
+        Student Name
+      </Text>
+    </TextContainer>
+    <TextContainer head>
+      <Text bold size="0.75rem">
+        Program
+      </Text>
+    </TextContainer>
+    <TextContainer head>
+      <Text bold size="0.75rem">
+        Primary Staff
+      </Text>
+    </TextContainer>
+    <TextContainer head justify="center">
+      <Text bold size="0.75rem">
+        Action
+      </Text>
+    </TextContainer>
+  </>
+);
+
+const StudentEntry = ({ id, name, program }) => (
   <>
     <CheckboxContainer>
       <Checkbox>
@@ -141,7 +181,7 @@ const StudentEntry = () => (
       </Checkbox>
     </CheckboxContainer>
     <TextContainer>
-      <Text size="0.75rem">Student Name</Text>
+      <Text size="0.75rem">{name}</Text>
     </TextContainer>
     <TextContainer>
       <Text size="0.75rem">Program</Text>
@@ -150,18 +190,35 @@ const StudentEntry = () => (
       <Text size="0.75rem">Primary Staff</Text>
     </TextContainer>
     <TextContainer justify="center">
-      <Text size="0.75rem">
+      <Link href={`/student/${id}/profile`}>
         <ViewButton />
-      </Text>
+      </Link>
     </TextContainer>
   </>
 );
 
 const Roster = () => {
+  const dispatch = useDispatch();
+  const roster = useSelector(state => state?.roster?.list);
+  const rosterLoading = useSelector(state => state?.roster?.loading);
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
+
+  useEffect(() => {
+    if (!roster) dispatch(fetchRoster());
+  }, [roster]);
 
   const toggleCreateStudentModal = () =>
     setShowCreateStudentModal(prev => !prev);
+
+  const buildName = (firstName, middleName, lastName) => {
+    const nameArr = [];
+
+    if (firstName) nameArr.push(firstName);
+    if (middleName) nameArr.push(middleName);
+    if (lastName) nameArr.push(lastName);
+
+    return nameArr?.join(" ");
+  };
 
   return (
     <Wrapper>
@@ -194,39 +251,25 @@ const Roster = () => {
           </NewStudent>
         </Actions>
 
-        <Table>
-          <>
-            <CheckboxContainer head>
-              <Checkbox>
-                <FiCheck />
-              </Checkbox>
-            </CheckboxContainer>
-            <TextContainer head>
-              <Text bold size="0.75rem">
-                Student Name
-              </Text>
-            </TextContainer>
-            <TextContainer head>
-              <Text bold size="0.75rem">
-                Program
-              </Text>
-            </TextContainer>
-            <TextContainer head>
-              <Text bold size="0.75rem">
-                Primary Staff
-              </Text>
-            </TextContainer>
-            <TextContainer head justify="center">
-              <Text bold size="0.75rem">
-                Action
-              </Text>
-            </TextContainer>
-          </>
+        {rosterLoading && (
+          <LoaderWrapper>
+            <Loader />
+          </LoaderWrapper>
+        )}
 
-          <StudentEntry />
-          <StudentEntry />
-          <StudentEntry />
-        </Table>
+        {!!roster?.length && !rosterLoading && (
+          <Table>
+            <TableHeader />
+
+            {roster?.map(({ id, firstName, middleName, lastName, program }) => {
+              const name = buildName(firstName, middleName, lastName);
+
+              return (
+                <StudentEntry id={id} key={id} name={name} program={program} />
+              );
+            })}
+          </Table>
+        )}
       </Container>
     </Wrapper>
   );
