@@ -4,7 +4,7 @@ import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import TextInput from "@common/TextInput";
+import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
 
 import { GRAY_200, WHITE } from "@constants/colors";
@@ -31,22 +31,22 @@ const Vision = () => {
           <Text weight={500} size="1.125rem">
             Career/Employment Goals
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="1.125rem">
             Independent Living Goals
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="1.125rem">
             Community Participation
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="1.125rem">
             Post-Secondary Education/Training
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
         </Container>
 
         <PrimaryButton>Save</PrimaryButton>

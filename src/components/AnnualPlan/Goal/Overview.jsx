@@ -4,7 +4,7 @@ import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import TextInput from "@common/TextInput";
+import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
 
 import { WHITE, GRAY_200 } from "@constants/colors";
@@ -31,19 +31,19 @@ const Overview = () => {
           <Container>
             <Text size="1.125rem">Independent Living</Text>
 
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
 
             <Text size="1.125rem">College/Education</Text>
 
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
 
             <Text size="1.125rem">Community Participation</Text>
 
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
 
             <Text size="1.125rem">Career/Employment</Text>
 
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
           </Container>
 
           <PrimaryButton>Save</PrimaryButton>

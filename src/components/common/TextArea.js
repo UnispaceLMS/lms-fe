@@ -1,0 +1,21 @@
+import styled from "styled-components";
+
+import { GRAY_200, GRAY_300, GRAY_600, WHITE } from "@/constants/colors";
+
+const TextArea = styled.textarea`
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  resize: vertical;
+  color: ${GRAY_600};
+  font-family: inherit;
+  border-radius: 0.25rem;
+  background-color: ${WHITE};
+  border: 1px solid ${GRAY_200};
+
+  &::placeholder {
+    color: ${GRAY_300};
+  }
+`;
+
+export default TextArea;

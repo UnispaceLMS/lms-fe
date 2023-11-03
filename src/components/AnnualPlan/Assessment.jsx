@@ -4,7 +4,7 @@ import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import TextInput from "@common/TextInput";
+import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
 
 import { GRAY_200, WHITE } from "@constants/colors";
@@ -29,7 +29,7 @@ const Assessment = () => {
 
         <Container>
           <Text size="0.875rem">Purpose/ Administration</Text>
-          <TextInput placeholder="Administered by Emily Lourim, designed to capture Cami’s strengths and areas of need in each curriculum domain." />
+          <TextArea rows={1} placeholder="Enter" />
         </Container>
 
         {/* TODO tables */}
