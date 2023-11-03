@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -11,6 +12,7 @@ import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_100, GRAY_800 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const SupportGrid = styled.div`
   width: 100%;
@@ -83,6 +85,9 @@ const GridRow = ({ id, label, condition, location, handleChange }) => (
 );
 
 const AssistanceSupport = () => {
+  const dispatch = useDispatch();
+  const studentProfile = useSelector(state => state?.student?.profile);
+
   const [supportData, setSupportData] = useState({
     fidget: {
       location: "",
@@ -150,7 +155,21 @@ const AssistanceSupport = () => {
     }
   };
 
-  const onSave = () => {};
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      dispatch(
+        saveUpdateProfile({
+          data: payload,
+          nextLink: `/student/${id}/profile/strengths-concerns`,
+        })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -11,8 +11,10 @@ import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_800 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const MedicalRecords = () => {
+  const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
   // TODO student profile allergies -> array
@@ -55,7 +57,27 @@ const MedicalRecords = () => {
     }
   };
 
-  const onSave = () => {};
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      Object.keys(medicalRecords)
+        ?.filter(key => !!medicalRecords?.[key])
+        ?.forEach(key => {
+          payload[key] = medicalRecords?.[key];
+        });
+
+      dispatch(
+        saveUpdateProfile({
+          data: payload,
+          nextLink: `/student/${id}/profile/mental-health`,
+        })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>

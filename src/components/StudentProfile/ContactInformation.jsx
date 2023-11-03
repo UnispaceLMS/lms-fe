@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -11,24 +11,27 @@ import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_800 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const ContactInformation = () => {
+  const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
   const [contactInfo, setContactInfo] = useState({
     email: studentProfile?.email || "",
-    contactNumber: studentProfile?.phoneNumber || "",
+    phoneNumber: studentProfile?.phoneNumber || "",
     emergencyContactName: studentProfile?.emergencyContactName || "",
     emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
-    emergencyContactNumber: studentProfile?.emergencyContactPhoneNumber || "",
+    emergencyContactPhoneNumber:
+      studentProfile?.emergencyContactPhoneNumber || "",
   });
 
   const {
     email,
-    contactNumber,
+    phoneNumber,
     emergencyContactName,
     emergencyContactEmail,
-    emergencyContactNumber,
+    emergencyContactPhoneNumber,
   } = contactInfo || {};
 
   useEffect(() => {
@@ -36,10 +39,10 @@ const ContactInformation = () => {
       setContactInfo(prev => ({
         ...prev,
         email: studentProfile?.email || "",
-        contactNumber: studentProfile?.phoneNumber || "",
+        phoneNumber: studentProfile?.phoneNumber || "",
         emergencyContactName: studentProfile?.emergencyContactName || "",
         emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
-        emergencyContactNumber:
+        emergencyContactPhoneNumber:
           studentProfile?.emergencyContactPhoneNumber || "",
       }));
     }
@@ -55,7 +58,27 @@ const ContactInformation = () => {
     }
   };
 
-  const onSave = () => {};
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      Object.keys(contactInfo)
+        ?.filter(key => !!contactInfo?.[key])
+        ?.forEach(key => {
+          payload[key] = contactInfo?.[key];
+        });
+
+      dispatch(
+        saveUpdateProfile({
+          data: payload,
+          nextLink: `/student/${id}/profile/medical-records`,
+        })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>
@@ -81,8 +104,8 @@ const ContactInformation = () => {
             <InputContainer>
               <Text color={GRAY_800}>Student Contact Number</Text>
               <TextInput
-                name="contactNumber"
-                value={contactNumber}
+                name="phoneNumber"
+                value={phoneNumber}
                 onChange={handleInput}
                 placeholder="Type Here"
               />
@@ -105,8 +128,8 @@ const ContactInformation = () => {
               <TextInput
                 onChange={handleInput}
                 placeholder="Type Here"
-                name="emergencyContactNumber"
-                value={emergencyContactNumber}
+                name="emergencyContactPhoneNumber"
+                value={emergencyContactPhoneNumber}
               />
             </InputContainer>
 

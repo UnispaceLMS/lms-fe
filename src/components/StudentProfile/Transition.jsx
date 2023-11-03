@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
+import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -9,6 +10,7 @@ import Wrapper from "./Wrapper";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_100 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const AssessmentGrid = styled.div`
   width: 60%;
@@ -66,6 +68,9 @@ const GridRow = ({ label, name, value, handleChange }) => (
 );
 
 const Transition = () => {
+  const dispatch = useDispatch();
+  const studentProfile = useSelector(state => state?.student?.profile);
+
   const [assessmentScores, setAssessmentScores] = useState({
     health: "",
     safety: "",
@@ -98,7 +103,18 @@ const Transition = () => {
     }
   };
 
-  const onSave = () => {};
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      dispatch(
+        saveUpdateProfile({ data: payload, nextLink: `/student/${id}/profile` })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>
