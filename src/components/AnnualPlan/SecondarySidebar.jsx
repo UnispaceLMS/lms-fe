@@ -40,10 +40,21 @@ const Option = styled(FlexBox)`
     `}
 `;
 
+let commonStudentGoalRoute;
+const RenderOption = ({ link, text, selected }) => (
+  <Link href={commonStudentGoalRoute + link}>
+    <Option selected={selected}>
+      <Text weight={500} color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
+        {text}
+      </Text>
+    </Option>
+  </Link>
+);
+
 const SecondarySidebar = () => {
   const router = useRouter();
   const student = useSelector(state => state?.student?.profile);
-  const commonStudentGoalRoute = `/student/${student?.id}/annual-plan/goal`;
+  commonStudentGoalRoute = `/student/${student?.id}/annual-plan/goal`;
 
   const isHealthWellnessPage = router?.pathname?.includes(
     "/goal/health-wellness"
@@ -70,76 +81,57 @@ const SecondarySidebar = () => {
 
   return (
     <Wrapper>
-      <Link href={commonStudentGoalRoute + "/overview"}>
-        <Option selected={isOverviewPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Overview
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/health-wellness"}>
-        <Option selected={isHealthWellnessPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Health & wellness
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/personal-management"}>
-        <Option selected={isPersonalManagementPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Personal Management
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/home-management"}>
-        <Option selected={isHomeManagementPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Home Management
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/safety"}>
-        <Option selected={isSafetyPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Safety
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/transportation"}>
-        <Option selected={isTransportationPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Transportation
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/healthy-relationship"}>
-        <Option selected={isHealthyRelationshipPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Healthy Relationship
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "money-management"}>
-        <Option selected={isMoneyManagementPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Money Management
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/employment"}>
-        <Option selected={isEmploymentPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Employment
-          </Text>
-        </Option>
-      </Link>
-      <Link href={commonStudentGoalRoute + "/misc"}>
-        <Option selected={isMiscPage}>
-          <Text color={GRAY_600} size="0.875rem" lineHeight="1.25rem">
-            Misc
-          </Text>
-        </Option>
-      </Link>
+      <RenderOption
+        text="Overview"
+        link="/overview"
+        selected={isOverviewPage}
+      />
+
+      <RenderOption
+        link="/health-wellness"
+        text="Health & wellness"
+        selected={isHealthWellnessPage}
+      />
+
+      <RenderOption
+        text="Personal Management"
+        link="/personal-management"
+        selected={isPersonalManagementPage}
+      />
+
+      <RenderOption
+        text="Home Management"
+        link="/home-management"
+        selected={isHomeManagementPage}
+      />
+
+      <RenderOption text="Safety" link="/safety" selected={isSafetyPage} />
+
+      <RenderOption
+        text="Transportation"
+        link="/transportation"
+        selected={isTransportationPage}
+      />
+
+      <RenderOption
+        text="Healthy Relationship"
+        link="/healthy-relationship"
+        selected={isHealthyRelationshipPage}
+      />
+
+      <RenderOption
+        text="Money Management"
+        link="/money-management"
+        selected={isMoneyManagementPage}
+      />
+
+      <RenderOption
+        text="Employment"
+        link="/employment"
+        selected={isEmploymentPage}
+      />
+
+      <RenderOption text="Misc" link="/misc" selected={isMiscPage} />
     </Wrapper>
   );
 };
