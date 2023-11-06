@@ -1,16 +1,37 @@
 import { useState } from "react";
+import Select from "react-select";
 import styled from "styled-components";
 import { useRouter } from "next/router";
 import { IoClose } from "react-icons/io5";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
+import Base from "@common/DropdownOptions/Base";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import urls from "@/urls";
 import axiosInstance from "@/axiosInstance";
 
 import { GRAY_300, WHITE } from "@/constants/colors";
+import { studentPrograms } from "@/metadata/programs";
+
+const customSelectStyles = {
+  container: baseStyles => ({
+    ...baseStyles,
+    width: "51%",
+  }),
+  control: baseStyles => ({
+    ...baseStyles,
+    boxShadow: "none",
+    minHeight: "unset",
+    fontSize: "0.875rem",
+  }),
+  valueContainer: baseStyles => ({
+    ...baseStyles,
+    justifyContent: "flex-start",
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+};
 
 const Wrapper = styled(FlexBox)`
   width: 47.2%;
@@ -57,10 +78,10 @@ const CreateStudent = ({ toggleModal }) => {
     firstName: "",
     middleName: "",
     lastName: "",
-    program: "",
   });
+  const [program, setProgram] = useState(null);
 
-  const { firstName, middleName, lastName, program } = studentDetails;
+  const { firstName, middleName, lastName } = studentDetails;
 
   const handleInput = e => {
     try {
@@ -78,9 +99,10 @@ const CreateStudent = ({ toggleModal }) => {
   const createStudent = async () => {
     try {
       const res = await axiosInstance.post(urls.studentCreateUpdate, {
+        lastName,
         firstName,
         middleName,
-        lastName,
+        program: program?.value,
       });
       const studentID = res?.data?.id;
 
@@ -131,15 +153,23 @@ const CreateStudent = ({ toggleModal }) => {
           />
         </FlexBox>
 
-        <FlexBox>
+        <FlexBox width="100%" align="center" justify="space-between">
           <Text size="0.875rem">Program</Text>
+          <Select
+            value={program}
+            options={studentPrograms}
+            styles={customSelectStyles}
+            placeholder="Select Program"
+            components={{ Option: Base }}
+            onChange={option => setProgram(option)}
+          />
         </FlexBox>
       </Body>
 
       <Footer>
         <PrimaryButton
           onClick={createStudent}
-          disabled={!firstName || !lastName || loading}
+          disabled={!firstName || !lastName || !program || loading}
         >
           Create
         </PrimaryButton>
