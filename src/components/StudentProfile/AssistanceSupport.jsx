@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -110,25 +110,39 @@ const AssistanceSupport = () => {
       condition: "",
     },
   });
+
   const [assistanceData, setAssistanceData] = useState({
-    morning: "",
-    evening: "",
-    afternoon: "",
-    capabilities: "",
-    helpRequired: "",
-    accommodations: "",
+    morningHelp: studentProfile?.morningHelp || "",
+    eveningHelp: studentProfile?.morningHelp || "",
+    afternoonHelp: studentProfile?.morningHelp || "",
+    accommodations: studentProfile?.morningHelp || "",
+    helpRequiredTasks: studentProfile?.morningHelp || "",
+    independentCapableTasks: studentProfile?.independentCapableTasks || "",
   });
 
   const {
-    morning,
-    evening,
-    afternoon,
-    capabilities,
-    helpRequired,
+    morningHelp,
+    eveningHelp,
+    afternoonHelp,
     accommodations,
+    helpRequiredTasks,
+    independentCapableTasks,
   } = assistanceData;
   const { breaks, fidget, reminder, mentalHealth, positiveReinforcement } =
     supportData;
+
+  useEffect(() => {
+    if (studentProfile)
+      setAssistanceData(prev => ({
+        ...prev,
+        morningHelp: studentProfile?.morningHelp || "",
+        eveningHelp: studentProfile?.morningHelp || "",
+        afternoonHelp: studentProfile?.morningHelp || "",
+        accommodations: studentProfile?.morningHelp || "",
+        helpRequiredTasks: studentProfile?.morningHelp || "",
+        independentCapableTasks: studentProfile?.independentCapableTasks || "",
+      }));
+  }, [studentProfile]);
 
   const handleSupportInput = e => {
     try {
@@ -160,6 +174,12 @@ const AssistanceSupport = () => {
       const id = studentProfile?.id;
       const payload = { id };
 
+      Object.keys(assistanceData)
+        ?.filter(key => !!assistanceData?.[key])
+        ?.forEach(key => {
+          payload[key] = assistanceData?.[key];
+        });
+
       dispatch(
         saveUpdateProfile({
           data: payload,
@@ -186,8 +206,8 @@ const AssistanceSupport = () => {
               <InputContainer>
                 <Text color={GRAY_800}>Morning Assistance</Text>
                 <TextInput
-                  name="morning"
-                  value={morning}
+                  name="morningHelp"
+                  value={morningHelp}
                   placeholder="Type Here"
                   onChange={handleAssistanceInput}
                 />
@@ -196,8 +216,8 @@ const AssistanceSupport = () => {
               <InputContainer>
                 <Text color={GRAY_800}>Afternoon Assistance</Text>
                 <TextInput
-                  name="afternoon"
-                  value={afternoon}
+                  name="afternoonHelp"
+                  value={afternoonHelp}
                   placeholder="Type Here"
                   onChange={handleAssistanceInput}
                 />
@@ -206,8 +226,8 @@ const AssistanceSupport = () => {
               <InputContainer>
                 <Text color={GRAY_800}>Evening Assistance</Text>
                 <TextInput
-                  name="evening"
-                  value={evening}
+                  name="eveningHelp"
+                  value={eveningHelp}
                   placeholder="Type Here"
                   onChange={handleAssistanceInput}
                 />
@@ -227,9 +247,9 @@ const AssistanceSupport = () => {
             <InputContainer>
               <Text color={GRAY_800}>Independent Capabilities</Text>
               <TextInput
-                name="capabilities"
-                value={capabilities}
                 placeholder="Type Here"
+                name="independentCapableTasks"
+                value={independentCapableTasks}
                 onChange={handleAssistanceInput}
               />
             </InputContainer>
@@ -237,9 +257,9 @@ const AssistanceSupport = () => {
             <InputContainer>
               <Text color={GRAY_800}>Help Required in (Areas)</Text>
               <TextInput
-                name="helpRequired"
-                value={helpRequired}
                 placeholder="Type Here"
+                name="helpRequiredTasks"
+                value={helpRequiredTasks}
                 onChange={handleAssistanceInput}
               />
             </InputContainer>

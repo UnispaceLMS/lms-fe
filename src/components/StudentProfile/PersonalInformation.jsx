@@ -23,10 +23,10 @@ const PersonalInformation = () => {
     lastName: studentProfile?.lastName || "",
     firstName: studentProfile?.firstName || "",
     middleName: studentProfile?.middleName || "",
-    guardianName: "",
+    legalGuardianName: studentProfile?.legalGuardianName || "",
   });
 
-  const { dob, firstName, lastName, middleName, program, guardianName } =
+  const { dob, firstName, lastName, middleName, program, legalGuardianName } =
     personalInfo || {};
 
   useEffect(() => {
@@ -38,7 +38,7 @@ const PersonalInformation = () => {
         lastName: studentProfile?.lastName || "",
         firstName: studentProfile?.firstName || "",
         middleName: studentProfile?.middleName || "",
-        guardianName: "",
+        legalGuardianName: studentProfile?.legalGuardianName || "",
       }));
     }
   }, [studentProfile]);
@@ -128,10 +128,10 @@ const PersonalInformation = () => {
           <InputContainer>
             <Text color={GRAY_800}>Legal Guardian&apos;s Full Name</Text>
             <TextInput
-              name="guardianName"
-              value={guardianName}
               onChange={handleInput}
               placeholder="Type Here"
+              name="legalGuardianName"
+              value={legalGuardianName}
             />
           </InputContainer>
 

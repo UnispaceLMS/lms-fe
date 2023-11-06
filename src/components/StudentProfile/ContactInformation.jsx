@@ -86,7 +86,7 @@ const ContactInformation = () => {
 
       <FlexBox column rowGap="3rem" margin="0 0 0 2.25rem">
         <Text bold size="1.25rem">
-          Personal Information
+          Contact Information
         </Text>
 
         <FlexBox column rowGap="1.5rem" align="flex-start">

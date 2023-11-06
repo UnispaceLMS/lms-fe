@@ -19,7 +19,7 @@ const MedicalRecords = () => {
 
   // TODO student profile allergies -> array
   const [medicalRecords, setMedicalRecords] = useState({
-    allergies: "",
+    allergies: studentProfile?.allergies || [],
     bloodGroup: studentProfile?.bloodGroup || "",
     medicineRoutine: studentProfile?.medicineRoutine || "",
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
@@ -38,7 +38,7 @@ const MedicalRecords = () => {
     if (studentProfile) {
       setMedicalRecords(prev => ({
         ...prev,
-        // allergies: studentProfile?.allergies || "",
+        allergies: studentProfile?.allergies || [],
         bloodGroup: studentProfile?.bloodGroup || "",
         medicineRoutine: studentProfile?.medicineRoutine || "",
         primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
@@ -85,7 +85,7 @@ const MedicalRecords = () => {
 
       <FlexBox column rowGap="3rem" margin="0 0 0 2.25rem">
         <Text bold size="1.25rem">
-          Personal Information
+          Medical Records
         </Text>
 
         <FlexBox column rowGap="1.5rem" align="flex-start">
