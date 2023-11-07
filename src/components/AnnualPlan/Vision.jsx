@@ -22,7 +22,7 @@ const Container = styled(FlexBox)`
 const Vision = () => {
   return (
     <AnnualPlanLayout>
-      <FlexBox column rowGap="1.5rem">
+      <FlexBox column rowGap="1.5rem" align="flex-end">
         <Text weight={500} size="1.125rem">
           Student Post-Secondary Vision
         </Text>
