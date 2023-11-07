@@ -8,6 +8,7 @@ const urls = {
   //student
   roster: `${apiURL}/student/roster`,
   studentDetails: `${apiURL}/student/fetch`,
+  deleteStudents: `${apiURL}/student/delete`,
   studentCreateUpdate: `${apiURL}/student/createOrUpdate`,
 };
 
