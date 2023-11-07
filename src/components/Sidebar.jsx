@@ -220,7 +220,7 @@ const Sidebar = () => {
 
         {isStudentPage && (
           <FlexBox column width="100%">
-            <Link href={`/student/${id}/${year}/annual-plan`}>
+            <Link href={`/student/${id}/annual-plan/${year}`}>
               <NavItem padding="0.875rem 0.8rem" selected={isAnnualPlanPage}>
                 <MdOutlineEventNote size="1.25rem" />
 
@@ -230,7 +230,7 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href={`/student/${id}/${year}/${quarter}/quarterly-plan`}>
+            <Link href={`/student/${id}/quarterly-plan/${year}/${quarter}`}>
               <NavItem
                 padding="0.875rem 0.8rem"
                 selected={isQuarterlyReportPage}

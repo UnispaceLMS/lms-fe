@@ -58,10 +58,9 @@ const SecondarySidebar = () => {
   const year = router?.query?.year || dayjs()?.year();
   const isAnnualPlanPage = router?.pathname?.includes("/annual-plan");
 
+  const quarterRoute = !isAnnualPlanPage ? `${quarter}/` : "";
   const planType = isAnnualPlanPage ? "annual-plan" : "quarterly-plan";
-  commonStudentGoalRoute = `/student/${id}/${year}/${
-    !isAnnualPlanPage ? `${quarter}/` : ""
-  }${planType}/goal`;
+  commonStudentGoalRoute = `/student/${id}/${planType}/${year}/${quarterRoute}goal`;
 
   const isHealthWellnessPage = router?.pathname?.includes(
     "/goal/health-wellness"
