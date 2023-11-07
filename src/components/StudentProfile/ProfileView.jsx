@@ -140,6 +140,7 @@ const ProfileView = () => {
 
   const {
     email,
+    program,
     lastName,
     firstName,
     middleName,
@@ -169,9 +170,8 @@ const ProfileView = () => {
 
           <FlexBox align="center" justify="space-between">
             <LabelAndText>
-              {/* TODO handle */}
               <Label>Program</Label>
-              <Text>Independent Student Program</Text>
+              <Text>{program}</Text>
             </LabelAndText>
 
             <LabelAndText>
