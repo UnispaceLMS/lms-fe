@@ -93,6 +93,8 @@ const AnnualPlan = () => {
   const id = router?.query?.id;
   const year = router?.query?.year || dayjs()?.year();
 
+  const annualPlanRoute = `/student/${id}/annual-plan/${year}`;
+
   return (
     <AnnualPlanLayout>
       <Select placeholder="Year" styles={customSelectStyles} />
@@ -109,7 +111,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-goal.svg"
             />
           }
-          link={`/student/${id}/${year}/annual-plan/goal/overview`}
+          link={annualPlanRoute + "/goal/overview"}
         />
 
         <RenderPlanCard
@@ -123,7 +125,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-present-levels.svg"
             />
           }
-          link={`/student/${id}/${year}/annual-plan/present-levels`}
+          link={annualPlanRoute + "/present-levels"}
         />
 
         <RenderPlanCard
@@ -137,7 +139,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-assessment.svg"
             />
           }
-          link={`/student/${id}/${year}/annual-plan/assessment`}
+          link={annualPlanRoute + "/assessment"}
         />
 
         <RenderPlanCard
@@ -151,7 +153,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-vision.svg"
             />
           }
-          link={`/student/${id}/${year}/annual-plan/vision`}
+          link={annualPlanRoute + "/vision"}
         />
       </PlansGrid>
     </AnnualPlanLayout>
