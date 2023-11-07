@@ -6,6 +6,7 @@ import {
   MdOutlineTableChart,
   MdOutlineDonutSmall,
 } from "react-icons/md";
+import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 import { FiMenu } from "react-icons/fi";
@@ -157,14 +158,17 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const sidebarRef = useRef(null);
 
+  const id = router?.query?.id;
+  const quarter = router?.query?.quarter || 1;
+  const year = router?.query?.year || dayjs()?.year();
+
   const isRosterPage = router?.pathname?.includes("/roster");
   const isStudentPage = router?.pathname?.includes("/student");
   const isProfilePage = router?.pathname?.includes("/profile");
   const isDashboard = router?.pathname?.includes("/dashboard");
   const isAnnualPlanPage = router?.pathname?.includes("/annual-plan");
-  const isQuarterlyReportPage = router?.pathname?.includes("/quarterly-report");
+  const isQuarterlyReportPage = router?.pathname?.includes("/quarterly-plan");
 
-  const student = useSelector(state => state?.student?.profile);
   const expanded = useSelector(state => state.sidebar?.expanded);
 
   const toggleExpanded = () => dispatch(toggleSidebar());
@@ -216,7 +220,7 @@ const Sidebar = () => {
 
         {isStudentPage && (
           <FlexBox column width="100%">
-            <Link href={`/student/${student?.id}/annual-plan`}>
+            <Link href={`/student/${id}/${year}/annual-plan`}>
               <NavItem padding="0.875rem 0.8rem" selected={isAnnualPlanPage}>
                 <MdOutlineEventNote size="1.25rem" />
 
@@ -226,7 +230,7 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href={`/student/${student?.id}/quarterly-report`}>
+            <Link href={`/student/${id}/${year}/${quarter}/quarterly-plan`}>
               <NavItem
                 padding="0.875rem 0.8rem"
                 selected={isQuarterlyReportPage}
@@ -239,7 +243,7 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href={`/student/${student?.id}/profile`}>
+            <Link href={`/student/${id}/profile`}>
               <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
                 <MdPersonOutline size="1.25rem" />
 

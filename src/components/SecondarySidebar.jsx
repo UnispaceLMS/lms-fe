@@ -1,6 +1,6 @@
+import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
 import styled, { css } from "styled-components";
 
 import Text from "@common/Text";
@@ -53,8 +53,15 @@ const RenderOption = ({ link, text, selected }) => (
 
 const SecondarySidebar = () => {
   const router = useRouter();
-  const student = useSelector(state => state?.student?.profile);
-  commonStudentGoalRoute = `/student/${student?.id}/annual-plan/goal`;
+  const id = router?.query?.id;
+  const quarter = router?.query?.quarter || 1;
+  const year = router?.query?.year || dayjs()?.year();
+  const isAnnualPlanPage = router?.pathname?.includes("/annual-plan");
+
+  const planType = isAnnualPlanPage ? "annual-plan" : "quarterly-plan";
+  commonStudentGoalRoute = `/student/${id}/${year}/${
+    !isAnnualPlanPage ? `${quarter}/` : ""
+  }${planType}/goal`;
 
   const isHealthWellnessPage = router?.pathname?.includes(
     "/goal/health-wellness"
