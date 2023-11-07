@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiCheck } from "react-icons/fi";
 import styled, { css } from "styled-components";
+import { FiCheck, FiTrash2 } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import { IoSearch, IoAddCircle } from "react-icons/io5";
 
@@ -17,11 +17,12 @@ import {
   WHITE,
   GRAY_100,
   GRAY_500,
+  ERROR_600,
   PRIMARY_600,
   SUCCESS_600,
 } from "@constants/colors";
 import { buildName } from "@utils/helpers";
-import { fetchRoster } from "@redux/Slices/rosterSlice";
+import { deleteStudents, fetchRoster } from "@redux/Slices/rosterSlice";
 
 const Wrapper = styled(FlexBox)`
   flex: 1;
@@ -41,8 +42,8 @@ const Container = styled(FlexBox)`
 `;
 
 const Actions = styled(FlexBox)`
-  column-gap: 0.75rem;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const SearchInput = styled(FlexBox)`
@@ -144,10 +145,30 @@ const Checkbox = styled(FlexBox)`
     `}
 `;
 
-const TableHeader = () => (
+const DeleteContainer = styled(FlexBox)`
+  opacity: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  align-items: center;
+  pointer-events: none;
+  border-radius: 0.5rem;
+  justify-content: center;
+  border: 1.5px solid ${ERROR_600};
+  transition: opacity 250ms ease-in-out;
+
+  ${({ visible }) =>
+    visible &&
+    css`
+      opacity: 1;
+      pointer-events: all;
+    `}
+`;
+
+const TableHeader = ({ isSelected, handleSelect = () => {} }) => (
   <>
     <CheckboxContainer head>
-      <Checkbox>
+      <Checkbox selected={isSelected} onClick={handleSelect}>
         <FiCheck />
       </Checkbox>
     </CheckboxContainer>
@@ -174,10 +195,16 @@ const TableHeader = () => (
   </>
 );
 
-const StudentEntry = ({ id, name, program }) => (
+const StudentEntry = ({
+  id,
+  name,
+  program,
+  isSelected,
+  handleSelect = () => {},
+}) => (
   <>
     <CheckboxContainer>
-      <Checkbox>
+      <Checkbox selected={isSelected} onClick={handleSelect}>
         <FiCheck />
       </Checkbox>
     </CheckboxContainer>
@@ -202,6 +229,8 @@ const Roster = () => {
   const dispatch = useDispatch();
   const roster = useSelector(state => state?.roster?.list);
   const rosterLoading = useSelector(state => state?.roster?.loading);
+
+  const [selectedStudents, setSelectedStudents] = useState([]);
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
 
   useEffect(() => {
@@ -210,6 +239,44 @@ const Roster = () => {
 
   const toggleCreateStudentModal = () =>
     setShowCreateStudentModal(prev => !prev);
+
+  const handleSelect = id => {
+    try {
+      let studentsArr = [...selectedStudents];
+
+      if (studentsArr?.includes(id)) {
+        const index = studentsArr?.findIndex(i => i === id);
+        studentsArr?.splice(index, 1);
+      } else {
+        studentsArr = [...studentsArr, id];
+      }
+
+      setSelectedStudents(studentsArr);
+    } catch (error) {
+      console.log(error, "Error selecting students");
+    }
+  };
+
+  const selectDeselectAll = () => {
+    try {
+      let studentArr;
+
+      if (selectedStudents?.length === roster?.length) {
+        studentArr = [];
+      } else {
+        studentArr = roster?.map(({ id }) => id);
+      }
+
+      setSelectedStudents(studentArr);
+    } catch (error) {
+      console.log(error, "Error in selecting all students");
+    }
+  };
+
+  const handleDelete = () => {
+    dispatch(deleteStudents(selectedStudents));
+    setSelectedStudents([]);
+  };
 
   return (
     <Wrapper>
@@ -223,23 +290,32 @@ const Roster = () => {
         <Text bold>Student Roster</Text>
 
         <Actions>
-          <SearchInput>
-            <IoSearch size="0.875rem" />
-            <input />
-          </SearchInput>
+          <DeleteContainer
+            onClick={handleDelete}
+            visible={!!selectedStudents?.length}
+          >
+            <FiTrash2 size="1.25rem" color={ERROR_600} />
+          </DeleteContainer>
 
-          <ExportExcel>
-            <Text weight={600} color={SUCCESS_600} size="0.625rem">
-              Export in Excel
-            </Text>
-          </ExportExcel>
+          <FlexBox colGap="0.75rem">
+            <SearchInput>
+              <IoSearch size="0.875rem" />
+              <input />
+            </SearchInput>
 
-          <NewStudent onClick={toggleCreateStudentModal}>
-            <Text color={WHITE} size="0.625rem">
-              New Student
-            </Text>
-            <IoAddCircle color={WHITE} size="0.875rem" />
-          </NewStudent>
+            <ExportExcel>
+              <Text weight={600} color={SUCCESS_600} size="0.625rem">
+                Export in Excel
+              </Text>
+            </ExportExcel>
+
+            <NewStudent onClick={toggleCreateStudentModal}>
+              <Text color={WHITE} size="0.625rem">
+                New Student
+              </Text>
+              <IoAddCircle color={WHITE} size="0.875rem" />
+            </NewStudent>
+          </FlexBox>
         </Actions>
 
         {rosterLoading && (
@@ -250,13 +326,23 @@ const Roster = () => {
 
         {!!roster?.length && !rosterLoading && (
           <Table>
-            <TableHeader />
+            <TableHeader
+              handleSelect={selectDeselectAll}
+              isSelected={selectedStudents?.length === roster?.length}
+            />
 
             {roster?.map(({ id, firstName, middleName, lastName, program }) => {
               const name = buildName(firstName, middleName, lastName);
 
               return (
-                <StudentEntry id={id} key={id} name={name} program={program} />
+                <StudentEntry
+                  id={id}
+                  key={id}
+                  name={name}
+                  program={program}
+                  handleSelect={() => handleSelect(id)}
+                  isSelected={selectedStudents?.includes(id)}
+                />
               );
             })}
           </Table>
