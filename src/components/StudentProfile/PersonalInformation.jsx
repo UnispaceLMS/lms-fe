@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Select from "react-select";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
@@ -10,8 +11,37 @@ import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
-import { GRAY_800 } from "@constants/colors";
+import { GRAY_300, GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
+import { studentPrograms } from "@/metadata/programs";
+
+const customSelectStyles = {
+  container: baseStyles => ({
+    ...baseStyles,
+    width: "100%",
+  }),
+  control: baseStyles => ({
+    ...baseStyles,
+    padding: "1rem",
+    fontSize: "1rem",
+    boxShadow: "none",
+    minHeight: "unset",
+    columnGap: "0.5rem",
+    borderColor: GRAY_300,
+    borderRadius: "0.5rem",
+  }),
+  valueContainer: baseStyles => ({
+    ...baseStyles,
+    padding: 0,
+  }),
+  input: baseStyles => ({
+    ...baseStyles,
+    margin: 0,
+    padding: 0,
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
+};
 
 const PersonalInformation = () => {
   const dispatch = useDispatch();
@@ -19,10 +49,12 @@ const PersonalInformation = () => {
 
   const [personalInfo, setPersonalInfo] = useState({
     dob: studentProfile?.dateOfBirth || "",
-    program: studentProfile?.program || "",
     lastName: studentProfile?.lastName || "",
     firstName: studentProfile?.firstName || "",
     middleName: studentProfile?.middleName || "",
+    program: studentPrograms?.find(
+      ({ value }) => value === studentProfile?.program
+    ),
     legalGuardianName: studentProfile?.legalGuardianName || "",
   });
 
@@ -34,10 +66,12 @@ const PersonalInformation = () => {
       setPersonalInfo(prev => ({
         ...prev,
         dob: studentProfile?.dateOfBirth || "",
-        program: studentProfile?.program || "",
         lastName: studentProfile?.lastName || "",
         firstName: studentProfile?.firstName || "",
         middleName: studentProfile?.middleName || "",
+        program: studentPrograms?.find(
+          ({ value }) => value === studentProfile?.program
+        ),
         legalGuardianName: studentProfile?.legalGuardianName || "",
       }));
     }
@@ -53,6 +87,14 @@ const PersonalInformation = () => {
     }
   };
 
+  const selectProgram = program => {
+    try {
+      setPersonalInfo(prev => ({ ...prev, program }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const onSave = () => {
     try {
       const id = studentProfile?.id;
@@ -63,6 +105,10 @@ const PersonalInformation = () => {
         ?.forEach(key => {
           payload[key] = personalInfo?.[key];
         });
+
+      if (payload?.program) {
+        payload.program = payload?.program?.value;
+      }
 
       dispatch(
         saveUpdateProfile({
@@ -137,11 +183,11 @@ const PersonalInformation = () => {
 
           <InputContainer>
             <Text color={GRAY_800}>Program</Text>
-            <TextInput
-              name="program"
+            <Select
               value={program}
-              onChange={handleInput}
-              placeholder="Type Here"
+              onChange={selectProgram}
+              options={studentPrograms}
+              styles={customSelectStyles}
             />
           </InputContainer>
         </FlexBox>

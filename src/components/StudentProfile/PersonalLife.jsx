@@ -24,8 +24,8 @@ const PersonalLife = () => {
     worries: studentProfile?.worries || [],
     dreamJob: studentProfile?.dreamJob || "",
     interests: studentProfile?.interests || [],
-    safetyStruggle: studentProfile?.safetyStruggle || "",
     dreamLivingSituation: studentProfile?.dreamLivingSituation || "",
+    safetyConceptStruggle: studentProfile?.safetyConceptStruggle || "",
   });
 
   const {
@@ -35,8 +35,8 @@ const PersonalLife = () => {
     worries,
     dreamJob,
     interests,
-    safetyStruggle,
     dreamLivingSituation,
+    safetyConceptStruggle,
   } = personalLifeInfo;
 
   useEffect(() => {
@@ -49,8 +49,8 @@ const PersonalLife = () => {
         worries: studentProfile?.worries || [],
         dreamJob: studentProfile?.dreamJob || "",
         interests: studentProfile?.interests || [],
-        safetyStruggle: studentProfile?.safetyStruggle || "",
         dreamLivingSituation: studentProfile?.dreamLivingSituation || "",
+        safetyConceptStruggle: studentProfile?.safetyConceptStruggle || "",
       }));
   }, [studentProfile]);
 
@@ -174,10 +174,10 @@ const PersonalLife = () => {
             <InputContainer>
               <Text color={GRAY_800}>Safety Struggle</Text>
               <TextInput
-                name="safetyStruggle"
-                value={safetyStruggle}
                 onChange={handleInput}
                 placeholder="Type Here"
+                name="safetyConceptStruggle"
+                value={safetyConceptStruggle}
               />
             </InputContainer>
           </FlexBox>

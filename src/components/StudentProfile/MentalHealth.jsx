@@ -19,10 +19,11 @@ const MentalHealth = () => {
 
   const [mentalHealthInfo, setMentalHealthInfo] = useState({
     triggers: studentProfile?.triggers || [],
-    diagnosis: studentProfile?.diagnosis || "",
     toughestTime: studentProfile?.toughestTime || "",
     calmingStrategy: studentProfile?.calmingStrategy || "",
-    studentPerspective: studentProfile?.studentPerspective || "",
+    mentalHealthStudentPerspective:
+      studentProfile?.mentalHealthStudentPerspective || "",
+    mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
     peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
     objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
     activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
@@ -30,13 +31,13 @@ const MentalHealth = () => {
 
   const {
     triggers,
-    diagnosis,
     toughestTime,
     calmingStrategy,
-    studentPerspective,
+    mentalHealthDiagnosis,
     peopleCopingMechanism,
     objectCopingMechanism,
     activityCopingMechanism,
+    mentalHealthStudentPerspective,
   } = mentalHealthInfo;
 
   useEffect(() => {
@@ -44,10 +45,11 @@ const MentalHealth = () => {
       setMentalHealthInfo(prev => ({
         ...prev,
         triggers: studentProfile?.triggers || [],
-        diagnosis: studentProfile?.diagnosis || "",
         toughestTime: studentProfile?.toughestTime || "",
         calmingStrategy: studentProfile?.calmingStrategy || "",
-        studentPerspective: studentProfile?.studentPerspective || "",
+        mentalHealthStudentPerspective:
+          studentProfile?.mentalHealthStudentPerspective || "",
+        mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
         peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
         objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
         activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
@@ -100,10 +102,10 @@ const MentalHealth = () => {
             <InputContainer>
               <Text color={GRAY_800}>Diagnosis</Text>
               <TextInput
-                name="diagnosis"
-                value={diagnosis}
                 onChange={handleInput}
                 placeholder="Type Here"
+                name="mentalHealthDiagnosis"
+                value={mentalHealthDiagnosis}
               />
             </InputContainer>
 
@@ -112,8 +114,8 @@ const MentalHealth = () => {
               <TextInput
                 onChange={handleInput}
                 placeholder="Type Here"
-                name="studentPerspective"
-                value={studentPerspective}
+                name="mentalHealthStudentPerspective"
+                value={mentalHealthStudentPerspective}
               />
             </InputContainer>
           </FlexBox>

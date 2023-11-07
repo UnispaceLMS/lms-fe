@@ -8,6 +8,7 @@ import { IoSearch, IoAddCircle } from "react-icons/io5";
 import Text from "@common/Text";
 import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
+import Paginator from "@common/Paginator";
 import { ViewButton } from "@common/Buttons";
 import ModalBackDrop from "@common/ModalBackDrop";
 
@@ -230,6 +231,7 @@ const Roster = () => {
   const roster = useSelector(state => state?.roster?.list);
   const rosterLoading = useSelector(state => state?.roster?.loading);
 
+  const [pageNumber, setPageNumber] = useState(1);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
 
@@ -276,6 +278,18 @@ const Roster = () => {
   const handleDelete = () => {
     dispatch(deleteStudents(selectedStudents));
     setSelectedStudents([]);
+  };
+
+  const handlePageChange = page => {
+    if (page < 1) {
+      setPageNumber(1);
+    }
+    // TODO total pages
+    else if (page > 10) {
+      setPageNumber(10);
+    } else {
+      setPageNumber(page);
+    }
   };
 
   return (
@@ -347,6 +361,8 @@ const Roster = () => {
             })}
           </Table>
         )}
+
+        <Paginator currentPage={pageNumber} handlePageChange={setPageNumber} />
       </Container>
     </Wrapper>
   );

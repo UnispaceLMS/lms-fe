@@ -89,23 +89,23 @@ const AssistanceSupport = () => {
   const studentProfile = useSelector(state => state?.student?.profile);
 
   const [supportData, setSupportData] = useState({
-    fidget: {
+    "Access to Fidget": {
       location: "",
       condition: "",
     },
-    breaks: {
+    "Breaks/ Alone Time": {
       location: "",
       condition: "",
     },
-    reminder: {
+    "Reminder to Fill Medication": {
       location: "",
       condition: "",
     },
-    mentalHealth: {
+    "Mental Health Check Ins": {
       location: "",
       condition: "",
     },
-    positiveReinforcement: {
+    "Positive Reinforcement": {
       location: "",
       condition: "",
     },
@@ -128,11 +128,16 @@ const AssistanceSupport = () => {
     helpRequiredTasks,
     independentCapableTasks,
   } = assistanceData;
-  const { breaks, fidget, reminder, mentalHealth, positiveReinforcement } =
-    supportData;
+  const {
+    "Access to Fidget": fidget,
+    "Breaks/ Alone Time": breaks,
+    "Reminder to Fill Medication": reminder,
+    "Mental Health Check Ins": mentalHealth,
+    "Positive Reinforcement": positiveReinforcement,
+  } = supportData;
 
   useEffect(() => {
-    if (studentProfile)
+    if (studentProfile) {
       setAssistanceData(prev => ({
         ...prev,
         morningHelp: studentProfile?.morningHelp || "",
@@ -142,6 +147,17 @@ const AssistanceSupport = () => {
         helpRequiredTasks: studentProfile?.morningHelp || "",
         independentCapableTasks: studentProfile?.independentCapableTasks || "",
       }));
+
+      const suppData = { ...supportData };
+      studentProfile?.supports?.forEach?.(
+        ({ location, condition, supportAndModificationToEnv }) => {
+          suppData[supportAndModificationToEnv].location = location;
+          suppData[supportAndModificationToEnv].condition = condition;
+        }
+      );
+
+      setSupportData(prev => ({ ...prev, ...suppData }));
+    }
   }, [studentProfile]);
 
   const handleSupportInput = e => {
@@ -151,6 +167,7 @@ const AssistanceSupport = () => {
       setSupportData(prev => ({
         ...prev,
         [id]: {
+          ...prev?.[id],
           [name]: value,
         },
       }));
@@ -172,13 +189,31 @@ const AssistanceSupport = () => {
   const onSave = () => {
     try {
       const id = studentProfile?.id;
+      let supports = [];
       const payload = { id };
 
-      Object.keys(assistanceData)
+      Object?.keys(assistanceData)
         ?.filter(key => !!assistanceData?.[key])
         ?.forEach(key => {
           payload[key] = assistanceData?.[key];
         });
+
+      Object?.keys(supportData)
+        ?.filter(
+          key =>
+            !!supportData?.[key]?.location && !!supportData?.[key]?.condition
+        )
+        ?.forEach(key => {
+          const { location, condition } = supportData?.[key];
+
+          supports?.push({
+            location,
+            condition,
+            supportAndModificationToEnv: key,
+          });
+        });
+
+      if (!!supports?.length) payload.supports = supports;
 
       dispatch(
         saveUpdateProfile({
@@ -275,7 +310,7 @@ const AssistanceSupport = () => {
             <GridHeader />
 
             <GridRow
-              id="fidget"
+              id="Access to Fidget"
               label="Access to Fidget"
               location={fidget?.location}
               condition={fidget?.condition}
@@ -283,7 +318,7 @@ const AssistanceSupport = () => {
             />
 
             <GridRow
-              id="breaks"
+              id="Breaks/ Alone Time"
               label="Breaks/ Alone Time"
               location={breaks?.location}
               condition={breaks?.condition}
@@ -291,7 +326,7 @@ const AssistanceSupport = () => {
             />
 
             <GridRow
-              id="mentalHealth"
+              id="Mental Health Check Ins"
               label="Mental Health Check Ins"
               location={mentalHealth?.location}
               handleChange={handleSupportInput}
@@ -299,15 +334,15 @@ const AssistanceSupport = () => {
             />
 
             <GridRow
-              id="reminder"
               location={reminder?.location}
               condition={reminder?.condition}
+              id="Reminder to Fill Medication"
               handleChange={handleSupportInput}
               label="Reminder to Fill Medication"
             />
 
             <GridRow
-              id="positiveReinforcement"
+              id="Positive Reinforcement"
               label="Positive Reinforcement"
               handleChange={handleSupportInput}
               location={positiveReinforcement?.location}
