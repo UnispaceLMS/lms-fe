@@ -1,9 +1,11 @@
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import NameInitials from "@common/NameInitials";
 
+import { buildName } from "@utils/helpers";
 import { PRIMARY_25 } from "@constants/colors";
 
 const Wrapper = styled(FlexBox)`
@@ -33,6 +35,11 @@ const Container = styled(FlexBox)`
 `;
 
 const AnnualPlanLayout = ({ children }) => {
+  const student = useSelector(state => state?.student?.profile);
+
+  const { firstName, middleName, lastName } = student || {};
+  const name = buildName(firstName, middleName, lastName);
+
   return (
     <Wrapper>
       <Header>
@@ -42,11 +49,11 @@ const AnnualPlanLayout = ({ children }) => {
 
         <FlexBox align="center" colGap="2rem">
           <Text weight={500} size="0.875rem">
-            Cami Henderson
+            {name}
           </Text>
 
           <NameContainer>
-            <NameInitials name="Cami Henderson" fontSize="0.75rem" />
+            <NameInitials name={name} fontSize="0.75rem" />
           </NameContainer>
         </FlexBox>
       </Header>

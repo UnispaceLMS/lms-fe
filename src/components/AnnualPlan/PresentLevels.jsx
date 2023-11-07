@@ -4,7 +4,7 @@ import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import TextInput from "@common/TextInput";
+import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
 
 import { GRAY_200, WHITE } from "@constants/colors";
@@ -31,36 +31,36 @@ const PresentLevels = () => {
           <Text weight={500} size="1.125rem">
             Academic Achievement
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="0.875rem">
             Impact and Resulting Need
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
         </Container>
 
         <Container>
           <Text weight={500} size="1.125rem">
             Employment/Career Skills
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="0.875rem">
             Impact and Resulting Need
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
         </Container>
 
         <Container>
           <Text weight={500} size="1.125rem">
             Independent Living Skills
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
 
           <Text weight={500} size="0.875rem">
             Impact and Resulting Need
           </Text>
-          <TextInput placeholder="Enter" />
+          <TextArea rows={1} placeholder="Enter" />
         </Container>
 
         <FlexBox column rowGap="0.75rem" align="flex-end">
@@ -68,12 +68,12 @@ const PresentLevels = () => {
             <Text weight={500} size="1.125rem">
               Community Participation Skills
             </Text>
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
 
             <Text weight={500} size="0.875rem">
               Impact and Resulting Need
             </Text>
-            <TextInput placeholder="Enter" />
+            <TextArea rows={1} placeholder="Enter" />
           </Container>
 
           <PrimaryButton>Save</PrimaryButton>

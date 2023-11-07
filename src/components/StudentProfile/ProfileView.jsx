@@ -1,4 +1,7 @@
+import { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 import styled, { css } from "styled-components";
 import { FiBell, FiUser, FiEdit2, FiClipboard } from "react-icons/fi";
 
@@ -6,12 +9,13 @@ import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 
 import {
+  WHITE,
   GRAY_300,
   GRAY_600,
   GRAY_700,
   PRIMARY_500,
-  WHITE,
-} from "@/constants/colors";
+} from "@constants/colors";
+import { buildName } from "@utils/helpers";
 
 const Wrapper = styled(FlexBox)`
   width: 100%;
@@ -98,9 +102,59 @@ const DropOption = styled(FlexBox)`
 
 const commonIconProps = { size: "1.25rem", color: GRAY_600 };
 
+const recordOptions = {
+  other: { slug: "other", link: "" },
+  mental: { slug: "mental", link: "/mental-health" },
+  medical: { slug: "medical", link: "/medical-records" },
+};
+
+const personalLifeOptions = {
+  fears: { slug: "fears" },
+  dreams: { slug: "dreams" },
+  worries: { slug: "worries" },
+  interests: { slug: "interests" },
+  hardships: { slug: "hardships" },
+  friendsFamily: { slug: "friends-family" },
+};
+
+const assistanceOptions = {
+  morning: { slug: "morning" },
+  evening: { slug: "evening" },
+  selfManaged: { slug: "self-managed" },
+  asstRequired: { slug: "assistance-required" },
+};
+
 const Label = ({ children }) => <Text weight={500}>{children}</Text>;
 
 const ProfileView = () => {
+  const router = useRouter();
+  const student = useSelector(state => state?.student?.profile);
+
+  const [selectedAssistance, setSelectedAssistance] = useState(
+    assistanceOptions?.selfManaged
+  );
+  const [selectedPersonalOption, setSelectedPersonalOption] = useState(
+    personalLifeOptions?.friendsFamily
+  );
+  const [selectedRecord, setSelectedRecord] = useState(recordOptions?.medical);
+
+  const {
+    email,
+    program,
+    lastName,
+    firstName,
+    middleName,
+    phoneNumber,
+    primaryDiagnosis,
+    emergencyContactName,
+    emergencyContactEmail,
+    emergencyContactPhoneNumber,
+  } = student || {};
+
+  const name = buildName(firstName, middleName, lastName);
+
+  const goToEdit = link => router.push(router?.asPath + link);
+
   return (
     <Wrapper>
       <ProfileCard>
@@ -111,16 +165,17 @@ const ProfileView = () => {
 
           <LabelAndText>
             <Label>Name</Label>
-            <Text>Cami Henderson</Text>
+            <Text transform="capitalize">{name}</Text>
           </LabelAndText>
 
           <FlexBox align="center" justify="space-between">
             <LabelAndText>
               <Label>Program</Label>
-              <Text>Independent Student Program</Text>
+              <Text>{program}</Text>
             </LabelAndText>
 
             <LabelAndText>
+              {/* TODO handle */}
               <Label>Term</Label>
               <Text>Year 1 Quarter 2</Text>
             </LabelAndText>
@@ -128,7 +183,7 @@ const ProfileView = () => {
 
           <LabelAndText>
             <Label>Primary Diagnosis</Label>
-            <Text>Chromosome 18q deletion</Text>
+            <Text>{primaryDiagnosis}</Text>
           </LabelAndText>
         </StudentLHS>
 
@@ -142,9 +197,14 @@ const ProfileView = () => {
               alt="Profile Gradient"
               src="/assets/images/blue-gradient.svg"
             />
-            <Initial>C</Initial>
+            <Initial>{firstName?.[0]?.toUpperCase()}</Initial>
           </ProfileGradient>
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            cursor="pointer"
+            strokeWidth={2.5}
+            {...commonIconProps}
+            onClick={() => goToEdit("/personal-information")}
+          />
         </FlexBox>
       </ProfileCard>
 
@@ -158,35 +218,40 @@ const ProfileView = () => {
             <FlexBox column rowGap="1.25rem">
               <LabelAndText>
                 <Label>Email ID</Label>
-                <Text>cami14@gmail.com</Text>
+                <Text>{email}</Text>
               </LabelAndText>
 
               <LabelAndText>
                 <Label>Emergency Contact Name</Label>
-                <Text>Rick Morgan</Text>
+                <Text>{emergencyContactName}</Text>
               </LabelAndText>
 
               <LabelAndText>
                 <Label>Emergency Contact Name</Label>
-                <Text>rick.morgan@gmail.com</Text>
+                <Text>{emergencyContactEmail}</Text>
               </LabelAndText>
             </FlexBox>
 
             <FlexBox align="flex-start" column rowGap="1.25rem">
               <LabelAndText>
                 <Label>Phone Number</Label>
-                <Text>928 766 1728</Text>
+                <Text>{phoneNumber}</Text>
               </LabelAndText>
 
               <LabelAndText>
                 <Label>Emergency Contact Number</Label>
-                <Text>244 766 1728</Text>
+                <Text>{emergencyContactPhoneNumber}</Text>
               </LabelAndText>
             </FlexBox>
           </FlexBox>
         </ContactLHS>
 
-        <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+        <FiEdit2
+          cursor="pointer"
+          strokeWidth={2.5}
+          {...commonIconProps}
+          onClick={() => goToEdit("/contact-information")}
+        />
       </ProfileCard>
 
       <ProfileCard>
@@ -204,16 +269,32 @@ const ProfileView = () => {
         </FlexBox>
 
         <FlexBox colGap="2.25rem" align="flex-start">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            cursor="pointer"
+            strokeWidth={2.5}
+            {...commonIconProps}
+            onClick={() => goToEdit(selectedRecord?.link)}
+          />
 
           <DropSelect>
-            <DropOption selected>
+            <DropOption
+              onClick={() => setSelectedRecord(recordOptions?.medical)}
+              selected={selectedRecord?.slug === recordOptions?.medical?.slug}
+            >
               <Text weight={600}>Medical</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              onClick={() => setSelectedRecord(recordOptions?.mental)}
+              selected={selectedRecord?.slug === recordOptions?.mental?.slug}
+            >
               <Text weight={600}>Mental</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              onClick={() => setSelectedRecord(recordOptions?.other)}
+              selected={selectedRecord?.slug === recordOptions?.other?.slug}
+            >
               <Text weight={600}>Other</Text>
             </DropOption>
           </DropSelect>
@@ -235,25 +316,83 @@ const ProfileView = () => {
         </FlexBox>
 
         <FlexBox colGap="2.25rem" align="flex-start">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            cursor="pointer"
+            strokeWidth={2.5}
+            {...commonIconProps}
+            onClick={() => goToEdit("/personal-life")}
+          />
 
           <DropSelect>
-            <DropOption selected>
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.friendsFamily?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.friendsFamily)
+              }
+            >
               <Text weight={600}>Friends/Family</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.dreams?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.dreams)
+              }
+            >
               <Text weight={600}>Dreams</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.interests?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.interests)
+              }
+            >
               <Text weight={600}>Interests</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.worries?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.worries)
+              }
+            >
               <Text weight={600}>Worries</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.fears?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.fears)
+              }
+            >
               <Text weight={600}>Fears</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedPersonalOption?.slug ===
+                personalLifeOptions?.hardships?.slug
+              }
+              onClick={() =>
+                setSelectedPersonalOption(personalLifeOptions?.hardships)
+              }
+            >
               <Text weight={600}>Hardships</Text>
             </DropOption>
           </DropSelect>
@@ -278,16 +417,45 @@ const ProfileView = () => {
           <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
 
           <DropSelect>
-            <DropOption selected>
+            <DropOption
+              selected={
+                selectedAssistance?.slug ===
+                assistanceOptions?.selfManaged?.slug
+              }
+              onClick={() =>
+                setSelectedAssistance(assistanceOptions?.selfManaged)
+              }
+            >
               <Text weight={600}>Self managed</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedAssistance?.slug ===
+                assistanceOptions?.asstRequired?.slug
+              }
+              onClick={() =>
+                setSelectedAssistance(assistanceOptions?.asstRequired)
+              }
+            >
               <Text weight={600}>Asst. Required</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedAssistance?.slug === assistanceOptions?.morning?.slug
+              }
+              onClick={() => setSelectedAssistance(assistanceOptions?.morning)}
+            >
               <Text weight={600}>Morning Asst.</Text>
             </DropOption>
-            <DropOption>
+
+            <DropOption
+              selected={
+                selectedAssistance?.slug === assistanceOptions?.evening?.slug
+              }
+              onClick={() => setSelectedAssistance(assistanceOptions?.evening)}
+            >
               <Text weight={600}>Evening Asst.</Text>
             </DropOption>
           </DropSelect>

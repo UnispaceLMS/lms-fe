@@ -1,7 +1,9 @@
+import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
+import Select from "react-select";
 import styled from "styled-components";
-import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -9,7 +11,36 @@ import { SecondaryButton } from "@common/Buttons";
 
 import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
-import { GRAY_25, GRAY_50, GRAY_600 } from "@constants/colors";
+import { GRAY_25, GRAY_50, GRAY_300, GRAY_600 } from "@constants/colors";
+
+const customSelectStyles = {
+  container: baseStyles => ({
+    ...baseStyles,
+    width: "fit-content",
+    marginBottom: "1.5rem",
+  }),
+  control: baseStyles => ({
+    ...baseStyles,
+    boxShadow: "none",
+    minHeight: "unset",
+    fontSize: "0.75rem",
+    columnGap: "0.5rem",
+    borderColor: GRAY_300,
+    borderRadius: "0.5rem",
+    padding: "0.5rem 0.75rem",
+  }),
+  valueContainer: baseStyles => ({
+    ...baseStyles,
+    padding: 0,
+  }),
+  input: baseStyles => ({
+    ...baseStyles,
+    margin: 0,
+    padding: 0,
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
+};
 
 const PlansGrid = styled.div`
   width: 100%;
@@ -58,10 +89,16 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
 );
 
 const AnnualPlan = () => {
-  const student = useSelector(state => state?.student?.profile);
+  const router = useRouter();
+  const id = router?.query?.id;
+  const year = router?.query?.year || dayjs()?.year();
+
+  const annualPlanRoute = `/student/${id}/annual-plan/${year}`;
 
   return (
     <AnnualPlanLayout>
+      <Select placeholder="Year" styles={customSelectStyles} />
+
       <PlansGrid>
         <RenderPlanCard
           plan="Goal"
@@ -74,7 +111,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-goal.svg"
             />
           }
-          link={`/student/${student?.id}/annual-plan/goal/overview`}
+          link={annualPlanRoute + "/goal/overview"}
         />
 
         <RenderPlanCard
@@ -88,7 +125,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-present-levels.svg"
             />
           }
-          link={`/student/${student?.id}/annual-plan/present-levels`}
+          link={annualPlanRoute + "/present-levels"}
         />
 
         <RenderPlanCard
@@ -102,7 +139,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-assessment.svg"
             />
           }
-          link={`/student/${student?.id}/annual-plan/assessment`}
+          link={annualPlanRoute + "/assessment"}
         />
 
         <RenderPlanCard
@@ -116,7 +153,7 @@ const AnnualPlan = () => {
               src="/assets/images/plan-vision.svg"
             />
           }
-          link={`/student/${student?.id}/annual-plan/vision`}
+          link={annualPlanRoute + "/vision"}
         />
       </PlansGrid>
     </AnnualPlanLayout>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
@@ -11,8 +11,10 @@ import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_800 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const PersonalInformation = () => {
+  const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
   const [personalInfo, setPersonalInfo] = useState({
@@ -21,10 +23,10 @@ const PersonalInformation = () => {
     lastName: studentProfile?.lastName || "",
     firstName: studentProfile?.firstName || "",
     middleName: studentProfile?.middleName || "",
-    guardianName: "",
+    legalGuardianName: studentProfile?.legalGuardianName || "",
   });
 
-  const { dob, firstName, lastName, middleName, program, guardianName } =
+  const { dob, firstName, lastName, middleName, program, legalGuardianName } =
     personalInfo || {};
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const PersonalInformation = () => {
         lastName: studentProfile?.lastName || "",
         firstName: studentProfile?.firstName || "",
         middleName: studentProfile?.middleName || "",
-        guardianName: "",
+        legalGuardianName: studentProfile?.legalGuardianName || "",
       }));
     }
   }, [studentProfile]);
@@ -51,7 +53,27 @@ const PersonalInformation = () => {
     }
   };
 
-  const onSave = () => {};
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      Object.keys(personalInfo)
+        ?.filter(key => !!personalInfo?.[key])
+        ?.forEach(key => {
+          payload[key] = personalInfo?.[key];
+        });
+
+      dispatch(
+        saveUpdateProfile({
+          data: payload,
+          nextLink: `/student/${id}/profile/contact-information`,
+        })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>
@@ -106,10 +128,10 @@ const PersonalInformation = () => {
           <InputContainer>
             <Text color={GRAY_800}>Legal Guardian&apos;s Full Name</Text>
             <TextInput
-              name="guardianName"
-              value={guardianName}
               onChange={handleInput}
               placeholder="Type Here"
+              name="legalGuardianName"
+              value={legalGuardianName}
             />
           </InputContainer>
 

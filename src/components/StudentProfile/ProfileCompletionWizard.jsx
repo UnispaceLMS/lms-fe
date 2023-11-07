@@ -5,6 +5,7 @@ import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 
 import {
+  WHITE,
   GRAY_100,
   GRAY_200,
   GRAY_500,
@@ -18,7 +19,6 @@ import { profileSetupSteps } from "@metadata/profile";
 
 const Wrapper = styled(FlexBox)`
   width: 100%;
-  align-items: center;
   border-radius: 0.5rem;
   justify-content: center;
   padding: 2.5rem 2.5rem 2rem;
@@ -45,7 +45,7 @@ const Circle = styled(FlexBox)`
   border-radius: 50%;
   align-items: center;
   justify-content: center;
-  background-color: transparent;
+  background-color: ${WHITE};
   border: 1px solid ${GRAY_500};
 
   ${({ ongoing }) =>
@@ -142,6 +142,12 @@ const LabelChip = styled(FlexBox)`
         color: ${SUCCESS_600};
       }
     `}
+`;
+
+const LastStep = styled(FlexBox)`
+  row-gap: 0.875rem;
+  flex-direction: column;
+  background-color: ${WHITE};
 `;
 
 const RenderDotAndLine = ({ ongoing, completed }) => (

@@ -88,7 +88,6 @@ const authSlice = createSlice({
     });
 
     builder.addCase(validateToken.fulfilled, (state, { payload }) => {
-      console.log(payload, "validate");
       if (payload) {
         state.user = payload;
         state.loading = false;

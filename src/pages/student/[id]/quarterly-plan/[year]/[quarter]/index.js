@@ -1,10 +1,14 @@
 import StudentProfile from "@layouts/StudentProfile";
 import DashboardLayout from "@layouts/DashboardLayout";
 
+import QuarterlyPlan from "@components/QuarterlyPlan";
+
 const QuarterlyReportPage = () => {
   return (
     <StudentProfile>
-      <DashboardLayout>QuarterlyReportPage</DashboardLayout>
+      <DashboardLayout>
+        <QuarterlyPlan />
+      </DashboardLayout>
     </StudentProfile>
   );
 };

@@ -1,3 +1,5 @@
+import { useDispatch, useSelector } from "react-redux";
+
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
@@ -8,9 +10,27 @@ import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_800 } from "@constants/colors";
+import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const StrengthsConcerns = () => {
-  const onSave = () => {};
+  const dispatch = useDispatch();
+  const studentProfile = useSelector(state => state?.student?.profile);
+
+  const onSave = () => {
+    try {
+      const id = studentProfile?.id;
+      const payload = { id };
+
+      dispatch(
+        saveUpdateProfile({
+          data: payload,
+          nextLink: `/student/${id}/profile/transition`,
+        })
+      );
+    } catch (error) {
+      console.log(error, "Error in saving profile");
+    }
+  };
 
   return (
     <Wrapper>
