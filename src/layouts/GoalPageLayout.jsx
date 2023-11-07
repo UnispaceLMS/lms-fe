@@ -1,7 +1,8 @@
 import styled from "styled-components";
 
 import FlexBox from "@common/FlexBox";
-import SecondarySidebar from "@/components/AnnualPlan/SecondarySidebar";
+
+import SecondarySidebar from "@components/SecondarySidebar";
 
 const Wrapper = styled(FlexBox)`
   flex: 1;

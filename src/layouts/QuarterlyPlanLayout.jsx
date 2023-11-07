@@ -34,7 +34,7 @@ const Container = styled(FlexBox)`
   flex-direction: column;
 `;
 
-const AnnualPlanLayout = ({ children }) => {
+const QuarterlyPlanLayout = ({ children }) => {
   const student = useSelector(state => state?.student?.profile);
 
   const { firstName, middleName, lastName } = student || {};
@@ -44,7 +44,7 @@ const AnnualPlanLayout = ({ children }) => {
     <Wrapper>
       <Header>
         <Text weight={500} size="1.125rem">
-          Annual Plan
+          Quarterly Progress Report
         </Text>
 
         <FlexBox align="center" colGap="2rem">
@@ -62,4 +62,4 @@ const AnnualPlanLayout = ({ children }) => {
   );
 };
 
-export default AnnualPlanLayout;
+export default QuarterlyPlanLayout;
