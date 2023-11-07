@@ -19,6 +19,22 @@ export const fetchRoster = createAsyncThunk(
   }
 );
 
+export const deleteStudents = createAsyncThunk(
+  "delete-students",
+  async (payload, { fulfillWithValue, rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.delete(urls.deleteStudents, {
+        data: payload,
+      });
+
+      return fulfillWithValue(res?.data);
+    } catch (error) {
+      console.log(error, "Error in deleting students");
+      return rejectWithValue(error?.response?.data?.message);
+    }
+  }
+);
+
 const rosterSlice = createSlice({
   name: "roster",
   initialState,
@@ -41,7 +57,23 @@ const rosterSlice = createSlice({
     });
 
     builder.addCase(fetchRoster.rejected, (state, { error }) => {
-      state.error = error;
+      if (error) state.error = error;
+      state.loading = false;
+      state.list = initialState.list;
+    });
+
+    builder.addCase(deleteStudents.pending, state => {
+      state.loading = true;
+    });
+
+    builder.addCase(deleteStudents.fulfilled, (state, { payload }) => {
+      if (payload) state.list = payload;
+      state.loading = false;
+      state.error = initialState.error;
+    });
+
+    builder.addCase(deleteStudents.rejected, (state, { error }) => {
+      if (error) state.error = error;
       state.loading = false;
       state.list = initialState.list;
     });
