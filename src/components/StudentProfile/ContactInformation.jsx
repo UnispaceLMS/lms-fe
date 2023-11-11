@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
-import { PrimaryButton } from "@common/Buttons";
+import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
@@ -14,16 +15,19 @@ import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const ContactInformation = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
   const [contactInfo, setContactInfo] = useState({
     email: studentProfile?.email || "",
     phoneNumber: studentProfile?.phoneNumber || "",
-    emergencyContactName: studentProfile?.emergencyContactName || "",
-    emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
     emergencyContactPhoneNumber:
       studentProfile?.emergencyContactPhoneNumber || "",
+    emergencyContactSecondaryPhoneNumber:
+      studentProfile?.emergencyContactSecondaryPhoneNumber || "",
+    emergencyContactName: studentProfile?.emergencyContactName || "",
+    emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
   });
 
   const {
@@ -32,7 +36,15 @@ const ContactInformation = () => {
     emergencyContactName,
     emergencyContactEmail,
     emergencyContactPhoneNumber,
+    emergencyContactSecondaryPhoneNumber,
   } = contactInfo || {};
+
+  const saveDisabled =
+    !email ||
+    !phoneNumber ||
+    !emergencyContactName ||
+    !emergencyContactEmail ||
+    !emergencyContactPhoneNumber;
 
   useEffect(() => {
     if (studentProfile) {
@@ -40,10 +52,12 @@ const ContactInformation = () => {
         ...prev,
         email: studentProfile?.email || "",
         phoneNumber: studentProfile?.phoneNumber || "",
-        emergencyContactName: studentProfile?.emergencyContactName || "",
-        emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
         emergencyContactPhoneNumber:
           studentProfile?.emergencyContactPhoneNumber || "",
+        emergencyContactSecondaryPhoneNumber:
+          studentProfile?.emergencyContactSecondaryPhoneNumber || "",
+        emergencyContactName: studentProfile?.emergencyContactName || "",
+        emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
       }));
     }
   }, [studentProfile]);
@@ -60,7 +74,7 @@ const ContactInformation = () => {
 
   const onSave = () => {
     try {
-      const id = studentProfile?.id;
+      const id = router?.query?.id;
       const payload = { id };
 
       Object.keys(contactInfo)
@@ -80,6 +94,8 @@ const ContactInformation = () => {
     }
   };
 
+  const handleBack = () => router?.back();
+
   return (
     <Wrapper>
       <ProfileCompletionWizard currentStep={2} />
@@ -92,7 +108,7 @@ const ContactInformation = () => {
         <FlexBox column rowGap="1.5rem" align="flex-start">
           <FlexBox colGap="2rem">
             <InputContainer>
-              <Text color={GRAY_800}>Student Email ID</Text>
+              <Text color={GRAY_800}>Student Email ID*</Text>
               <TextInput
                 name="email"
                 value={email}
@@ -102,8 +118,9 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Student Contact Number</Text>
+              <Text color={GRAY_800}>Student Contact Number*</Text>
               <TextInput
+                type="number"
                 name="phoneNumber"
                 value={phoneNumber}
                 onChange={handleInput}
@@ -113,7 +130,7 @@ const ContactInformation = () => {
           </FlexBox>
 
           <InputContainer>
-            <Text color={GRAY_800}>Emergency Contact Name</Text>
+            <Text color={GRAY_800}>Emergency Contact Name*</Text>
             <TextInput
               onChange={handleInput}
               placeholder="Type Here"
@@ -122,10 +139,21 @@ const ContactInformation = () => {
             />
           </InputContainer>
 
+          <InputContainer>
+            <Text color={GRAY_800}>Emergency Contact Email*</Text>
+            <TextInput
+              onChange={handleInput}
+              placeholder="Type Here"
+              name="emergencyContactEmail"
+              value={emergencyContactEmail}
+            />
+          </InputContainer>
+
           <FlexBox colGap="2rem">
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Number</Text>
+              <Text color={GRAY_800}>Emergency Contact Number*</Text>
               <TextInput
+                type="number"
                 onChange={handleInput}
                 placeholder="Type Here"
                 name="emergencyContactPhoneNumber"
@@ -134,18 +162,24 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Email</Text>
+              <Text color={GRAY_800}>Emergency Contact Number</Text>
               <TextInput
+                type="number"
                 onChange={handleInput}
                 placeholder="Type Here"
-                name="emergencyContactEmail"
-                value={emergencyContactEmail}
+                name="emergencyContactSecondaryPhoneNumber"
+                value={emergencyContactSecondaryPhoneNumber}
               />
             </InputContainer>
           </FlexBox>
         </FlexBox>
 
-        <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+        <FlexBox align="center" colGap="1.5rem">
+          <PrimaryButton onClick={onSave} disabled={saveDisabled}>
+            Save & Next
+          </PrimaryButton>
+          <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+        </FlexBox>
       </FlexBox>
     </Wrapper>
   );

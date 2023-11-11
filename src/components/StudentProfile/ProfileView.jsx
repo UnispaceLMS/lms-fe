@@ -174,11 +174,10 @@ const ProfileView = () => {
               <Text>{program}</Text>
             </LabelAndText>
 
-            <LabelAndText>
-              {/* TODO handle */}
+            {/* <LabelAndText>
               <Label>Term</Label>
               <Text>Year 1 Quarter 2</Text>
-            </LabelAndText>
+            </LabelAndText> */}
           </FlexBox>
 
           <LabelAndText>

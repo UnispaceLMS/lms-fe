@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
-import { PrimaryButton } from "@common/Buttons";
+import MultipleEntryTable from "@common/MultipleEntryTable";
+import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_100, GRAY_800 } from "@constants/colors";
-import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
+import { saveUpdateProfile } from "@redux/Slices/studentSlice";
 
 const SupportGrid = styled.div`
   width: 100%;
@@ -37,6 +39,11 @@ const GridEntry = styled(FlexBox)`
       background-color: ${GRAY_100};
     `}
 `;
+
+const defaultEntries = Object.freeze({
+  helpRequiredTasks: { task: "" },
+  independentlyCapableTasks: { capability: "" },
+});
 
 const GridHeader = () => (
   <>
@@ -85,6 +92,7 @@ const GridRow = ({ id, label, condition, location, handleChange }) => (
 );
 
 const AssistanceSupport = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
@@ -112,12 +120,12 @@ const AssistanceSupport = () => {
   });
 
   const [assistanceData, setAssistanceData] = useState({
+    helpRequiredTasks: [],
+    independentlyCapableTasks: [],
     morningHelp: studentProfile?.morningHelp || "",
-    eveningHelp: studentProfile?.morningHelp || "",
-    afternoonHelp: studentProfile?.morningHelp || "",
-    accommodations: studentProfile?.morningHelp || "",
-    helpRequiredTasks: studentProfile?.morningHelp || "",
-    independentCapableTasks: studentProfile?.independentCapableTasks || "",
+    eveningHelp: studentProfile?.eveningHelp || "",
+    afternoonHelp: studentProfile?.afternoonHelp || "",
+    accommodations: studentProfile?.accommodations || "",
   });
 
   const {
@@ -126,7 +134,7 @@ const AssistanceSupport = () => {
     afternoonHelp,
     accommodations,
     helpRequiredTasks,
-    independentCapableTasks,
+    independentlyCapableTasks,
   } = assistanceData;
   const {
     "Access to Fidget": fidget,
@@ -138,14 +146,28 @@ const AssistanceSupport = () => {
 
   useEffect(() => {
     if (studentProfile) {
+      let helpRequired = [{ ...defaultEntries.helpRequiredTasks }];
+      let capabilities = [{ ...defaultEntries.independentlyCapableTasks }];
+
+      if (!!studentProfile?.helpRequiredTasks?.length) {
+        helpRequired = studentProfile?.helpRequiredTasks?.map(task => ({
+          task,
+        }));
+      }
+      if (!!studentProfile?.independentlyCapableTasks?.length) {
+        capabilities = studentProfile?.independentlyCapableTasks?.map(
+          capability => ({ capability })
+        );
+      }
+
       setAssistanceData(prev => ({
         ...prev,
+        helpRequiredTasks: helpRequired,
+        independentlyCapableTasks: capabilities,
         morningHelp: studentProfile?.morningHelp || "",
-        eveningHelp: studentProfile?.morningHelp || "",
-        afternoonHelp: studentProfile?.morningHelp || "",
-        accommodations: studentProfile?.morningHelp || "",
-        helpRequiredTasks: studentProfile?.morningHelp || "",
-        independentCapableTasks: studentProfile?.independentCapableTasks || "",
+        eveningHelp: studentProfile?.eveningHelp || "",
+        afternoonHelp: studentProfile?.afternoonHelp || "",
+        accommodations: studentProfile?.accommodations || "",
       }));
 
       const suppData = { ...supportData };
@@ -188,12 +210,23 @@ const AssistanceSupport = () => {
 
   const onSave = () => {
     try {
-      const id = studentProfile?.id;
+      const id = router?.query?.id;
       let supports = [];
       const payload = { id };
 
+      const helpRequiredTasks = assistanceData?.helpRequiredTasks
+        ?.filter(({ task }) => !!task)
+        ?.map(({ task }) => task);
+      const independentlyCapableTasks =
+        assistanceData?.independentlyCapableTasks
+          ?.filter(({ capability }) => !!capability)
+          ?.map(({ capability }) => capability);
+
       Object?.keys(assistanceData)
-        ?.filter(key => !!assistanceData?.[key])
+        ?.filter(
+          key =>
+            typeof assistanceData?.[key] !== "object" && !!assistanceData?.[key]
+        )
         ?.forEach(key => {
           payload[key] = assistanceData?.[key];
         });
@@ -213,7 +246,11 @@ const AssistanceSupport = () => {
           });
         });
 
+      if (!!helpRequiredTasks?.length)
+        payload.helpRequiredTasks = helpRequiredTasks;
       if (!!supports?.length) payload.supports = supports;
+      if (!!independentlyCapableTasks?.length)
+        payload.independentlyCapableTasks = independentlyCapableTasks;
 
       dispatch(
         saveUpdateProfile({
@@ -223,6 +260,56 @@ const AssistanceSupport = () => {
       );
     } catch (error) {
       console.log(error, "Error in saving profile");
+    }
+  };
+
+  const handleBack = () => router?.back();
+
+  const addEntry = type => {
+    try {
+      const entryType = assistanceData?.[type];
+      const defaultEntry = defaultEntries?.[type];
+
+      const entries = [...entryType, { ...defaultEntry }];
+
+      setAssistanceData(prev => ({ ...prev, [type]: entries }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleTasksInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const tasksCopy = [...helpRequiredTasks];
+      let task = tasksCopy?.[i];
+
+      task = { ...task, [name]: value };
+      tasksCopy[i] = task;
+
+      setAssistanceData(prev => ({ ...prev, helpRequiredTasks: tasksCopy }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCapabilitiesInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const capabilitiesCopy = [...independentlyCapableTasks];
+      let capability = capabilitiesCopy?.[i];
+
+      capability = { ...capability, [name]: value };
+      capabilitiesCopy[i] = capability;
+
+      setAssistanceData(prev => ({
+        ...prev,
+        independentlyCapableTasks: capabilitiesCopy,
+      }));
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -279,25 +366,19 @@ const AssistanceSupport = () => {
               />
             </InputContainer>
 
-            <InputContainer>
-              <Text color={GRAY_800}>Independent Capabilities</Text>
-              <TextInput
-                placeholder="Type Here"
-                name="independentCapableTasks"
-                value={independentCapableTasks}
-                onChange={handleAssistanceInput}
-              />
-            </InputContainer>
+            <MultipleEntryTable
+              entries={independentlyCapableTasks}
+              columns={["Independent Capabilities"]}
+              handleChange={handleCapabilitiesInput}
+              addEntry={() => addEntry("independentlyCapableTasks")}
+            />
 
-            <InputContainer>
-              <Text color={GRAY_800}>Help Required in (Areas)</Text>
-              <TextInput
-                placeholder="Type Here"
-                name="helpRequiredTasks"
-                value={helpRequiredTasks}
-                onChange={handleAssistanceInput}
-              />
-            </InputContainer>
+            <MultipleEntryTable
+              entries={helpRequiredTasks}
+              handleChange={handleTasksInput}
+              columns={["Help Required in (Areas)"]}
+              addEntry={() => addEntry("helpRequiredTasks")}
+            />
           </FlexBox>
         </FlexBox>
 
@@ -350,7 +431,10 @@ const AssistanceSupport = () => {
             />
           </SupportGrid>
 
-          <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+          <FlexBox align="center" colGap="1.5rem">
+            <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+            <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+          </FlexBox>
         </FlexBox>
       </FlexBox>
     </Wrapper>

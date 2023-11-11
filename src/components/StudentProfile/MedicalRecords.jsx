@@ -1,48 +1,89 @@
 import { useEffect, useState } from "react";
+import Select from "react-select";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
-import { PrimaryButton } from "@common/Buttons";
+import MultipleEntryTable from "@common/MultipleEntryTable";
+import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
-import { GRAY_800 } from "@constants/colors";
-import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
+import { bloodGroups } from "@metadata/bloodGroups";
+import { saveUpdateProfile } from "@redux/Slices/studentSlice";
+import { GRAY_200, GRAY_300, GRAY_800 } from "@constants/colors";
+
+const defaultAllergyEntry = Object.freeze({ allergy: "", reaction: "" });
+
+const customSelectStyles = {
+  container: baseStyles => ({
+    ...baseStyles,
+    width: "100%",
+  }),
+  control: baseStyles => ({
+    ...baseStyles,
+    padding: "1rem",
+    fontSize: "1rem",
+    boxShadow: "none",
+    minHeight: "unset",
+    borderColor: GRAY_200,
+    "&:hover": {
+      borderColor: GRAY_200,
+    },
+  }),
+  valueContainer: baseStyles => ({
+    ...baseStyles,
+    padding: 0,
+  }),
+  input: baseStyles => ({
+    ...baseStyles,
+    margin: 0,
+    padding: 0,
+  }),
+  indicatorSeparator: () => ({ display: "none" }),
+  placeholder: baseStyles => ({ ...baseStyles, color: GRAY_300 }),
+  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
+};
 
 const MedicalRecords = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
-  // TODO student profile allergies -> array
+  const [allergyInfo, setAllergyInfo] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState({
-    allergies: studentProfile?.allergies || [],
-    bloodGroup: studentProfile?.bloodGroup || "",
+    bloodGroup: null,
     medicineRoutine: studentProfile?.medicineRoutine || "",
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
-    allergicReactions: studentProfile?.allergicReactions || "",
   });
 
-  const {
-    allergies,
-    bloodGroup,
-    medicineRoutine,
-    primaryDiagnosis,
-    allergicReactions,
-  } = medicalRecords;
+  const { bloodGroup, medicineRoutine, primaryDiagnosis } = medicalRecords;
 
   useEffect(() => {
     if (studentProfile) {
+      let bloodGroup = null;
+      let allergies = [{ allergy: "", reaction: "" }];
+
+      if (studentProfile?.bloodGroup) {
+        bloodGroup = bloodGroups?.find(
+          ({ value }) => studentProfile?.bloodGroup === value
+        );
+      }
+
+      if (!!studentProfile?.allergies?.length) {
+        allergies = studentProfile?.allergies;
+      }
+
+      setAllergyInfo(allergies);
       setMedicalRecords(prev => ({
         ...prev,
-        allergies: studentProfile?.allergies || [],
-        bloodGroup: studentProfile?.bloodGroup || "",
+        bloodGroup,
         medicineRoutine: studentProfile?.medicineRoutine || "",
         primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
-        allergicReactions: studentProfile?.allergicReactions || "",
       }));
     }
   }, [studentProfile]);
@@ -59,14 +100,20 @@ const MedicalRecords = () => {
 
   const onSave = () => {
     try {
-      const id = studentProfile?.id;
+      const id = router?.query?.id;
       const payload = { id };
+
+      let allergies = allergyInfo?.filter(
+        ({ allergy, reaction }) => !!allergy && !!reaction
+      );
 
       Object.keys(medicalRecords)
         ?.filter(key => !!medicalRecords?.[key])
         ?.forEach(key => {
           payload[key] = medicalRecords?.[key];
         });
+
+      if (!!allergies?.length) payload.allergies = allergies;
 
       dispatch(
         saveUpdateProfile({
@@ -76,6 +123,34 @@ const MedicalRecords = () => {
       );
     } catch (error) {
       console.log(error, "Error in saving profile");
+    }
+  };
+
+  const handleBack = () => router?.back();
+
+  const addAllergyEntry = () => {
+    try {
+      const entries = [...allergyInfo, { ...defaultAllergyEntry }];
+
+      setAllergyInfo(entries);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAllergyInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const entries = [...allergyInfo];
+      let entry = entries?.[i];
+
+      entry = { ...entry, [name]: value };
+      entries[i] = entry;
+
+      setAllergyInfo(entries);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -101,35 +176,23 @@ const MedicalRecords = () => {
 
           <InputContainer>
             <Text color={GRAY_800}>Blood Group</Text>
-            <TextInput
-              name="bloodGroup"
+            <Select
               value={bloodGroup}
-              onChange={handleInput}
-              placeholder="Type Here"
+              options={bloodGroups}
+              placeholder="Blood Group"
+              styles={customSelectStyles}
+              onChange={option =>
+                setMedicalRecords(prev => ({ ...prev, bloodGroup: option }))
+              }
             />
           </InputContainer>
 
-          <FlexBox colGap="2rem">
-            <InputContainer>
-              <Text color={GRAY_800}>Allergies</Text>
-              <TextInput
-                name="allergies"
-                value={allergies}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Allergic Reactions</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="allergicReactions"
-                value={allergicReactions}
-              />
-            </InputContainer>
-          </FlexBox>
+          <MultipleEntryTable
+            entries={allergyInfo}
+            addEntry={addAllergyEntry}
+            handleChange={handleAllergyInput}
+            columns={["Allergies", "Allergies Reaction"]}
+          />
 
           <InputContainer>
             <Text color={GRAY_800}>Medicine Routine</Text>
@@ -142,7 +205,10 @@ const MedicalRecords = () => {
           </InputContainer>
         </FlexBox>
 
-        <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+        <FlexBox align="center" colGap="1.5rem">
+          <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+          <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+        </FlexBox>
       </FlexBox>
     </Wrapper>
   );

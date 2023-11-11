@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
-import { PrimaryButton } from "@common/Buttons";
+import MultipleEntryTable from "@common/MultipleEntryTable";
+import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
@@ -13,12 +15,15 @@ import ProfileCompletionWizard from "./ProfileCompletionWizard";
 import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
+const defaultTriggerInfo = Object.freeze({ trigger: "" });
+
 const MentalHealth = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
   const [mentalHealthInfo, setMentalHealthInfo] = useState({
-    triggers: studentProfile?.triggers || [],
+    triggers: [],
     toughestTime: studentProfile?.toughestTime || "",
     calmingStrategy: studentProfile?.calmingStrategy || "",
     mentalHealthStudentPerspective:
@@ -41,10 +46,17 @@ const MentalHealth = () => {
   } = mentalHealthInfo;
 
   useEffect(() => {
-    if (studentProfile)
+    if (studentProfile) {
+      const { triggers } = studentProfile || {};
+      let triggersArr = [{ ...defaultTriggerInfo }];
+
+      if (!!triggers?.length) {
+        triggersArr = triggers?.map(trigger => ({ trigger }));
+      }
+
       setMentalHealthInfo(prev => ({
         ...prev,
-        triggers: studentProfile?.triggers || [],
+        triggers: triggersArr,
         toughestTime: studentProfile?.toughestTime || "",
         calmingStrategy: studentProfile?.calmingStrategy || "",
         mentalHealthStudentPerspective:
@@ -54,6 +66,7 @@ const MentalHealth = () => {
         objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
         activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
       }));
+    }
   }, [studentProfile]);
 
   const handleInput = e => {
@@ -68,14 +81,20 @@ const MentalHealth = () => {
 
   const onSave = () => {
     try {
-      const id = studentProfile?.id;
+      const id = router?.query?.id;
       const payload = { id };
 
+      const triggers = mentalHealthInfo?.triggers
+        ?.filter(({ trigger }) => !!trigger)
+        ?.map(({ trigger }) => trigger);
+
       Object.keys(mentalHealthInfo)
-        ?.filter(key => !!mentalHealthInfo?.[key])
+        ?.filter(key => key !== "triggers" && !!mentalHealthInfo?.[key])
         ?.forEach(key => {
           payload[key] = mentalHealthInfo?.[key];
         });
+
+      if (!!triggers?.length) payload.triggers = triggers;
 
       dispatch(
         saveUpdateProfile({
@@ -85,6 +104,34 @@ const MentalHealth = () => {
       );
     } catch (error) {
       console.log(error, "Error in saving profile");
+    }
+  };
+
+  const handleBack = () => router?.back();
+
+  const addTrigger = () => {
+    try {
+      const entries = [...triggers, { ...defaultTriggerInfo }];
+
+      setMentalHealthInfo(prev => ({ ...prev, triggers: entries }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleTriggerInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const triggersCopy = [...triggers];
+      let trigger = triggersCopy?.[i];
+
+      trigger = { ...trigger, [name]: value };
+      triggersCopy[i] = trigger;
+
+      setMentalHealthInfo(prev => ({ ...prev, triggers: triggersCopy }));
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -120,27 +167,22 @@ const MentalHealth = () => {
             </InputContainer>
           </FlexBox>
 
-          <FlexBox colGap="2rem">
-            <InputContainer>
-              <Text color={GRAY_800}>Triggers</Text>
-              <TextInput
-                name="triggers"
-                value={triggers}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer>
+          <MultipleEntryTable
+            entries={triggers}
+            addEntry={addTrigger}
+            columns={["Triggers"]}
+            handleChange={handleTriggerInput}
+          />
 
-            <InputContainer>
-              <Text color={GRAY_800}>Toughest Time</Text>
-              <TextInput
-                name="toughestTime"
-                value={toughestTime}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer>
-          </FlexBox>
+          <InputContainer>
+            <Text color={GRAY_800}>Toughest Time</Text>
+            <TextInput
+              name="toughestTime"
+              value={toughestTime}
+              onChange={handleInput}
+              placeholder="Type Here"
+            />
+          </InputContainer>
 
           <FlexBox colGap="2rem">
             <InputContainer>
@@ -185,7 +227,10 @@ const MentalHealth = () => {
           </InputContainer>
         </FlexBox>
 
-        <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+        <FlexBox align="center" colGap="1.5rem">
+          <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+          <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+        </FlexBox>
       </FlexBox>
     </Wrapper>
   );

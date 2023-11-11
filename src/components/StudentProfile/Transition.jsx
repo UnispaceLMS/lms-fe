@@ -1,16 +1,18 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import { PrimaryButton } from "@common/Buttons";
+import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
 import { GRAY_100 } from "@constants/colors";
-import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
+import { saveUpdateProfile } from "@redux/Slices/studentSlice";
+import { transitionAssessmentEnums } from "@metadata/transitionAssessments";
 
 const AssessmentGrid = styled.div`
   width: 60%;
@@ -59,6 +61,7 @@ const GridRow = ({ label, name, value, handleChange }) => (
     <GridEntry>
       <input
         name={name}
+        type="number"
         value={value}
         onChange={handleChange}
         placeholder="Type Here"
@@ -68,36 +71,56 @@ const GridRow = ({ label, name, value, handleChange }) => (
 );
 
 const Transition = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
-  const [assessmentScores, setAssessmentScores] = useState({
-    health: "",
-    safety: "",
-    employment: "",
-    transportation: "",
-    homeManagement: "",
-    moneyManagement: "",
-    personalManagement: "",
-    healthyRelationships: "",
+  const [assessments, setAssessments] = useState({
+    healthWellness: {
+      label: "Health & Wellness",
+      score: "",
+    },
+    personalManagement: {
+      label: "Personal Management",
+      score: "",
+    },
+    homeManagement: {
+      label: "Home Management",
+      score: "",
+    },
+    safety: {
+      label: "Safety",
+      score: "",
+    },
+    transportation: {
+      label: "Transportation",
+      score: "",
+    },
+    healthyRelationship: {
+      label: "Healthy Relationship",
+      score: "",
+    },
+    moneyManagement: {
+      label: "Money Management",
+      score: "",
+    },
+    employment: {
+      label: "Employment",
+      score: "",
+    },
   });
 
-  const {
-    health,
-    safety,
-    employment,
-    transportation,
-    homeManagement,
-    moneyManagement,
-    personalManagement,
-    healthyRelationships,
-  } = assessmentScores;
-
-  const handleInput = e => {
+  const addAssessmentScore = e => {
     try {
       const { name, value } = e.target;
 
-      setAssessmentScores(prev => ({ ...prev, [name]: value }));
+      setAssessments(prev => ({
+        ...prev,
+        [name]: {
+          ...assessments?.[name],
+          score: value,
+        },
+      }));
     } catch (error) {
       console.log(error);
     }
@@ -105,8 +128,25 @@ const Transition = () => {
 
   const onSave = () => {
     try {
-      const id = studentProfile?.id;
+      const id = router?.query?.id;
       const payload = { id };
+      const transitionAssessments = [];
+
+      Object?.keys?.(assessments)
+        ?.filter(key => {
+          const score = assessments?.[key]?.score;
+          return score !== "";
+        })
+        ?.forEach(key => {
+          const score = assessments?.[key]?.score;
+          const type = transitionAssessmentEnums[key];
+
+          transitionAssessments?.push({ type, score });
+        });
+
+      if (!!transitionAssessments?.length) {
+        payload.transitionAssessments = transitionAssessments;
+      }
 
       dispatch(
         saveUpdateProfile({ data: payload, nextLink: `/student/${id}/profile` })
@@ -115,6 +155,8 @@ const Transition = () => {
       console.log(error, "Error in saving profile");
     }
   };
+
+  const handleBack = () => router?.back();
 
   return (
     <Wrapper>
@@ -128,64 +170,25 @@ const Transition = () => {
         <AssessmentGrid>
           <GridHeader />
 
-          <GridRow
-            name="health"
-            value={health}
-            label="Health & Wellness"
-            handleChange={handleInput}
-          />
+          {Object?.keys?.(assessments)?.map(key => {
+            const { label, score } = assessments?.[key];
 
-          <GridRow
-            name="safety"
-            value={safety}
-            label="Safety"
-            handleChange={handleInput}
-          />
-
-          <GridRow
-            name="personalManagement"
-            value={personalManagement}
-            handleChange={handleInput}
-            label="Personal Management"
-          />
-
-          <GridRow
-            handleChange={handleInput}
-            name="healthyRelationships"
-            value={healthyRelationships}
-            label="Healthy Relationships"
-          />
-
-          <GridRow
-            name="homeManagement"
-            value={homeManagement}
-            label="Home Management"
-            handleChange={handleInput}
-          />
-
-          <GridRow
-            name="employment"
-            value={employment}
-            label="Employment"
-            handleChange={handleInput}
-          />
-
-          <GridRow
-            naem="moneyManagement"
-            value={moneyManagement}
-            label="Money Management"
-            handleChange={handleInput}
-          />
-
-          <GridRow
-            name="transportation"
-            value={transportation}
-            label="Transportation"
-            handleChange={handleInput}
-          />
+            return (
+              <GridRow
+                key={key}
+                name={key}
+                label={label}
+                value={score}
+                handleChange={addAssessmentScore}
+              />
+            );
+          })}
         </AssessmentGrid>
 
-        <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+        <FlexBox align="center" colGap="1.5rem">
+          <PrimaryButton onClick={onSave}>Save & Next</PrimaryButton>
+          <SecondaryButton onClick={handleBack}>Back</SecondaryButton>
+        </FlexBox>
       </FlexBox>
     </Wrapper>
   );
