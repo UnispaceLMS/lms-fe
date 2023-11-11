@@ -227,7 +227,6 @@ const Assessment = () => {
       if (index > -1)
         assessments[index] = { ...assessments?.[index], [name]: value };
 
-      console.log(assessments, name, value);
       setAdditionalAssessments(assessments);
     } catch (error) {
       console.log(error);
