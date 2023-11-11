@@ -108,12 +108,16 @@ const MedicalRecords = () => {
       );
 
       Object.keys(medicalRecords)
-        ?.filter(key => !!medicalRecords?.[key])
+        ?.filter(
+          key =>
+            typeof medicalRecords?.[key] !== "object" && !!medicalRecords?.[key]
+        )
         ?.forEach(key => {
           payload[key] = medicalRecords?.[key];
         });
 
       if (!!allergies?.length) payload.allergies = allergies;
+      if (!!bloodGroup) payload.bloodGroup = bloodGroup?.value;
 
       dispatch(
         saveUpdateProfile({
