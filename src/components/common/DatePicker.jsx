@@ -18,7 +18,7 @@ import {
   PRIMARY_100,
 } from "@constants/colors";
 
-import "react-datepicker/dist/react-datepicker.css";
+// import "react-datepicker/dist/react-datepicker.css";
 
 const months = Object.freeze([
   "January",
@@ -39,8 +39,19 @@ const years = Object.freeze(range(dayjs()?.year(), 1979, -1));
 const Wrapper = styled(FlexBox)`
   width: 100%;
 
+  @import url("~react-datepicker/dist/react-datepicker.css");
+
   .react-datepicker-wrapper {
     width: 100%;
+  }
+
+  .react-datepicker-popper {
+    z-index: 10;
+  }
+
+  .react-datepicker {
+    display: inline-flex;
+    flex-direction: column;
   }
 
   .react-datepicker__month-container {
