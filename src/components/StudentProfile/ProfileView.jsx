@@ -16,6 +16,8 @@ import {
   PRIMARY_500,
 } from "@constants/colors";
 import { buildName } from "@utils/helpers";
+import { studentPrograms } from "@metadata/programs";
+import { concernEnums, strengthEnums } from "@metadata/strengthsConcerns";
 
 const Wrapper = styled(FlexBox)`
   width: 100%;
@@ -124,7 +126,198 @@ const assistanceOptions = {
   asstRequired: { slug: "assistance-required" },
 };
 
+const strengthConcernOptions = {
+  concerns: { slug: "concerns" },
+  strengths: { slug: "strengths" },
+};
+
 const Label = ({ children }) => <Text weight={500}>{children}</Text>;
+
+const FriendsFamily = ({ friends, family }) => {
+  if (!friends?.length && !family?.length) return null;
+
+  return (
+    <FlexBox align="flex-start" colGap="2rem">
+      {!!friends?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Friends</Label>
+
+          {friends?.map(friend => (
+            <Text key={friend}>{friend}</Text>
+          ))}
+        </FlexBox>
+      )}
+
+      {!!family?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Family</Label>
+
+          {family?.map(fam => (
+            <Text key={fam}>{fam}</Text>
+          ))}
+        </FlexBox>
+      )}
+    </FlexBox>
+  );
+};
+
+const Dreams = ({ dreamJob, dreamLivingSituation }) => (
+  <FlexBox column rowGap="1.25rem">
+    {dreamJob && (
+      <FlexBox column rowGap="1rem">
+        <Label>Dream Job</Label>
+        <Text>{dreamJob}</Text>
+      </FlexBox>
+    )}
+
+    {dreamLivingSituation && (
+      <FlexBox column rowGap="1rem">
+        <Label>Dream Living Situation</Label>
+        <Text>{dreamLivingSituation}</Text>
+      </FlexBox>
+    )}
+  </FlexBox>
+);
+
+const Interests = ({ interests }) => {
+  if (!interests?.length) return null;
+
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Interests</Label>
+
+      {interests?.map(int => (
+        <Text key={int}>{int}</Text>
+      ))}
+    </FlexBox>
+  );
+};
+
+const Worries = ({ worries }) => {
+  if (!worries?.length) return null;
+
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Worries</Label>
+
+      {worries?.map(worry => (
+        <Text key={worry}>{worry}</Text>
+      ))}
+    </FlexBox>
+  );
+};
+
+const Fears = ({ fears }) => {
+  if (!fears?.length) return null;
+
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Fears</Label>
+
+      {fears?.map(fear => (
+        <Text key={fear}>{fear}</Text>
+      ))}
+    </FlexBox>
+  );
+};
+
+const Capabilities = ({ capabilities }) => {
+  if (!capabilities?.length) return null;
+
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Capabilities</Label>
+
+      {capabilities?.map(cap => (
+        <Text key={cap}>{cap}</Text>
+      ))}
+    </FlexBox>
+  );
+};
+
+const HelpRequiredTasks = ({ tasks }) => {
+  if (!tasks?.length) return null;
+
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Help Required in (Areas)</Label>
+
+      {tasks?.map(task => (
+        <Text key={task}>{task}</Text>
+      ))}
+    </FlexBox>
+  );
+};
+
+const Assistance = ({ assistance }) => <Text>{assistance}</Text>;
+
+const Strengths = ({ strengths }) => {
+  const familyIDd = strengths?.filter(
+    ({ type }) => type === strengthEnums.family
+  );
+
+  const studentIDd = strengths?.filter(
+    ({ type }) => type === strengthEnums.student
+  );
+
+  return (
+    <FlexBox column rowGap="1.25rem">
+      {!!studentIDd?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Student Identified Strengths</Label>
+
+          {studentIDd?.map(({ note }) => (
+            <Text key={note}>{note}</Text>
+          ))}
+        </FlexBox>
+      )}
+
+      {!!familyIDd?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Family Identified Strengths</Label>
+
+          {familyIDd?.map(({ note }) => (
+            <Text key={note}>{note}</Text>
+          ))}
+        </FlexBox>
+      )}
+    </FlexBox>
+  );
+};
+
+const Concerns = ({ concerns }) => {
+  const familyIDd = concerns?.filter(
+    ({ type }) => type === concernEnums.family
+  );
+
+  const studentIDd = concerns?.filter(
+    ({ type }) => type === concernEnums.student
+  );
+
+  return (
+    <FlexBox column rowGap="1.25rem">
+      {!!studentIDd?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Student Identified Concerns</Label>
+
+          {studentIDd?.map(({ note }) => (
+            <Text key={note}>{note}</Text>
+          ))}
+        </FlexBox>
+      )}
+
+      {!!familyIDd?.length && (
+        <FlexBox column rowGap="1rem">
+          <Label>Family Identified Concerns</Label>
+
+          {familyIDd?.map(({ note }) => (
+            <Text key={note}>{note}</Text>
+          ))}
+        </FlexBox>
+      )}
+    </FlexBox>
+  );
+};
 
 const ProfileView = () => {
   const router = useRouter();
@@ -136,20 +329,38 @@ const ProfileView = () => {
   const [selectedPersonalOption, setSelectedPersonalOption] = useState(
     personalLifeOptions?.friendsFamily
   );
+  const [selectedStrengthConcern, setSelectedStrengthConcern] = useState(
+    strengthConcernOptions?.strengths
+  );
   const [selectedRecord, setSelectedRecord] = useState(recordOptions?.medical);
 
-  const {
+  let {
     email,
+    fears,
+    family,
+    friends,
     program,
+    worries,
     lastName,
+    dreamJob,
+    concerns,
     firstName,
+    interests,
+    strengths,
     middleName,
+    eveningHelp,
+    morningHelp,
     phoneNumber,
     primaryDiagnosis,
+    helpRequiredTasks,
+    dreamLivingSituation,
     emergencyContactName,
     emergencyContactEmail,
+    independentlyCapableTasks,
     emergencyContactPhoneNumber,
   } = student || {};
+
+  program = studentPrograms?.find(({ value }) => value === program)?.label;
 
   const name = buildName(firstName, middleName, lastName);
 
@@ -168,7 +379,7 @@ const ProfileView = () => {
             <Text transform="capitalize">{name}</Text>
           </LabelAndText>
 
-          <FlexBox align="center" justify="space-between">
+          <FlexBox align="center" justify="space-between" colGap="1rem">
             <LabelAndText>
               <Label>Program</Label>
               <Text>{program}</Text>
@@ -180,10 +391,12 @@ const ProfileView = () => {
             </LabelAndText> */}
           </FlexBox>
 
-          <LabelAndText>
-            <Label>Primary Diagnosis</Label>
-            <Text>{primaryDiagnosis}</Text>
-          </LabelAndText>
+          {primaryDiagnosis && (
+            <LabelAndText>
+              <Label>Primary Diagnosis</Label>
+              <Text>{primaryDiagnosis}</Text>
+            </LabelAndText>
+          )}
         </StudentLHS>
 
         <FlexBox align="flex-start" colGap="3rem" color={GRAY_700}>
@@ -213,7 +426,7 @@ const ProfileView = () => {
             Contact Information
           </Text>
 
-          <FlexBox align="center" justify="space-between">
+          <FlexBox align="flex-start" justify="space-between" colGap="1rem">
             <FlexBox column rowGap="1.25rem">
               <LabelAndText>
                 <Label>Email ID</Label>
@@ -222,11 +435,11 @@ const ProfileView = () => {
 
               <LabelAndText>
                 <Label>Emergency Contact Name</Label>
-                <Text>{emergencyContactName}</Text>
+                <Text transform="capitalize">{emergencyContactName}</Text>
               </LabelAndText>
 
               <LabelAndText>
-                <Label>Emergency Contact Name</Label>
+                <Label>Emergency Contact Email</Label>
                 <Text>{emergencyContactEmail}</Text>
               </LabelAndText>
             </FlexBox>
@@ -309,9 +522,29 @@ const ProfileView = () => {
             </Text>
           </FlexBox>
 
-          <Text>Cami’s personal life place holder 1</Text>
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.friendsFamily?.slug && (
+            <FriendsFamily friends={friends} family={family} />
+          )}
 
-          <Text>Cami’s personal life place holder 2</Text>
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.dreams?.slug && (
+            <Dreams
+              dreamJob={dreamJob}
+              dreamLivingSituation={dreamLivingSituation}
+            />
+          )}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.interests?.slug && (
+            <Interests interests={interests} />
+          )}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.worries?.slug && <Worries worries={worries} />}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.fears?.slug && <Fears fears={fears} />}
         </FlexBox>
 
         <FlexBox colGap="2.25rem" align="flex-start">
@@ -407,13 +640,32 @@ const ProfileView = () => {
             </Text>
           </FlexBox>
 
-          <Text>Cami’s assistance place holder 1</Text>
+          {selectedAssistance?.slug ===
+            assistanceOptions?.selfManaged?.slug && (
+            <Capabilities capabilities={independentlyCapableTasks} />
+          )}
 
-          <Text>Cami’s assistance place holder 2</Text>
+          {selectedAssistance?.slug ===
+            assistanceOptions?.asstRequired?.slug && (
+            <HelpRequiredTasks tasks={helpRequiredTasks} />
+          )}
+
+          {selectedAssistance?.slug === assistanceOptions?.morning?.slug && (
+            <Assistance assistance={morningHelp} />
+          )}
+
+          {selectedAssistance?.slug === assistanceOptions?.evening?.slug && (
+            <Assistance assistance={eveningHelp} />
+          )}
         </FlexBox>
 
         <FlexBox colGap="2.25rem" align="flex-start">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            {...commonIconProps}
+            cursor="pointer"
+            strokeWidth={2.5}
+            onClick={() => goToEdit("/assistance-support")}
+          />
 
           <DropSelect>
             <DropOption
@@ -470,46 +722,47 @@ const ProfileView = () => {
             </Text>
           </FlexBox>
 
-          <FlexBox column rowGap="1.25rem">
-            <Text size="1.25rem" weight={500}>
-              Student Identified Strength
-            </Text>
+          {selectedStrengthConcern?.slug ===
+            strengthConcernOptions?.strengths?.slug && (
+            <Strengths strengths={strengths} />
+          )}
 
-            <FlexBox column rowGap="1.25rem" margin="0 0 0 1.5rem">
-              <Text>Cami’s self-identified strength 1</Text>
-
-              <Text>Cami’s self-identified strength 2</Text>
-            </FlexBox>
-          </FlexBox>
-
-          <FlexBox column rowGap="1.25rem">
-            <Text size="1.25rem" weight={500}>
-              Family Identified Strength
-            </Text>
-
-            <FlexBox column rowGap="1.25rem" margin="0 0 0 1.5rem">
-              <Text>Cami’s family-identified strength 1</Text>
-
-              <Text>Cami’s family-identified strength 2</Text>
-            </FlexBox>
-          </FlexBox>
+          {selectedStrengthConcern?.slug ===
+            strengthConcernOptions?.concerns?.slug && (
+            <Concerns concerns={concerns} />
+          )}
         </FlexBox>
 
         <FlexBox colGap="2.25rem">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            {...commonIconProps}
+            cursor="pointer"
+            strokeWidth={2.5}
+            onClick={() => goToEdit("/strengths-concerns")}
+          />
 
           <DropSelect>
-            <DropOption selected>
-              <Text weight={600}>Self managed</Text>
+            <DropOption
+              selected={
+                selectedStrengthConcern?.slug ===
+                strengthConcernOptions?.strengths?.slug
+              }
+              onClick={() =>
+                setSelectedStrengthConcern(strengthConcernOptions?.strengths)
+              }
+            >
+              <Text weight={600}>Strengths</Text>
             </DropOption>
-            <DropOption>
-              <Text weight={600}>Asst. Required</Text>
-            </DropOption>
-            <DropOption>
-              <Text weight={600}>Morning Asst.</Text>
-            </DropOption>
-            <DropOption>
-              <Text weight={600}>Evening Asst.</Text>
+            <DropOption
+              selected={
+                selectedStrengthConcern?.slug ===
+                strengthConcernOptions?.concerns?.slug
+              }
+              onClick={() =>
+                setSelectedStrengthConcern(strengthConcernOptions?.concerns)
+              }
+            >
+              <Text weight={600}>Concerns</Text>
             </DropOption>
           </DropSelect>
         </FlexBox>
