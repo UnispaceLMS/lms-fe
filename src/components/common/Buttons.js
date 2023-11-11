@@ -10,7 +10,6 @@ import {
 } from "@constants/colors";
 
 export const PrimaryButton = styled.button`
-  border: none;
   outline: none;
   color: ${WHITE};
   cursor: pointer;
@@ -25,11 +24,13 @@ export const PrimaryButton = styled.button`
   border-radius: 0.5rem;
   justify-content: center;
   background-color: ${PRIMARY_600};
+  border: 1px solid ${PRIMARY_600};
 
   ${({ disabled }) =>
     disabled &&
     css`
       pointer-events: none;
+      border: 1px solid ${PRIMARY_300};
       background-color: ${PRIMARY_300};
     `}
 `;
