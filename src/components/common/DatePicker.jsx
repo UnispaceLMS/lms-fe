@@ -18,7 +18,7 @@ import {
   PRIMARY_100,
 } from "@constants/colors";
 
-// import "react-datepicker/dist/react-datepicker.css";
+import "react-datepicker/dist/react-datepicker.css";
 
 const months = Object.freeze([
   "January",
