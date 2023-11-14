@@ -392,11 +392,11 @@ const Roster = () => {
               />
             </SearchInput>
 
-            <ExportExcel>
+            {/* <ExportExcel>
               <Text weight={600} color={SUCCESS_600} size="0.625rem">
                 Export in Excel
               </Text>
-            </ExportExcel>
+            </ExportExcel> */}
 
             <NewStudent onClick={toggleCreateStudentModal}>
               <Text color={WHITE} size="0.625rem">

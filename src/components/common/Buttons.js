@@ -56,6 +56,13 @@ export const SecondaryButton = styled.button`
     css`
       column-gap: 0.5rem;
     `}
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.6;
+      pointer-events: none;
+    `}
 `;
 
 export const UploadButton = () => (
