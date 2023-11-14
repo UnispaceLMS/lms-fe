@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
+import { useRouter } from "next/router";
 import styled, { css } from "styled-components";
 
 import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
@@ -9,6 +10,9 @@ import FlexBox from "@common/FlexBox";
 import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
 
+import urls from "@urls";
+import axiosInstance from "@axiosInstance";
+
 import {
   WHITE,
   GRAY_50,
@@ -17,6 +21,7 @@ import {
   GRAY_500,
   GRAY_700,
 } from "@constants/colors";
+import { transitionAssessmentEnums } from "@/metadata/transitionAssessments";
 
 const Container = styled(FlexBox)`
   width: 100%;
@@ -150,6 +155,9 @@ const TableFooter = ({ children }) => (
 );
 
 const Assessment = () => {
+  const router = useRouter();
+
+  const [purpose, setPurpose] = useState("");
   const [assessments, setAssessments] = useState({
     healthWellness: {
       label: "Health & Wellness",
@@ -233,6 +241,39 @@ const Assessment = () => {
     }
   };
 
+  const onAssessmentsSave = async () => {
+    try {
+      const { id, year } = router?.query || {};
+
+      if (!id || !year) return;
+
+      const payload = {
+        year: parseInt(year),
+        studentId: parseInt(id),
+        assessment: {
+          purpose,
+        },
+      };
+
+      let scores = [];
+
+      Object?.keys(assessments)?.forEach(key => {
+        const score = assessments?.[key]?.score;
+        const category = transitionAssessmentEnums?.[key];
+
+        if (!!score) {
+          scores.push({ score, category });
+        }
+      });
+
+      if (!!scores?.length) payload.assessment.scores = scores;
+
+      console.log(payload);
+    } catch (error) {
+      console.log(error, "Error in saving data");
+    }
+  };
+
   return (
     <AnnualPlanLayout>
       <FlexBox column rowGap="1.5rem">
@@ -242,7 +283,12 @@ const Assessment = () => {
 
         <Container>
           <Text size="0.875rem">Purpose/ Administration</Text>
-          <TextArea rows={1} placeholder="Enter" />
+          <TextArea
+            rows={1}
+            value={purpose}
+            placeholder="Enter"
+            onChange={e => setPurpose(e.target?.value)}
+          />
         </Container>
 
         <FlexBox column rowGap="0.75rem" justify="flex-end">
@@ -266,7 +312,7 @@ const Assessment = () => {
             <TableFooter />
           </Table>
 
-          <PrimaryButton>Save</PrimaryButton>
+          <PrimaryButton onClick={onAssessmentsSave}>Save</PrimaryButton>
         </FlexBox>
 
         <FlexBox column rowGap="0.75rem" justify="flex-end">
