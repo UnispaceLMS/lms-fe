@@ -6,7 +6,6 @@ import {
   MdOutlineTableChart,
   MdOutlineDonutSmall,
 } from "react-icons/md";
-import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 import { FiMenu } from "react-icons/fi";
@@ -28,6 +27,7 @@ import {
   PRIMARY_500,
 } from "@constants/colors";
 import { toggleSidebar } from "@redux/Slices/sidebarSlice";
+import { logout } from "@/redux/Slices/authSlice";
 
 const Wrapper = styled(FlexBox)`
   top: 0;
@@ -85,7 +85,7 @@ const LogoContainer = styled(FlexBox)`
 const NavItem = styled(FlexBox)`
   width: 100%;
   cursor: pointer;
-  padding: 0.8rem;
+  padding: 0.75rem;
   align-items: center;
   border-radius: 0.75rem;
   justify-content: flex-start;
@@ -157,10 +157,14 @@ const Sidebar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const sidebarRef = useRef(null);
+  const expanded = useSelector(state => state.sidebar?.expanded);
 
   const id = router?.query?.id;
+  const year = router?.query?.year;
   const quarter = router?.query?.quarter || 1;
-  const year = router?.query?.year || dayjs()?.year();
+
+  // TODO - decide
+  const yearString = year ? `/${year}` : "";
 
   const isRosterPage = router?.pathname?.includes("/roster");
   const isStudentPage = router?.pathname?.includes("/student");
@@ -169,11 +173,11 @@ const Sidebar = () => {
   const isAnnualPlanPage = router?.pathname?.includes("/annual-plan");
   const isQuarterlyReportPage = router?.pathname?.includes("/quarterly-plan");
 
-  const expanded = useSelector(state => state.sidebar?.expanded);
-
   const toggleExpanded = () => dispatch(toggleSidebar());
 
   const goHome = () => router.push("/");
+
+  const handleLogout = () => dispatch(logout());
 
   return (
     <Wrapper ref={sidebarRef} expanded={expanded}>
@@ -220,7 +224,8 @@ const Sidebar = () => {
 
         {isStudentPage && (
           <FlexBox column width="100%">
-            <Link href={`/student/${id}/annual-plan/${year}`}>
+            {/* <Link href={`/student/${id}/annual-plan${yearString}`}> */}
+            <Link href={`/student/${id}/annual-plan`}>
               <NavItem padding="0.875rem 0.8rem" selected={isAnnualPlanPage}>
                 <MdOutlineEventNote size="1.25rem" />
 
@@ -230,7 +235,8 @@ const Sidebar = () => {
               </NavItem>
             </Link>
 
-            <Link href={`/student/${id}/quarterly-plan/${year}/${quarter}`}>
+            {/* <Link href={`/student/${id}/quarterly-plan/${year}/${quarter}`}> */}
+            <Link href={`/student/${id}/quarterly-plan`}>
               <NavItem
                 padding="0.875rem 0.8rem"
                 selected={isQuarterlyReportPage}
@@ -258,6 +264,7 @@ const Sidebar = () => {
 
       <BottomHalf>
         <NavItem padding="0.875rem 0.8rem" selected={false}>
+          {/* TODO */}
           <InitialsContainer>
             <NameInitials name="Aryaman Rishabh" />
           </InitialsContainer>
@@ -267,7 +274,7 @@ const Sidebar = () => {
           </TextContainer>
         </NavItem>
 
-        <NavItem padding="0.875rem 0.8rem" selected={false}>
+        <NavItem padding="0.875rem 0.8rem" onClick={handleLogout}>
           <MdLogout size="1.25rem" />
 
           <TextContainer>
