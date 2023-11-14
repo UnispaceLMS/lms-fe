@@ -5,12 +5,16 @@ import GoalPageLayout from "@layouts/GoalPageLayout";
 import DashboardLayout from "@layouts/DashboardLayout";
 import QuarterlyPlanLayout from "@layouts/QuarterlyPlanLayout";
 
+import Safety from "@components/GoalCreation/Safety";
+
 const SafetyPage = () => {
   return (
     <StudentProfile>
       <DashboardLayout>
         <GoalPageLayout>
-          <QuarterlyPlanLayout>SafetyPage</QuarterlyPlanLayout>
+          <QuarterlyPlanLayout>
+            <Safety isQuarterlyPlan />
+          </QuarterlyPlanLayout>
         </GoalPageLayout>
       </DashboardLayout>
     </StudentProfile>

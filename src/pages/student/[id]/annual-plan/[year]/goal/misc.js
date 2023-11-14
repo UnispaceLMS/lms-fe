@@ -5,12 +5,16 @@ import GoalPageLayout from "@layouts/GoalPageLayout";
 import DashboardLayout from "@layouts/DashboardLayout";
 import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
+import Misc from "@components/GoalCreation/Misc";
+
 const MiscPage = () => {
   return (
     <StudentProfile>
       <DashboardLayout>
         <GoalPageLayout>
-          <AnnualPlanLayout>MiscPage</AnnualPlanLayout>
+          <AnnualPlanLayout>
+            <Misc />
+          </AnnualPlanLayout>
         </GoalPageLayout>
       </DashboardLayout>
     </StudentProfile>

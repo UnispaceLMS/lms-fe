@@ -13,7 +13,7 @@ const HealthWellnessPage = () => {
       <DashboardLayout>
         <GoalPageLayout>
           <QuarterlyPlanLayout>
-            <HealthWellness />
+            <HealthWellness isQuarterlyPlan />
           </QuarterlyPlanLayout>
         </GoalPageLayout>
       </DashboardLayout>

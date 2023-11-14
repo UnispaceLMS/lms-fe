@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import urls from "@urls";
-import axiosInstance from "@axiosInstance";
+import axiosInstance, { tokenKey } from "@axiosInstance";
 
 const cookies = new Cookies();
 
@@ -42,16 +42,6 @@ export const validateToken = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("logout", async () => {
-  try {
-    // TODO add api
-    localStorage.clear();
-    cookies.remove("access-token");
-  } catch (error) {
-    console.log(error, "Error in logging out");
-  }
-});
-
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -64,6 +54,15 @@ const authSlice = createSlice({
     },
     setUserData: (state, { payload }) => {
       state.user = payload;
+    },
+    logout: state => {
+      state.user = initialState.user;
+      state.error = initialState.error;
+      state.loading = initialState.loading;
+
+      localStorage.clear();
+      cookies.remove("access-token");
+      window.location.href = "/login";
     },
   },
   extraReducers: builder => {
@@ -98,25 +97,9 @@ const authSlice = createSlice({
       state.error = error;
       state.loading = false;
     });
-
-    builder.addCase(logout.pending, state => {
-      state.loading = true;
-    });
-
-    builder.addCase(logout.fulfilled, (state, { payload }) => {
-      console.log(payload, "pay");
-      state.user = payload;
-      state.loading = false;
-
-      window.location.href = "/";
-    });
-
-    builder.addCase(logout.rejected, (state, { error }) => {
-      state.error = error;
-      state.loading = false;
-    });
   },
 });
 
-export const { clearErrors, setAuthLoading, setUserData } = authSlice.actions;
+export const { clearErrors, setAuthLoading, setUserData, logout } =
+  authSlice.actions;
 export default authSlice.reducer;

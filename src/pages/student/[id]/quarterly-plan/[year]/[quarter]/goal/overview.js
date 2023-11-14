@@ -13,7 +13,7 @@ const OverviewPage = () => {
       <DashboardLayout>
         <GoalPageLayout>
           <QuarterlyPlanLayout>
-            <Overview />
+            <Overview isQuarterlyPlan />
           </QuarterlyPlanLayout>
         </GoalPageLayout>
       </DashboardLayout>
