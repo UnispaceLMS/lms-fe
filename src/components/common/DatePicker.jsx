@@ -14,8 +14,8 @@ import {
   GRAY_300,
   GRAY_600,
   GRAY_700,
-  PRIMARY_600,
   PRIMARY_100,
+  PRIMARY_600,
 } from "@constants/colors";
 
 import "react-datepicker/dist/react-datepicker.css";

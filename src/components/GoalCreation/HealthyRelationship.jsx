@@ -18,9 +18,9 @@ import axiosInstance from "@axiosInstance";
 
 import { WHITE, GRAY_200 } from "@constants/colors";
 import { statusOptions } from "@metadata/statusOptions";
-import { healthAndWellnessGoals } from "@metadata/goals";
 import { frequencyOptions } from "@metadata/frequencies";
 import { assessmentOptions } from "@metadata/assessments";
+import { healthyRelationshipGoals } from "@metadata/goals";
 
 dayjs.extend(utc);
 
@@ -59,7 +59,7 @@ const defaultTableEntry = Object.freeze({
   },
 });
 
-const HealthWellness = ({ isQuarterlyPlan }) => {
+const HealthyRelationship = ({ isQuarterlyPlan }) => {
   const router = useRouter();
 
   const key = isQuarterlyPlan ? "quarterly" : "annual";
@@ -92,16 +92,18 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       setCtaDisabled(true);
 
       const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
-      let healthWellnessData = res?.data?.goal?.healthWellness || null;
+      let healthyRelationshipData =
+        res?.data?.goal?.healthyRelationship || null;
 
       let entries = [{ ...defaultEntry }];
 
-      if (healthWellnessData) {
-        healthWellnessData = cloneDeep(healthWellnessData);
-        const healthWellnessEntries = healthWellnessData?.healthWellnessEntries;
+      if (healthyRelationshipData) {
+        healthyRelationshipData = cloneDeep(healthyRelationshipData);
+        const healthyRelationshipEntries =
+          healthyRelationshipData?.healthyRelationshipEntries;
 
-        if (!!healthWellnessEntries?.length) {
-          entries = healthWellnessEntries?.map(entry => {
+        if (!!healthyRelationshipEntries?.length) {
+          entries = healthyRelationshipEntries?.map(entry => {
             let {
               date,
               type,
@@ -113,7 +115,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
             date = date ? dayjs(date)?.toDate() : "";
 
-            const goal = healthAndWellnessGoals?.find(
+            const goal = healthyRelationshipGoals?.find(
               ({ value }) => type === value
             );
             const frequency = frequencyOptions?.find(
@@ -146,7 +148,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
           });
         }
 
-        setAnnualGoal(healthWellnessData?.annualGoal);
+        setAnnualGoal(healthyRelationshipData?.annualGoal);
       }
 
       setTableEntries(entries);
@@ -172,12 +174,12 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       const payload = {
         year: parseInt(year),
         studentId: parseInt(id),
-        goal: { healthWellness: { annualGoal } },
+        goal: { healthyRelationship: { annualGoal } },
       };
 
-      let healthWellnessEntries = [];
+      let healthyRelationshipEntries = [];
       if (!!tableEntries?.length) {
-        healthWellnessEntries = tableEntries?.map(entry => {
+        healthyRelationshipEntries = tableEntries?.map(entry => {
           let { date, goal, criteria, frequency, assessment, shortTermGoal } =
             entry || {};
 
@@ -202,7 +204,8 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
         });
       }
 
-      payload.goal.healthWellness.healthWellnessEntries = healthWellnessEntries;
+      payload.goal.healthyRelationship.healthyRelationshipEntries =
+        healthyRelationshipEntries;
 
       // TODO
       // if (isQuarterlyPlan) payload.quarter = "quarter";
@@ -230,7 +233,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
       <Container>
         <Text weight={500} size="1.125rem">
-          Health & Wellness
+          Healthy Relationship
         </Text>
 
         <FlexBox column rowGap="0.75rem">
@@ -249,8 +252,8 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
           tableEntries={tableEntries}
           setTableEntries={setTableEntries}
           isQuarterlyPlan={isQuarterlyPlan}
-          goalOptions={healthAndWellnessGoals}
           defaultTableEntry={defaultTableEntry}
+          goalOptions={healthyRelationshipGoals}
         />
 
         <PrimaryButton onClick={onSave} disabled={ctaDisabled}>
@@ -261,4 +264,4 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
   );
 };
 
-export default HealthWellness;
+export default HealthyRelationship;

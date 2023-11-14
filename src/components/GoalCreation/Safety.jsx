@@ -16,9 +16,9 @@ import EntryTable from "./EntryTable";
 import urls from "@urls";
 import axiosInstance from "@axiosInstance";
 
+import { safetyGoals } from "@metadata/goals";
 import { WHITE, GRAY_200 } from "@constants/colors";
 import { statusOptions } from "@metadata/statusOptions";
-import { healthAndWellnessGoals } from "@metadata/goals";
 import { frequencyOptions } from "@metadata/frequencies";
 import { assessmentOptions } from "@metadata/assessments";
 
@@ -59,7 +59,7 @@ const defaultTableEntry = Object.freeze({
   },
 });
 
-const HealthWellness = ({ isQuarterlyPlan }) => {
+const Safety = ({ isQuarterlyPlan }) => {
   const router = useRouter();
 
   const key = isQuarterlyPlan ? "quarterly" : "annual";
@@ -92,16 +92,16 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       setCtaDisabled(true);
 
       const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
-      let healthWellnessData = res?.data?.goal?.healthWellness || null;
+      let safetyData = res?.data?.goal?.safety || null;
 
       let entries = [{ ...defaultEntry }];
 
-      if (healthWellnessData) {
-        healthWellnessData = cloneDeep(healthWellnessData);
-        const healthWellnessEntries = healthWellnessData?.healthWellnessEntries;
+      if (safetyData) {
+        safetyData = cloneDeep(safetyData);
+        const safetyEntries = safetyData?.safetyEntries;
 
-        if (!!healthWellnessEntries?.length) {
-          entries = healthWellnessEntries?.map(entry => {
+        if (!!safetyEntries?.length) {
+          entries = safetyEntries?.map(entry => {
             let {
               date,
               type,
@@ -113,9 +113,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
             date = date ? dayjs(date)?.toDate() : "";
 
-            const goal = healthAndWellnessGoals?.find(
-              ({ value }) => type === value
-            );
+            const goal = safetyGoals?.find(({ value }) => type === value);
             const frequency = frequencyOptions?.find(
               ({ value }) => schedule === value
             );
@@ -146,7 +144,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
           });
         }
 
-        setAnnualGoal(healthWellnessData?.annualGoal);
+        setAnnualGoal(safetyData?.annualGoal);
       }
 
       setTableEntries(entries);
@@ -172,12 +170,12 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       const payload = {
         year: parseInt(year),
         studentId: parseInt(id),
-        goal: { healthWellness: { annualGoal } },
+        goal: { safety: { annualGoal } },
       };
 
-      let healthWellnessEntries = [];
+      let safetyEntries = [];
       if (!!tableEntries?.length) {
-        healthWellnessEntries = tableEntries?.map(entry => {
+        safetyEntries = tableEntries?.map(entry => {
           let { date, goal, criteria, frequency, assessment, shortTermGoal } =
             entry || {};
 
@@ -202,12 +200,14 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
         });
       }
 
-      payload.goal.healthWellness.healthWellnessEntries = healthWellnessEntries;
+      payload.goal.safety.safetyEntries = safetyEntries;
 
       // TODO
       // if (isQuarterlyPlan) payload.quarter = "quarter";
 
-      await axiosInstance.put(urls.createUpdateAnnualPlan, payload);
+      axiosInstance.put(urls.createUpdateAnnualPlan, payload);
+
+      // tableEntries?.filter(obj => Object?.keys(obj)?.some(key => !!obj?.[key]));
     } catch (error) {
     } finally {
       setCtaDisabled(false);
@@ -230,7 +230,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
       <Container>
         <Text weight={500} size="1.125rem">
-          Health & Wellness
+          Safety
         </Text>
 
         <FlexBox column rowGap="0.75rem">
@@ -246,10 +246,10 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
       <FlexBox column rowGap="0.75rem" align="flex-end">
         <EntryTable
+          goalOptions={safetyGoals}
           tableEntries={tableEntries}
-          setTableEntries={setTableEntries}
           isQuarterlyPlan={isQuarterlyPlan}
-          goalOptions={healthAndWellnessGoals}
+          setTableEntries={setTableEntries}
           defaultTableEntry={defaultTableEntry}
         />
 
@@ -261,4 +261,4 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
   );
 };
 
-export default HealthWellness;
+export default Safety;

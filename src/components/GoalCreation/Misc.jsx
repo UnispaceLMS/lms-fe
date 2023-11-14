@@ -18,7 +18,6 @@ import axiosInstance from "@axiosInstance";
 
 import { WHITE, GRAY_200 } from "@constants/colors";
 import { statusOptions } from "@metadata/statusOptions";
-import { healthAndWellnessGoals } from "@metadata/goals";
 import { frequencyOptions } from "@metadata/frequencies";
 import { assessmentOptions } from "@metadata/assessments";
 
@@ -41,7 +40,7 @@ const Container = styled(FlexBox)`
 const defaultTableEntry = Object.freeze({
   annual: {
     date: "",
-    goal: null,
+    goal: "",
     criteria: "",
     frequency: null,
     assessment: null,
@@ -49,7 +48,7 @@ const defaultTableEntry = Object.freeze({
   },
   quarterly: {
     date: "",
-    goal: null,
+    goal: "",
     status: "",
     criteria: "",
     statusNote: "",
@@ -59,7 +58,7 @@ const defaultTableEntry = Object.freeze({
   },
 });
 
-const HealthWellness = ({ isQuarterlyPlan }) => {
+const Misc = ({ isQuarterlyPlan }) => {
   const router = useRouter();
 
   const key = isQuarterlyPlan ? "quarterly" : "annual";
@@ -92,16 +91,16 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       setCtaDisabled(true);
 
       const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
-      let healthWellnessData = res?.data?.goal?.healthWellness || null;
+      let employmentData = res?.data?.goal?.employment || null;
 
       let entries = [{ ...defaultEntry }];
 
-      if (healthWellnessData) {
-        healthWellnessData = cloneDeep(healthWellnessData);
-        const healthWellnessEntries = healthWellnessData?.healthWellnessEntries;
+      if (employmentData) {
+        employmentData = cloneDeep(employmentData);
+        const employmentEntries = employmentData?.employmentEntries;
 
-        if (!!healthWellnessEntries?.length) {
-          entries = healthWellnessEntries?.map(entry => {
+        if (!!employmentEntries?.length) {
+          entries = employmentEntries?.map(entry => {
             let {
               date,
               type,
@@ -113,9 +112,6 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
             date = date ? dayjs(date)?.toDate() : "";
 
-            const goal = healthAndWellnessGoals?.find(
-              ({ value }) => type === value
-            );
             const frequency = frequencyOptions?.find(
               ({ value }) => schedule === value
             );
@@ -126,7 +122,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
             const entryObject = {
               date,
               criteria,
-              goal: goal || null,
+              goal: type || "",
               frequency: frequency || null,
               assessment: assessment || null,
               shortTermGoal: shortTermObjective,
@@ -146,7 +142,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
           });
         }
 
-        setAnnualGoal(healthWellnessData?.annualGoal);
+        setAnnualGoal(employmentData?.annualGoal);
       }
 
       setTableEntries(entries);
@@ -172,12 +168,12 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       const payload = {
         year: parseInt(year),
         studentId: parseInt(id),
-        goal: { healthWellness: { annualGoal } },
+        goal: { miscellaneous: { annualGoal } },
       };
 
-      let healthWellnessEntries = [];
+      let miscellaneousEntries = [];
       if (!!tableEntries?.length) {
-        healthWellnessEntries = tableEntries?.map(entry => {
+        miscellaneousEntries = tableEntries?.map(entry => {
           let { date, goal, criteria, frequency, assessment, shortTermGoal } =
             entry || {};
 
@@ -185,8 +181,8 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
           const entryObject = {
             criteria,
+            type: goal,
             date: date || null,
-            type: goal?.value || null,
             shortTermObjective: shortTermGoal,
             schedule: frequency?.value || null,
             assessmentType: assessment?.value || null,
@@ -202,7 +198,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
         });
       }
 
-      payload.goal.healthWellness.healthWellnessEntries = healthWellnessEntries;
+      payload.goal.miscellaneous.miscellaneousEntries = miscellaneousEntries;
 
       // TODO
       // if (isQuarterlyPlan) payload.quarter = "quarter";
@@ -214,14 +210,6 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <LoaderWrapper>
-        <Loader />
-      </LoaderWrapper>
-    );
-  }
-
   return (
     <FlexBox column width="100%" rowGap="1.5rem">
       <Text weight={500} size="1.125rem">
@@ -230,7 +218,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
       <Container>
         <Text weight={500} size="1.125rem">
-          Health & Wellness
+          Miscellaneous
         </Text>
 
         <FlexBox column rowGap="0.75rem">
@@ -246,10 +234,10 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
       <FlexBox column rowGap="0.75rem" align="flex-end">
         <EntryTable
+          isGoalText
           tableEntries={tableEntries}
           setTableEntries={setTableEntries}
           isQuarterlyPlan={isQuarterlyPlan}
-          goalOptions={healthAndWellnessGoals}
           defaultTableEntry={defaultTableEntry}
         />
 
@@ -261,4 +249,4 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
   );
 };
 
-export default HealthWellness;
+export default Misc;
