@@ -13,6 +13,7 @@ const Wrapper = styled(FlexBox)`
   overflow: auto;
   row-gap: 1.5rem;
   max-height: 100vh;
+  position: relative;
   flex-direction: column;
   padding: 3.5rem 4rem 1.5rem;
   background-color: ${PRIMARY_25};
@@ -48,7 +49,7 @@ const AnnualPlanLayout = ({ children }) => {
         </Text>
 
         <FlexBox align="center" colGap="2rem">
-          <Text weight={500} size="0.875rem">
+          <Text weight={500} size="0.875rem" transform="capitalize">
             {name}
           </Text>
 
