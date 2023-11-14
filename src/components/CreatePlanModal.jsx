@@ -79,7 +79,7 @@ const Footer = styled(FlexBox)`
   border-top: 1px solid ${GRAY_200};
 `;
 
-const CreatePlanModal = () => {
+const CreatePlanModal = ({ toggleModal = () => {} }) => {
   const router = useRouter();
 
   const [year, setYear] = useState(null);
@@ -136,7 +136,9 @@ const CreatePlanModal = () => {
         </FlexBox>
 
         <Footer>
-          <SecondaryButton disabled={ctaDisabled}>Cancel</SecondaryButton>
+          <SecondaryButton disabled={ctaDisabled} onClick={toggleModal}>
+            Cancel
+          </SecondaryButton>
           <PrimaryButton disabled={ctaDisabled} onClick={createAnnualPlan}>
             Create
           </PrimaryButton>
