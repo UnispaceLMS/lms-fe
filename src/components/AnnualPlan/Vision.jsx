@@ -75,7 +75,7 @@ const Vision = () => {
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
-      const res = await axiosInstance.get(urls.fetchAllAnnualPlans, { params });
+      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
       const data = res?.data?.vision;
 
       if (data) setVision(data);

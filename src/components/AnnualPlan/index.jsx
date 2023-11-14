@@ -104,7 +104,7 @@ const NewPlanButton = styled.button`
   }
 `;
 
-const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
+const RenderPlanCard = ({ plan, link = "", disabled, PlanImage }) => (
   <PlanCard>
     <ImageContainer>{PlanImage}</ImageContainer>
 
@@ -113,9 +113,13 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
         {plan}
       </Text>
 
-      <Link href={link}>
-        <SecondaryButton>Create</SecondaryButton>
-      </Link>
+      {disabled ? (
+        <SecondaryButton disabled>Create</SecondaryButton>
+      ) : (
+        <Link href={link}>
+          <SecondaryButton>Create</SecondaryButton>
+        </Link>
+      )}
     </PlanFooter>
   </PlanCard>
 );
@@ -210,6 +214,7 @@ const AnnualPlan = () => {
       <PlansGrid>
         <RenderPlanCard
           plan="Goal"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Goal"
@@ -223,6 +228,7 @@ const AnnualPlan = () => {
         />
 
         <RenderPlanCard
+          disabled={!planYear}
           plan="Present Levels"
           PlanImage={
             <Image
@@ -238,6 +244,7 @@ const AnnualPlan = () => {
 
         <RenderPlanCard
           plan="Assessment"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Assessment"
@@ -252,6 +259,7 @@ const AnnualPlan = () => {
 
         <RenderPlanCard
           plan="Vision"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Vision"

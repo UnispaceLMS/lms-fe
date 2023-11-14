@@ -83,7 +83,9 @@ const PresentLevels = () => {
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
-      const res = await axiosInstance.get(urls.fetchAllAnnualPlans, { params });
+      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
+
+      if (res?.data) setPresentLevel(res?.data?.presentLevel);
     } catch (error) {
       console.log(error, "Error in fetching plan data");
     } finally {
