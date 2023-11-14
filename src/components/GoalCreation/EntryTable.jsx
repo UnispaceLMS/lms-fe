@@ -190,16 +190,9 @@ const TableHeader = ({ isQuarterlyPlan }) => (
 
 const TableRow = ({
   i,
-  goal,
-  date,
-  status,
-  criteria,
-  frequency,
-  assessment,
+  entry,
   isGoalText,
-  statusNote,
   goalOptions,
-  shortTermGoal,
   isQuarterlyPlan,
   handleDelete = () => {},
   handleDateInput = () => {},
@@ -211,6 +204,17 @@ const TableRow = ({
 
   const [height1, setHeight1] = useState(areaRef1?.current?.scrollHeight);
   const [height2, setHeight2] = useState(areaRef1?.current?.scrollHeight);
+
+  const {
+    goal,
+    date,
+    status,
+    criteria,
+    frequency,
+    assessment,
+    statusNote,
+    shortTermGoal,
+  } = entry || {};
 
   const handleDateChange = date => handleDateInput(date, i);
 
@@ -466,6 +470,7 @@ const EntryTable = ({
   goalOptions,
   tableEntries,
   setTableEntries,
+  isQuarterlyPlan,
   defaultTableEntry,
 }) => {
   const handleTextInput = (e, i) => {
@@ -533,31 +538,22 @@ const EntryTable = ({
   return (
     <Wrapper>
       <TableOverflow>
-        <TableHeader />
+        <TableHeader isQuarterlyPlan={isQuarterlyPlan} />
 
-        {tableEntries?.map(
-          (
-            { goal, date, criteria, shortTermGoal, assessment, frequency },
-            i
-          ) => (
-            <TableRow
-              i={i}
-              key={i}
-              goal={goal}
-              date={date}
-              criteria={criteria}
-              frequency={frequency}
-              isGoalText={isGoalText}
-              assessment={assessment}
-              goalOptions={goalOptions}
-              handleDelete={handleDelete}
-              shortTermGoal={shortTermGoal}
-              handleDateInput={handleDateInput}
-              handleTextInput={handleTextInput}
-              handleSelectInput={handleSelectInput}
-            />
-          )
-        )}
+        {tableEntries?.map((entry, i) => (
+          <TableRow
+            i={i}
+            key={i}
+            entry={entry}
+            isGoalText={isGoalText}
+            goalOptions={goalOptions}
+            handleDelete={handleDelete}
+            isQuarterlyPlan={isQuarterlyPlan}
+            handleDateInput={handleDateInput}
+            handleTextInput={handleTextInput}
+            handleSelectInput={handleSelectInput}
+          />
+        ))}
       </TableOverflow>
 
       <TableFooter onClick={incrementRows} />
