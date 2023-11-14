@@ -13,8 +13,9 @@ const urls = {
   studentCreateUpdate: `${apiURL}/student/createOrUpdate`,
 
   // annual plans
-  fetchAnnualPlans: `${apiURL}/annualPlan/fetch`,
+  fetchAnnualPlan: `${apiURL}/annualPlan/fetch`,
   deleteAnnualPlan: `${apiURL}/annualPlan/delete`,
+  fetchAllAnnualPlans: `${apiURL}/annualPlan/fetchYears`,
   createUpdateAnnualPlan: `${apiURL}/annualPlan/createOrUpdate`,
 };
 
