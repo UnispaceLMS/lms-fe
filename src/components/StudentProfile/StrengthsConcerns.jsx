@@ -113,17 +113,17 @@ const StrengthsConcerns = () => {
         ?.map(({ note }) => ({ note, type: strengthEnums.student }));
 
       if (!!familyIdentifiedConcerns?.length) {
-        concerns = [...concerns, familyIdentifiedConcerns];
+        concerns = [...concerns, ...familyIdentifiedConcerns];
       }
       if (!!studentIdentifiedConcerns?.length) {
-        concerns = [...concerns, studentIdentifiedConcerns];
+        concerns = [...concerns, ...studentIdentifiedConcerns];
       }
 
       if (!!familyIdentifiedStrengths?.length) {
-        strengths = [...strengths, familyIdentifiedStrengths];
+        strengths = [...strengths, ...familyIdentifiedStrengths];
       }
       if (!!studentIdentifiedStrengths?.length) {
-        strengths = [...strengths, studentIdentifiedStrengths];
+        strengths = [...strengths, ...studentIdentifiedStrengths];
       }
 
       if (!!concerns?.length) payload.concerns = concerns;

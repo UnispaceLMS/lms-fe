@@ -285,15 +285,22 @@ const Roster = () => {
     try {
       setLoading(true);
 
-      // TODO
+      const params = {};
+
+      if (!isNaN(page)) params.page = page - 1;
+
       const res = await axiosInstance.delete(urls.deleteStudents, {
         data: selectedStudents,
         signal: abortController?.current?.signal,
       });
-      const list = res?.data || [];
+      const list = res?.data?.response || [];
+      const totalPages = res?.data?.totalPages || 0;
+      const currentPage = res?.data?.currentPage + 1 || 1;
 
       setSelectedStudents([]);
       setRoster(list);
+      setPage(currentPage);
+      setTotalPages(totalPages);
     } catch (error) {
       console.log(error, "Error in deleting students");
     } finally {

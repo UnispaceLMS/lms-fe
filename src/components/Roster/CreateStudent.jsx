@@ -124,7 +124,7 @@ const CreateStudent = ({ toggleModal }) => {
 
       <Body>
         <FlexBox width="100%" align="center" justify="space-between">
-          <Text size="0.875rem">Student First Name</Text>
+          <Text size="0.875rem">Student First Name*</Text>
           <Input
             name="firstName"
             value={firstName}
@@ -144,7 +144,7 @@ const CreateStudent = ({ toggleModal }) => {
         </FlexBox>
 
         <FlexBox width="100%" align="center" justify="space-between">
-          <Text size="0.875rem">Student Last Name</Text>
+          <Text size="0.875rem">Student Last Name*</Text>
           <Input
             name="lastName"
             value={lastName}
