@@ -14,7 +14,7 @@ const assetPrefix = {
 
 module.exports = {
   distDir: ".next",
+  reactStrictMode: false,
   basePath: basePath[env],
   assetPrefix: assetPrefix[env],
-  reactStrictMode: env !== "production",
 };
