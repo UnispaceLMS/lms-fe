@@ -78,20 +78,31 @@ const Safety = ({ isQuarterlyPlan }) => {
 
   const fetchPlanDetails = async () => {
     try {
-      const { id, year } = router?.query || {};
+      const { id, year, quarter } = router?.query || {};
 
       if (!id || !year) {
-        setLoading(true);
-        setCtaDisabled(true);
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+      if (isQuarterlyPlan && !quarter) {
+        setLoading(false);
+        setCtaDisabled(false);
         return;
       }
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
+      if (isQuarterlyPlan) params.quarterNumber = parseInt(quarter);
+
       setLoading(true);
       setCtaDisabled(true);
 
-      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
+      const URL = isQuarterlyPlan
+        ? urls.fetchQuarterlyReport
+        : urls.fetchAnnualPlan;
+
+      const res = await axiosInstance.get(URL, { params });
       let safetyData = res?.data?.goal?.safety || null;
 
       let entries = [{ ...defaultEntry }];
@@ -103,6 +114,7 @@ const Safety = ({ isQuarterlyPlan }) => {
         if (!!safetyEntries?.length) {
           entries = safetyEntries?.map(entry => {
             let {
+              id,
               date,
               type,
               criteria,
@@ -129,6 +141,8 @@ const Safety = ({ isQuarterlyPlan }) => {
               assessment: assessment || null,
               shortTermGoal: shortTermObjective,
             };
+
+            if (!isNaN(id)) entryObject.id = id;
 
             if (!isQuarterlyPlan) {
               return entryObject;
@@ -176,8 +190,15 @@ const Safety = ({ isQuarterlyPlan }) => {
       let safetyEntries = [];
       if (!!tableEntries?.length) {
         safetyEntries = tableEntries?.map(entry => {
-          let { date, goal, criteria, frequency, assessment, shortTermGoal } =
-            entry || {};
+          let {
+            id,
+            date,
+            goal,
+            criteria,
+            frequency,
+            assessment,
+            shortTermGoal,
+          } = entry || {};
 
           date = !!date && dayjs(date)?.utc()?.format();
 
@@ -189,6 +210,8 @@ const Safety = ({ isQuarterlyPlan }) => {
             schedule: frequency?.value || null,
             assessmentType: assessment?.value || null,
           };
+
+          if (!isNaN(id)) entryObject.id = id;
 
           if (!isQuarterlyPlan) {
             return entryObject;
@@ -202,12 +225,7 @@ const Safety = ({ isQuarterlyPlan }) => {
 
       payload.goal.safety.safetyEntries = safetyEntries;
 
-      // TODO
-      // if (isQuarterlyPlan) payload.quarter = "quarter";
-
       axiosInstance.put(urls.createUpdateAnnualPlan, payload);
-
-      // tableEntries?.filter(obj => Object?.keys(obj)?.some(key => !!obj?.[key]));
     } catch (error) {
     } finally {
       setCtaDisabled(false);

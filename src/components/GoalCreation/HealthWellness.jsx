@@ -78,20 +78,31 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
 
   const fetchPlanDetails = async () => {
     try {
-      const { id, year } = router?.query || {};
+      const { id, year, quarter } = router?.query || {};
 
       if (!id || !year) {
-        setLoading(true);
-        setCtaDisabled(true);
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+      if (isQuarterlyPlan && !quarter) {
+        setLoading(false);
+        setCtaDisabled(false);
         return;
       }
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
+      if (isQuarterlyPlan) params.quarterNumber = parseInt(quarter);
+
       setLoading(true);
       setCtaDisabled(true);
 
-      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
+      const URL = isQuarterlyPlan
+        ? urls.fetchQuarterlyReport
+        : urls.fetchAnnualPlan;
+
+      const res = await axiosInstance.get(URL, { params });
       let healthWellnessData = res?.data?.goal?.healthWellness || null;
 
       let entries = [{ ...defaultEntry }];
@@ -103,6 +114,7 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
         if (!!healthWellnessEntries?.length) {
           entries = healthWellnessEntries?.map(entry => {
             let {
+              id,
               date,
               type,
               criteria,
@@ -131,6 +143,8 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
               assessment: assessment || null,
               shortTermGoal: shortTermObjective,
             };
+
+            if (!isNaN(id)) entryObject.id = id;
 
             if (!isQuarterlyPlan) {
               return entryObject;
@@ -178,8 +192,15 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       let healthWellnessEntries = [];
       if (!!tableEntries?.length) {
         healthWellnessEntries = tableEntries?.map(entry => {
-          let { date, goal, criteria, frequency, assessment, shortTermGoal } =
-            entry || {};
+          let {
+            id,
+            date,
+            goal,
+            criteria,
+            frequency,
+            assessment,
+            shortTermGoal,
+          } = entry || {};
 
           date = !!date && dayjs(date)?.utc()?.format();
 
@@ -192,6 +213,8 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
             assessmentType: assessment?.value || null,
           };
 
+          if (!isNaN(id)) entryObject.id = id;
+
           if (!isQuarterlyPlan) {
             return entryObject;
           }
@@ -203,9 +226,6 @@ const HealthWellness = ({ isQuarterlyPlan }) => {
       }
 
       payload.goal.healthWellness.healthWellnessEntries = healthWellnessEntries;
-
-      // TODO
-      // if (isQuarterlyPlan) payload.quarter = "quarter";
 
       await axiosInstance.put(urls.createUpdateAnnualPlan, payload);
     } catch (error) {

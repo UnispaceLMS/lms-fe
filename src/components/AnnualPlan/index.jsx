@@ -162,7 +162,7 @@ const AnnualPlan = () => {
       const res = await axiosInstance.get(urls.fetchAllAnnualPlans, { params });
 
       setAnnualPlans(res?.data);
-      if (isEmpty(res?.data)) setShowCreateModal(true);
+      if (isEmpty(res?.data) && !year) setShowCreateModal(true);
     } catch (error) {
       console.log(error, "Error in fetching Annual Plans");
     } finally {
@@ -173,7 +173,7 @@ const AnnualPlan = () => {
   const handleYearSelect = year => {
     try {
       setPlanYear(year);
-      router.push(`/student/${id}/annual-plan/${year?.value}`);
+      router.replace(`/student/${id}/annual-plan/${year?.value}`);
     } catch (error) {
       console.log(error);
     }

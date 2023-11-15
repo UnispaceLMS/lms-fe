@@ -77,20 +77,31 @@ const Misc = ({ isQuarterlyPlan }) => {
 
   const fetchPlanDetails = async () => {
     try {
-      const { id, year } = router?.query || {};
+      const { id, year, quarter } = router?.query || {};
 
       if (!id || !year) {
-        setLoading(true);
-        setCtaDisabled(true);
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+      if (isQuarterlyPlan && !quarter) {
+        setLoading(false);
+        setCtaDisabled(false);
         return;
       }
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
+      if (isQuarterlyPlan) params.quarterNumber = parseInt(quarter);
+
       setLoading(true);
       setCtaDisabled(true);
 
-      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
+      const URL = isQuarterlyPlan
+        ? urls.fetchQuarterlyReport
+        : urls.fetchAnnualPlan;
+
+      const res = await axiosInstance.get(URL, { params });
       let employmentData = res?.data?.goal?.employment || null;
 
       let entries = [{ ...defaultEntry }];
@@ -102,6 +113,7 @@ const Misc = ({ isQuarterlyPlan }) => {
         if (!!employmentEntries?.length) {
           entries = employmentEntries?.map(entry => {
             let {
+              id,
               date,
               type,
               criteria,
@@ -127,6 +139,8 @@ const Misc = ({ isQuarterlyPlan }) => {
               assessment: assessment || null,
               shortTermGoal: shortTermObjective,
             };
+
+            if (!isNaN(id)) entryObject.id = id;
 
             if (!isQuarterlyPlan) {
               return entryObject;
@@ -174,8 +188,15 @@ const Misc = ({ isQuarterlyPlan }) => {
       let miscellaneousEntries = [];
       if (!!tableEntries?.length) {
         miscellaneousEntries = tableEntries?.map(entry => {
-          let { date, goal, criteria, frequency, assessment, shortTermGoal } =
-            entry || {};
+          let {
+            id,
+            date,
+            goal,
+            criteria,
+            frequency,
+            assessment,
+            shortTermGoal,
+          } = entry || {};
 
           date = !!date && dayjs(date)?.utc()?.format();
 
@@ -188,6 +209,8 @@ const Misc = ({ isQuarterlyPlan }) => {
             assessmentType: assessment?.value || null,
           };
 
+          if (!isNaN(id)) entryObject.id = id;
+
           if (!isQuarterlyPlan) {
             return entryObject;
           }
@@ -199,9 +222,6 @@ const Misc = ({ isQuarterlyPlan }) => {
       }
 
       payload.goal.miscellaneous.miscellaneousEntries = miscellaneousEntries;
-
-      // TODO
-      // if (isQuarterlyPlan) payload.quarter = "quarter";
 
       await axiosInstance.put(urls.createUpdateAnnualPlan, payload);
     } catch (error) {

@@ -32,7 +32,7 @@ const Overview = ({ isQuarterlyPlan }) => {
   const router = useRouter();
 
   const [overview, setOverview] = useState({
-    career: "",
+    employment: "",
     education: "",
     independentLiving: "",
     communityParticipation: "",
@@ -40,7 +40,7 @@ const Overview = ({ isQuarterlyPlan }) => {
   const [loading, setLoading] = useState(false);
   const [ctaDisabled, setCtaDisabled] = useState(false);
 
-  const { career, education, independentLiving, communityParticipation } =
+  const { employment, education, independentLiving, communityParticipation } =
     overview;
 
   useEffect(() => {
@@ -51,20 +51,31 @@ const Overview = ({ isQuarterlyPlan }) => {
 
   const fetchPlanDetails = async () => {
     try {
-      const { id, year } = router?.query || {};
+      const { id, year, quarter } = router?.query || {};
 
       if (!id || !year) {
-        setLoading(true);
-        setCtaDisabled(true);
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+      if (isQuarterlyPlan && !quarter) {
+        setLoading(false);
+        setCtaDisabled(false);
         return;
       }
 
       const params = { year: parseInt(year), studentId: parseInt(id) };
 
+      if (isQuarterlyPlan) params.quarterNumber = parseInt(quarter);
+
       setLoading(true);
       setCtaDisabled(true);
 
-      const res = await axiosInstance.get(urls.fetchAnnualPlan, { params });
+      const URL = isQuarterlyPlan
+        ? urls.fetchQuarterlyReport
+        : urls.fetchAnnualPlan;
+
+      const res = await axiosInstance.get(URL, { params });
       let overviewData = res?.data?.goal?.overview || null;
 
       if (overviewData) {
@@ -98,8 +109,6 @@ const Overview = ({ isQuarterlyPlan }) => {
       if (!id || !year) return;
 
       const payload = { year, studentId: id, goal: { overview } };
-      // TODO
-      // if (isQuarterlyPlan) payload.quarter = "quarter";
 
       await axiosInstance.put(urls.createUpdateAnnualPlan, payload);
     } catch (error) {
@@ -159,8 +168,8 @@ const Overview = ({ isQuarterlyPlan }) => {
 
           <TextArea
             rows={1}
-            name="career"
-            value={career}
+            name="employment"
+            value={employment}
             placeholder="Enter"
             onChange={handleInput}
           />

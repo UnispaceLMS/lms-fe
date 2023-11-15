@@ -286,7 +286,7 @@ const Assessment = () => {
               transitionAssessmentEnums
             )?.find(key => transitionAssessmentEnums?.[key] === category);
 
-            assessments[assessmentCategory] = score?.toString();
+            assessments[assessmentCategory].score = score?.toString();
           });
         }
         setAssessments(assessments);
