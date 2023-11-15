@@ -157,11 +157,13 @@ const Sidebar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const sidebarRef = useRef(null);
+  const user = useSelector(state => state?.auth?.user);
   const expanded = useSelector(state => state.sidebar?.expanded);
 
   const id = router?.query?.id;
   const year = router?.query?.year;
   const quarter = router?.query?.quarter || 1;
+  const userName = `${user?.firstName || ""} ${user?.lastName || ""}`;
 
   // TODO - decide
   const yearString = year ? `/${year}` : "";
@@ -175,14 +177,14 @@ const Sidebar = () => {
 
   const toggleExpanded = () => dispatch(toggleSidebar());
 
-  const goHome = () => router.push("/");
+  // const goHome = () => router.push("/");
 
   const handleLogout = () => dispatch(logout());
 
   return (
     <Wrapper ref={sidebarRef} expanded={expanded}>
       <TopHalf>
-        <LogoContainer onClick={goHome}>
+        <LogoContainer>
           <Image
             priority
             width={36}
@@ -264,9 +266,8 @@ const Sidebar = () => {
 
       <BottomHalf>
         <NavItem padding="0.875rem 0.8rem" selected={false}>
-          {/* TODO */}
           <InitialsContainer>
-            <NameInitials name="Aryaman Rishabh" />
+            <NameInitials name={userName} />
           </InitialsContainer>
 
           <TextContainer>
