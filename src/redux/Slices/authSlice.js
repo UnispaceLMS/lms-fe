@@ -18,7 +18,7 @@ export const login = createAsyncThunk(
     try {
       const res = await axiosInstance.post(urls.login, payload);
 
-      window.location.href = "/";
+      window.location.href = "/roster";
       return fulfillWithValue(res?.data);
     } catch (error) {
       console.log(error, "Error in login");
