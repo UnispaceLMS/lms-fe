@@ -104,7 +104,7 @@ const NewPlanButton = styled.button`
   }
 `;
 
-const RenderPlanCard = ({ plan, link = "", disabled, PlanImage }) => (
+const RenderPlanCard = ({ plan, link = "", disabled, ctaText, PlanImage }) => (
   <PlanCard>
     <ImageContainer>{PlanImage}</ImageContainer>
 
@@ -117,7 +117,7 @@ const RenderPlanCard = ({ plan, link = "", disabled, PlanImage }) => (
         <SecondaryButton disabled>Create</SecondaryButton>
       ) : (
         <Link href={link}>
-          <SecondaryButton>Create</SecondaryButton>
+          <SecondaryButton>{ctaText}</SecondaryButton>
         </Link>
       )}
     </PlanFooter>
@@ -135,6 +135,7 @@ const AnnualPlan = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const noYearSelected = !year;
+  const currentPlan = annualPlans?.[planYear?.value];
   const yearString = !noYearSelected ? `/${year}` : "";
   const annualPlanRoute = `/student/${id}/annual-plan${yearString}`;
   const planOptions = annualPlans
@@ -225,6 +226,7 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/goal/overview"}
+          ctaText={currentPlan?.goalExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
@@ -240,6 +242,7 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/present-levels"}
+          ctaText={currentPlan?.presentLevelExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
@@ -255,6 +258,7 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/assessment"}
+          ctaText={currentPlan?.assessmentExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
@@ -270,6 +274,7 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/vision"}
+          ctaText={currentPlan?.visionExists ? "View" : "Create"}
         />
       </PlansGrid>
     </AnnualPlanLayout>
