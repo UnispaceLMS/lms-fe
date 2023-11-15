@@ -1,3 +1,4 @@
+import { useState } from "react";
 import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,7 +12,8 @@ import { SecondaryButton } from "@common/Buttons";
 
 import QuarterlyPlanLayout from "@layouts/QuarterlyPlanLayout";
 
-import { GRAY_25, GRAY_50, GRAY_300, GRAY_600 } from "@/constants/colors";
+import { quarters } from "@metadata/quarters";
+import { GRAY_25, GRAY_50, GRAY_300, GRAY_600 } from "@constants/colors";
 
 const customSelectStyles = {
   container: baseStyles => ({
@@ -71,7 +73,7 @@ const ImageContainer = styled(FlexBox)`
   justify-content: center;
 `;
 
-const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
+const RenderPlanCard = ({ plan, link = "", disabled, PlanImage }) => (
   <PlanCard>
     <ImageContainer>{PlanImage}</ImageContainer>
 
@@ -80,9 +82,13 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
         {plan}
       </Text>
 
-      <Link href={link}>
-        <SecondaryButton>Create</SecondaryButton>
-      </Link>
+      {disabled ? (
+        <SecondaryButton disabled>Create</SecondaryButton>
+      ) : (
+        <Link href={link}>
+          <SecondaryButton disabled={disabled}>Create</SecondaryButton>
+        </Link>
+      )}
     </PlanFooter>
   </PlanCard>
 );
@@ -90,9 +96,14 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
 const QuarterlyPlan = () => {
   const router = useRouter();
   const id = router?.query?.id;
-  const quarter = router?.query?.quarter || 1;
-  const year = router?.query?.year || dayjs()?.year();
+  const year = router?.query?.year;
+  const quarter = router?.query?.quarter;
 
+  const [loading, setLoading] = useState(true);
+  const [planYear, setPlanYear] = useState(null);
+  const [allPlans, setAllPlans] = useState(null);
+
+  const noYearSelected = !year;
   const quarterlyPlanRoute = `/student/${id}/quarterly-plan/${year}/${quarter}`;
 
   return (
@@ -100,12 +111,19 @@ const QuarterlyPlan = () => {
       <FlexBox column rowGap="1.5rem">
         <FlexBox colGap="0.5rem">
           <Select placeholder="Year" styles={customSelectStyles} />
-          <Select placeholder="Quarter" styles={customSelectStyles} />
+
+          <Select
+            options={quarters}
+            placeholder="Quarter"
+            isDisabled={!planYear}
+            styles={customSelectStyles}
+          />
         </FlexBox>
 
         <PlansGrid>
           <RenderPlanCard
             plan="Goal"
+            disabled={!planYear}
             PlanImage={
               <Image
                 alt="Goal"
@@ -120,6 +138,7 @@ const QuarterlyPlan = () => {
 
           <RenderPlanCard
             plan="Grades"
+            disabled={!planYear}
             PlanImage={
               <Image
                 alt="Grades"
