@@ -16,7 +16,9 @@ const urls = {
   fetchAnnualPlan: `${apiURL}/annualPlan/fetch`,
   deleteAnnualPlan: `${apiURL}/annualPlan/delete`,
   fetchAllAnnualPlans: `${apiURL}/annualPlan/fetchYears`,
+  fetchQuarterlyReport: `${apiURL}/annualPlan/quarterlyReport`,
   createUpdateAnnualPlan: `${apiURL}/annualPlan/createOrUpdate`,
+  updateGrades: `${apiURL}/annualPlan/quarterlyReport/grades/update`,
 };
 
 export default urls;
