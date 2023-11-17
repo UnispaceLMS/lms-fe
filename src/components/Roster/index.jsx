@@ -1,17 +1,21 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import debounce from "lodash.debounce";
 import styled, { css } from "styled-components";
 import { FiCheck, FiTrash2 } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
 import { IoSearch, IoAddCircle } from "react-icons/io5";
 
 import Text from "@common/Text";
 import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
+import Paginator from "@common/Paginator";
 import { ViewButton } from "@common/Buttons";
 import ModalBackDrop from "@common/ModalBackDrop";
 
 import CreateStudent from "./CreateStudent";
+
+import urls from "@urls";
+import axiosInstance from "@axiosInstance";
 
 import {
   WHITE,
@@ -22,7 +26,6 @@ import {
   SUCCESS_600,
 } from "@constants/colors";
 import { buildName } from "@utils/helpers";
-import { deleteStudents, fetchRoster } from "@redux/Slices/rosterSlice";
 
 const Wrapper = styled(FlexBox)`
   flex: 1;
@@ -226,16 +229,84 @@ const StudentEntry = ({
 );
 
 const Roster = () => {
-  const dispatch = useDispatch();
-  const roster = useSelector(state => state?.roster?.list);
-  const rosterLoading = useSelector(state => state?.roster?.loading);
+  let abortController = useRef(null);
+  try {
+    abortController.current = new AbortController();
+  } catch (error) {}
 
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [roster, setRoster] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [showCreateStudentModal, setShowCreateStudentModal] = useState(false);
 
   useEffect(() => {
-    if (!roster) dispatch(fetchRoster());
-  }, [roster]);
+    const controller = abortController?.current;
+
+    return () => controller?.abort?.();
+  }, []);
+
+  // debounce, search
+  useEffect(() => {
+    fetchRoster();
+  }, [page]);
+
+  const fetchRoster = async query => {
+    try {
+      setLoading(true);
+
+      const params = {};
+      const searchQuery = query || search;
+
+      if (!!searchQuery) {
+        params.size = 50;
+        params.searchQuery = query;
+      } else if (!isNaN(page)) params.page = page - 1; // subtracting 1 because of pages 0-indexing
+
+      const res = await axiosInstance.get(urls.roster, {
+        params,
+        signal: abortController?.current?.signal,
+      });
+      const list = res?.data?.response || [];
+      const totalPages = res?.data?.totalPages || 0;
+
+      setRoster(list);
+      setTotalPages(totalPages);
+    } catch (error) {
+      console.log(error, "Error in fetching roster");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteStudents = async () => {
+    try {
+      setLoading(true);
+
+      const params = {};
+
+      if (!isNaN(page)) params.page = page - 1;
+
+      const res = await axiosInstance.delete(urls.deleteStudents, {
+        data: selectedStudents,
+        signal: abortController?.current?.signal,
+      });
+      const list = res?.data?.response || [];
+      const totalPages = res?.data?.totalPages || 0;
+      const currentPage = res?.data?.currentPage + 1 || 1;
+
+      setSelectedStudents([]);
+      setRoster(list);
+      setPage(currentPage);
+      setTotalPages(totalPages);
+    } catch (error) {
+      console.log(error, "Error in deleting students");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleCreateStudentModal = () =>
     setShowCreateStudentModal(prev => !prev);
@@ -273,10 +344,20 @@ const Roster = () => {
     }
   };
 
-  const handleDelete = () => {
-    dispatch(deleteStudents(selectedStudents));
-    setSelectedStudents([]);
+  const handlePageChange = page => {
+    if (page < 1) {
+      setPage(1);
+    } else if (page > totalPages) {
+      setPage(totalPages);
+    } else {
+      setPage(page);
+    }
   };
+
+  const debouncedSearch = useCallback(
+    debounce(query => fetchRoster(query), 500),
+    []
+  );
 
   return (
     <Wrapper>
@@ -291,7 +372,7 @@ const Roster = () => {
 
         <Actions>
           <DeleteContainer
-            onClick={handleDelete}
+            onClick={deleteStudents}
             visible={!!selectedStudents?.length}
           >
             <FiTrash2 size="1.25rem" color={ERROR_600} />
@@ -300,14 +381,22 @@ const Roster = () => {
           <FlexBox colGap="0.75rem">
             <SearchInput>
               <IoSearch size="0.875rem" />
-              <input />
+              <input
+                value={search}
+                placeholder="Search Student"
+                onChange={e => {
+                  const query = e.target.value;
+                  setSearch(query);
+                  debouncedSearch(query);
+                }}
+              />
             </SearchInput>
 
-            <ExportExcel>
+            {/* <ExportExcel>
               <Text weight={600} color={SUCCESS_600} size="0.625rem">
                 Export in Excel
               </Text>
-            </ExportExcel>
+            </ExportExcel> */}
 
             <NewStudent onClick={toggleCreateStudentModal}>
               <Text color={WHITE} size="0.625rem">
@@ -318,13 +407,13 @@ const Roster = () => {
           </FlexBox>
         </Actions>
 
-        {rosterLoading && (
+        {loading && (
           <LoaderWrapper>
             <Loader />
           </LoaderWrapper>
         )}
 
-        {!!roster?.length && !rosterLoading && (
+        {!!roster?.length && !loading && (
           <Table>
             <TableHeader
               handleSelect={selectDeselectAll}
@@ -346,6 +435,14 @@ const Roster = () => {
               );
             })}
           </Table>
+        )}
+
+        {!loading && (
+          <Paginator
+            currentPage={page}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+          />
         )}
       </Container>
     </Wrapper>

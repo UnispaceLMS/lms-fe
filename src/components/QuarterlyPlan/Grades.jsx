@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import cloneDeep from "lodash.clonedeep";
 import styled, { css } from "styled-components";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
+
+import urls from "@/urls";
+import axiosInstance from "@/axiosInstance";
 
 import {
   WHITE,
@@ -14,6 +20,11 @@ import {
   GRAY_500,
   GRAY_700,
 } from "@constants/colors";
+import { transitionAssessmentEnums } from "@metadata/transitionAssessments";
+
+const LoaderWrapper = styled(FlexBox)`
+  flex: 1;
+`;
 
 const Container = styled(FlexBox)`
   padding: 1.5rem;
@@ -69,6 +80,54 @@ const TableCell = styled(FlexBox)`
     }
   }
 `;
+
+const assessmentEntry = Object.freeze({
+  healthWellness: {
+    label: "Health & Wellness",
+    score: "",
+    comments: "",
+  },
+  personalManagement: {
+    label: "Personal Management",
+    score: "",
+    comments: "",
+  },
+  homeManagement: {
+    label: "Home Management",
+    score: "",
+    comments: "",
+  },
+  safety: {
+    label: "Safety",
+    score: "",
+    comments: "",
+  },
+  transportation: {
+    label: "Transportation",
+    score: "",
+    comments: "",
+  },
+  healthyRelationship: {
+    label: "Healthy Relationship",
+    score: "",
+    comments: "",
+  },
+  moneyManagement: {
+    label: "Money Management",
+    score: "",
+    comments: "",
+  },
+  employment: {
+    label: "Employment",
+    score: "",
+    comments: "",
+  },
+  misc: {
+    label: "Misc",
+    score: "",
+    comments: "",
+  },
+});
 
 const TableHeader = () => (
   <>
@@ -135,53 +194,16 @@ const TableFooter = () => (
 );
 
 const Grades = () => {
-  const [assessments, setAssessments] = useState({
-    healthWellness: {
-      label: "Health & Wellness",
-      score: "",
-      comments: "",
-    },
-    personalManagement: {
-      label: "Personal Management",
-      score: "",
-      comments: "",
-    },
-    homeManagement: {
-      label: "Home Management",
-      score: "",
-      comments: "",
-    },
-    safety: {
-      label: "Safety",
-      score: "",
-      comments: "",
-    },
-    transportation: {
-      label: "Transportation",
-      score: "",
-      comments: "",
-    },
-    healthyRelationship: {
-      label: "Healthy Relationship",
-      score: "",
-      comments: "",
-    },
-    moneyManagement: {
-      label: "Money Management",
-      score: "",
-      comments: "",
-    },
-    employment: {
-      label: "Employment",
-      score: "",
-      comments: "",
-    },
-    misc: {
-      label: "Misc",
-      score: "",
-      comments: "",
-    },
-  });
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+  const [ctaDisabled, setCtaDisabled] = useState(false);
+  const [studentStrengths, setStudentStrengths] = useState("");
+  const [assessments, setAssessments] = useState(cloneDeep(assessmentEntry));
+
+  useEffect(() => {
+    if (router?.isReady) fetchPlanData();
+  }, [router?.isReady]);
 
   const addAssessmentScore = e => {
     try {
@@ -199,6 +221,100 @@ const Grades = () => {
     }
   };
 
+  const fetchPlanData = async () => {
+    try {
+      const { id, year, quarter } = router?.query || {};
+
+      if (!id || !year || !quarter) return;
+
+      setLoading(true);
+      setCtaDisabled(true);
+
+      const params = {
+        year: parseInt(year),
+        studentId: parseInt(id),
+        quarterNumber: parseInt(quarter),
+      };
+
+      const res = await axiosInstance.get(urls.fetchQuarterlyReport, {
+        params,
+      });
+      const quarterlyAssessment = res?.data?.quarterlyAssessments?.[0];
+      const scores = quarterlyAssessment?.scores;
+
+      setStudentStrengths(quarterlyAssessment?.studentStrengths || "");
+
+      if (!!scores?.length) {
+        const assessmentsCopy = cloneDeep(assessmentEntry);
+
+        scores?.forEach(({ score, category, comment }) => {
+          const assessment = Object?.keys(transitionAssessmentEnums)?.find(
+            key => transitionAssessmentEnums?.[key] === category
+          );
+
+          assessmentsCopy[assessment].score = score;
+          assessmentsCopy[assessment].comments = comment;
+        });
+
+        setAssessments(assessmentsCopy);
+      }
+    } catch (error) {
+      console.log(error, "Error in fetching plan data");
+    } finally {
+      setLoading(false);
+      setCtaDisabled(false);
+    }
+  };
+
+  const onSave = async () => {
+    try {
+      const { id, year, quarter } = router?.query || {};
+
+      if (!id || !year || !quarter) return;
+
+      setLoading(true);
+      setCtaDisabled(true);
+
+      const params = {
+        year: parseInt(year),
+        studentId: parseInt(id),
+        quarterNumber: parseInt(quarter),
+      };
+
+      const payload = { studentStrengths, quarterNumber: parseInt(quarter) };
+
+      let scores = [];
+
+      Object?.keys(assessments)?.forEach(key => {
+        const assessment = assessments?.[key];
+        const category = transitionAssessmentEnums?.[key];
+
+        const { score, comments } = assessment || {};
+
+        const entry = { category, comment: comments, score: parseInt(score) };
+
+        scores?.push(entry);
+      });
+
+      payload.scores = scores;
+
+      await axiosInstance.put(urls.updateGrades, payload, { params });
+    } catch (error) {
+      console.log(error, "Error in saving grades");
+    } finally {
+      setLoading(false);
+      setCtaDisabled(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <LoaderWrapper>
+        <Loader />
+      </LoaderWrapper>
+    );
+  }
+
   return (
     <FlexBox column rowGap="1.5rem">
       <Text size="1.125rem" color={GRAY_700}>
@@ -207,7 +323,12 @@ const Grades = () => {
 
       <Container>
         <Text size="0.875rem">Student Strengths</Text>
-        <TextArea rows={1} placeholder="Enter" />
+        <TextArea
+          rows={1}
+          placeholder="Enter"
+          value={studentStrengths}
+          onChange={e => setStudentStrengths(e.target.value)}
+        />
       </Container>
 
       <FlexBox column rowGap="0.75rem">
@@ -232,7 +353,9 @@ const Grades = () => {
           <TableFooter />
         </Table>
 
-        <PrimaryButton>Save</PrimaryButton>
+        <PrimaryButton onClick={onSave} disabled={ctaDisabled}>
+          Save
+        </PrimaryButton>
       </FlexBox>
     </FlexBox>
   );

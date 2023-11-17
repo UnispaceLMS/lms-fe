@@ -1,23 +1,36 @@
-import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Select from "react-select";
+import isEmpty from "lodash.isempty";
 import styled from "styled-components";
 import { useRouter } from "next/router";
+import { IoAddCircle } from "react-icons/io5";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
 import { SecondaryButton } from "@common/Buttons";
 
+import CreatePlanModal from "@components/CreatePlanModal";
+
 import AnnualPlanLayout from "@layouts/AnnualPlanLayout";
 
-import { GRAY_25, GRAY_50, GRAY_300, GRAY_600 } from "@constants/colors";
+import urls from "@urls";
+import axiosInstance from "@axiosInstance";
+
+import {
+  WHITE,
+  GRAY_25,
+  GRAY_50,
+  GRAY_300,
+  GRAY_600,
+  PRIMARY_600,
+} from "@constants/colors";
 
 const customSelectStyles = {
   container: baseStyles => ({
     ...baseStyles,
     width: "fit-content",
-    marginBottom: "1.5rem",
   }),
   control: baseStyles => ({
     ...baseStyles,
@@ -28,6 +41,9 @@ const customSelectStyles = {
     borderColor: GRAY_300,
     borderRadius: "0.5rem",
     padding: "0.5rem 0.75rem",
+    "&:hover": {
+      borderColor: GRAY_300,
+    },
   }),
   valueContainer: baseStyles => ({
     ...baseStyles,
@@ -72,7 +88,23 @@ const ImageContainer = styled(FlexBox)`
   justify-content: center;
 `;
 
-const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
+const NewPlanButton = styled.button`
+  border: none;
+  cursor: pointer;
+  column-gap: 0.5rem;
+  align-items: center;
+  display: inline-flex;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1rem;
+  background-color: ${PRIMARY_600};
+
+  svg {
+    min-width: 0.875rem;
+    min-height: 0.875rem;
+  }
+`;
+
+const RenderPlanCard = ({ plan, link = "", disabled, ctaText, PlanImage }) => (
   <PlanCard>
     <ImageContainer>{PlanImage}</ImageContainer>
 
@@ -81,9 +113,13 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
         {plan}
       </Text>
 
-      <Link href={link}>
-        <SecondaryButton>Create</SecondaryButton>
-      </Link>
+      {disabled ? (
+        <SecondaryButton disabled>Create</SecondaryButton>
+      ) : (
+        <Link href={link}>
+          <SecondaryButton>{ctaText}</SecondaryButton>
+        </Link>
+      )}
     </PlanFooter>
   </PlanCard>
 );
@@ -91,17 +127,95 @@ const RenderPlanCard = ({ plan, link = "", PlanImage }) => (
 const AnnualPlan = () => {
   const router = useRouter();
   const id = router?.query?.id;
-  const year = router?.query?.year || dayjs()?.year();
+  const year = router?.query?.year;
 
-  const annualPlanRoute = `/student/${id}/annual-plan/${year}`;
+  const [loading, setLoading] = useState(true);
+  const [planYear, setPlanYear] = useState(null);
+  const [annualPlans, setAnnualPlans] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const noYearSelected = !year;
+  const currentPlan = annualPlans?.[planYear?.value];
+  const yearString = !noYearSelected ? `/${year}` : "";
+  const annualPlanRoute = `/student/${id}/annual-plan${yearString}`;
+  const planOptions = annualPlans
+    ? Object?.keys(annualPlans)?.map(year => ({ value: year, label: year }))
+    : null;
+
+  useEffect(() => {
+    if (router?.isReady) {
+      fetchAnnualPlans();
+
+      if (year) {
+        setPlanYear({ value: parseInt(year), label: parseInt(year) });
+      }
+    }
+  }, [router?.isReady]);
+
+  const fetchAnnualPlans = async () => {
+    try {
+      if (!id) return;
+
+      setLoading(true);
+      const params = { studentId: id };
+
+      const res = await axiosInstance.get(urls.fetchAllAnnualPlans, { params });
+
+      setAnnualPlans(res?.data);
+      if (isEmpty(res?.data) && !year) setShowCreateModal(true);
+    } catch (error) {
+      console.log(error, "Error in fetching Annual Plans");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleYearSelect = year => {
+    try {
+      setPlanYear(year);
+      router.replace(`/student/${id}/annual-plan/${year?.value}`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const toggleShowCreateModal = () => setShowCreateModal(prev => !prev);
 
   return (
     <AnnualPlanLayout>
-      <Select placeholder="Year" styles={customSelectStyles} />
+      {showCreateModal && (
+        <CreatePlanModal toggleModal={toggleShowCreateModal} />
+      )}
+
+      <FlexBox
+        width="100%"
+        align="center"
+        margin="0 0 1.5rem"
+        justify="space-between"
+      >
+        <Select
+          value={planYear}
+          placeholder="Year"
+          options={planOptions}
+          isDisabled={!planOptions}
+          styles={customSelectStyles}
+          onChange={handleYearSelect}
+        />
+
+        {!noYearSelected && (
+          <NewPlanButton onClick={toggleShowCreateModal}>
+            <Text weight={500} size="0.75rem" color={WHITE}>
+              Create new plan
+            </Text>
+            <IoAddCircle color={WHITE} />
+          </NewPlanButton>
+        )}
+      </FlexBox>
 
       <PlansGrid>
         <RenderPlanCard
           plan="Goal"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Goal"
@@ -112,9 +226,11 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/goal/overview"}
+          ctaText={currentPlan?.goalExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
+          disabled={!planYear}
           plan="Present Levels"
           PlanImage={
             <Image
@@ -126,10 +242,12 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/present-levels"}
+          ctaText={currentPlan?.presentLevelExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
           plan="Assessment"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Assessment"
@@ -140,10 +258,12 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/assessment"}
+          ctaText={currentPlan?.assessmentExists ? "View" : "Create"}
         />
 
         <RenderPlanCard
           plan="Vision"
+          disabled={!planYear}
           PlanImage={
             <Image
               alt="Vision"
@@ -154,6 +274,7 @@ const AnnualPlan = () => {
             />
           }
           link={annualPlanRoute + "/vision"}
+          ctaText={currentPlan?.visionExists ? "View" : "Create"}
         />
       </PlansGrid>
     </AnnualPlanLayout>

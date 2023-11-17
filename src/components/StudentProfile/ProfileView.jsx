@@ -10,12 +10,18 @@ import FlexBox from "@common/FlexBox";
 
 import {
   WHITE,
+  GRAY_50,
+  GRAY_200,
   GRAY_300,
+  GRAY_500,
   GRAY_600,
   GRAY_700,
+  GRAY_800,
   PRIMARY_500,
 } from "@constants/colors";
 import { buildName } from "@utils/helpers";
+import { studentPrograms } from "@metadata/programs";
+import { concernEnums, strengthEnums } from "@metadata/strengthsConcerns";
 
 const Wrapper = styled(FlexBox)`
   width: 100%;
@@ -69,13 +75,25 @@ const ContactLHS = styled(FlexBox)`
   flex-direction: column;
 `;
 
+const RecordsLHS = styled(FlexBox)`
+  flex: 1;
+  row-gap: 1.25rem;
+  flex-direction: column;
+`;
+
+const AssistanceLHS = styled(FlexBox)`
+  flex: 1;
+  row-gap: 1.25rem;
+  flex-direction: column;
+`;
+
 const DropSelect = styled(FlexBox)`
+  height: 100%;
   width: 11.5rem;
   row-gap: 1.125rem;
   min-height: 12rem;
   border-radius: 0.5rem;
   flex-direction: column;
-  justify-content: center;
   padding: 0.5rem 0.375rem;
   border: 2px solid ${GRAY_300};
 `;
@@ -89,6 +107,11 @@ const DropOption = styled(FlexBox)`
   padding: 0.625rem 0.75rem;
   background-color: ${WHITE};
 
+  ${Text} {
+    font-weight: 400;
+    color: ${GRAY_600};
+  }
+
   ${({ selected }) =>
     selected &&
     css`
@@ -96,14 +119,65 @@ const DropOption = styled(FlexBox)`
 
       ${Text} {
         color: ${WHITE};
+        font-weight: 600;
       }
+    `}
+`;
+
+const AllergiesTable = styled.div`
+  gap: 1px;
+  width: 65%;
+  display: grid;
+  overflow: hidden;
+  max-width: 37.5rem;
+  border-radius: 0.5rem;
+  background-color: ${GRAY_200};
+  border: 1px solid ${GRAY_200};
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+const SupportTable = styled.div`
+  gap: 1px;
+  width: 90%;
+  display: grid;
+  overflow: hidden;
+  max-width: 52.5rem;
+  border-radius: 0.5rem;
+  background-color: ${GRAY_200};
+  border: 1px solid ${GRAY_200};
+  grid-template-columns: 30% 35% 35%;
+`;
+
+const TableCell = styled(FlexBox)`
+  width: 100%;
+  padding: 0.75rem;
+  background-color: ${WHITE};
+
+  ${Text} {
+    font-size: 0.75rem;
+  }
+
+  ${({ header }) =>
+    header &&
+    css`
+      background-color: ${GRAY_50};
+
+      ${Text} {
+        font-weight: 600;
+        color: ${GRAY_500};
+      }
+    `}
+
+  ${({ footer }) =>
+    footer &&
+    css`
+      background-color: ${GRAY_50};
     `}
 `;
 
 const commonIconProps = { size: "1.25rem", color: GRAY_600 };
 
 const recordOptions = {
-  other: { slug: "other", link: "" },
   mental: { slug: "mental", link: "/mental-health" },
   medical: { slug: "medical", link: "/medical-records" },
 };
@@ -118,38 +192,497 @@ const personalLifeOptions = {
 };
 
 const assistanceOptions = {
-  morning: { slug: "morning" },
-  evening: { slug: "evening" },
-  selfManaged: { slug: "self-managed" },
-  asstRequired: { slug: "assistance-required" },
+  routine: { slug: "routine" },
+  support: { slug: "support" },
 };
 
-const Label = ({ children }) => <Text weight={500}>{children}</Text>;
+const strengthConcernOptions = {
+  concerns: { slug: "concerns" },
+  strengths: { slug: "strengths" },
+};
+
+const Label = ({ children }) => <Text color={GRAY_800}>{children}</Text>;
+
+const AllergyRow = ({ allergy, reaction }) => (
+  <>
+    <TableCell>
+      <Text color={GRAY_700}>{allergy}</Text>
+    </TableCell>
+    <TableCell>
+      <Text color={GRAY_700}>{reaction}</Text>
+    </TableCell>
+  </>
+);
+
+const MedicalRecords = ({ allergies, medicineRoutine, primaryDiagnosis }) => (
+  <>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Primary Diagnosis</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {primaryDiagnosis || "N/A"}
+      </Text>
+    </FlexBox>
+
+    {!!allergies?.length && (
+      <AllergiesTable>
+        <>
+          <TableCell header>
+            <Text>Allergies</Text>
+          </TableCell>
+          <TableCell header>
+            <Text>Allergies Reaction</Text>
+          </TableCell>
+        </>
+
+        {allergies?.map(({ allergy, reaction }) => (
+          <AllergyRow key={allergy} allergy={allergy} reaction={reaction} />
+        ))}
+
+        <>
+          <TableCell footer>
+            <Text>‎</Text>
+          </TableCell>
+          <TableCell footer>
+            <Text>‎</Text>
+          </TableCell>
+        </>
+      </AllergiesTable>
+    )}
+
+    <FlexBox column rowGap="0.25rem">
+      <Label>Medicine Routine</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {medicineRoutine || "N/A"}
+      </Text>
+    </FlexBox>
+  </>
+);
+
+const MentalRecords = ({
+  triggers,
+  toughestTime,
+  calmingStrategy,
+  mentalHealthDiagnosis,
+  peopleCopingMechanism,
+  objectCopingMechanism,
+  activityCopingMechanism,
+  mentalHealthStudentPerspective,
+}) => (
+  <>
+    {mentalHealthDiagnosis && (
+      <FlexBox column rowGap="0.25rem">
+        <Label>Diagnosis</Label>
+        <Text size="0.875rem" color={GRAY_700}>
+          {mentalHealthDiagnosis || "N/A"}
+        </Text>
+      </FlexBox>
+    )}
+    <FlexBox column rowGap="0.25rem">
+      <Label>Student Perspective</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {mentalHealthStudentPerspective || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Triggers</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {triggers?.join(", ") || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Toughest Time</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {toughestTime || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Coping Mechanism : Objects</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {objectCopingMechanism || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Coping Mechanism : Activities</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {activityCopingMechanism || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Coping Mechanism : People</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {peopleCopingMechanism || "N/A"}
+      </Text>
+    </FlexBox>
+    <FlexBox column rowGap="0.25rem">
+      <Label>Calming Strategy</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {calmingStrategy || "N/A"}
+      </Text>
+    </FlexBox>
+  </>
+);
+
+const FriendsFamily = ({ friends, family }) => {
+  return (
+    <FlexBox column rowGap="1.25rem">
+      <FlexBox column rowGap="1rem">
+        <Label>Friends</Label>
+
+        <Text size="0.875rem" color={GRAY_700}>
+          {friends?.join(", ") || "N/A"}
+        </Text>
+      </FlexBox>
+
+      <FlexBox column rowGap="1rem">
+        <Label>Family</Label>
+
+        <Text size="0.875rem" color={GRAY_700}>
+          {family?.join(", ") || "N/A"}
+        </Text>
+      </FlexBox>
+    </FlexBox>
+  );
+};
+
+const Dreams = ({ dreamJob, dreamLivingSituation }) => (
+  <FlexBox column rowGap="1.25rem">
+    <FlexBox column rowGap="1rem">
+      <Label>Dream Job</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {dreamJob || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <FlexBox column rowGap="1rem">
+      <Label>Dream Living Situation</Label>
+      <Text size="0.875rem" color={GRAY_700}>
+        {dreamLivingSituation || "N/A"}
+      </Text>
+    </FlexBox>
+  </FlexBox>
+);
+
+const Interests = ({ interests }) => {
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Interests</Label>
+
+      {!!interests?.length ? (
+        interests?.map(int => (
+          <Text key={int} size="0.875rem" color={GRAY_700}>
+            {int}
+          </Text>
+        ))
+      ) : (
+        <Text size="0.875rem" color={GRAY_700}>
+          N/A
+        </Text>
+      )}
+    </FlexBox>
+  );
+};
+
+const Worries = ({ worries }) => {
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Worries</Label>
+
+      {!!worries?.length ? (
+        worries?.map(worry => (
+          <Text key={worry} size="0.875rem" color={GRAY_700}>
+            {worry}
+          </Text>
+        ))
+      ) : (
+        <Text size="0.875rem" color={GRAY_700}>
+          N/A
+        </Text>
+      )}
+    </FlexBox>
+  );
+};
+
+const Fears = ({ fears }) => {
+  return (
+    <FlexBox column rowGap="1rem">
+      <Label>Fears</Label>
+
+      {!!fears?.length ? (
+        fears?.map(fear => (
+          <Text key={fear} size="0.875rem" color={GRAY_700}>
+            {fear}
+          </Text>
+        ))
+      ) : (
+        <Text size="0.875rem">N/A</Text>
+      )}
+    </FlexBox>
+  );
+};
+
+const Hardships = ({ safetyConceptStruggle }) => (
+  <FlexBox column rowGap="1rem">
+    <Label>Safety Struggles</Label>
+    <Text size="0.875rem" color={GRAY_700}>
+      {safetyConceptStruggle?.join(", ") || "N/A"}
+    </Text>
+  </FlexBox>
+);
+
+const Routine = ({
+  assistance = { morning: "", afternoon: "", evening: "" },
+}) => (
+  <>
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Morning Assistance</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {assistance?.morning || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Afternoon Assistance</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {assistance?.afternoon || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Evening Assistance</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {assistance?.evening || "N/A"}
+      </Text>
+    </FlexBox>
+  </>
+);
+
+const SupportRow = ({ location, condition, supportAndModificationToEnv }) => (
+  <>
+    <TableCell>
+      <Text>{supportAndModificationToEnv}</Text>
+    </TableCell>
+    <TableCell>
+      <Text>{condition}</Text>
+    </TableCell>
+    <TableCell>
+      <Text>{location}</Text>
+    </TableCell>
+  </>
+);
+
+const Support = ({
+  supports,
+  accommodations,
+  helpRequiredTasks,
+  independentlyCapableTasks,
+}) => (
+  <>
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Accommodations</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {accommodations?.join(", ") || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Independent Capabilities</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {independentlyCapableTasks?.join(", ") || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <FlexBox column rowGap="0.25rem">
+      <Text color={GRAY_800}>Help Required in (Areas)</Text>
+      <Text size="0.875rem" color={GRAY_700}>
+        {helpRequiredTasks?.join(", ") || "N/A"}
+      </Text>
+    </FlexBox>
+
+    <SupportTable>
+      <>
+        <TableCell header>
+          <Text>Support</Text>
+        </TableCell>
+        <TableCell header>
+          <Text>Conditions</Text>
+        </TableCell>
+        <TableCell header>
+          <Text>Location</Text>
+        </TableCell>
+      </>
+
+      {supports?.map(({ location, condition, supportAndModificationToEnv }) => (
+        <SupportRow
+          location={location}
+          condition={condition}
+          key={supportAndModificationToEnv}
+          supportAndModificationToEnv={supportAndModificationToEnv}
+        />
+      ))}
+
+      <>
+        <TableCell footer>
+          <Text>‎</Text>
+        </TableCell>
+        <TableCell footer>
+          <Text>‎</Text>
+        </TableCell>
+        <TableCell footer>
+          <Text>‎</Text>
+        </TableCell>
+      </>
+    </SupportTable>
+  </>
+);
+
+const Strengths = ({ strengths }) => {
+  const familyIDd = strengths?.filter(
+    ({ type }) => type === strengthEnums.family
+  );
+
+  const studentIDd = strengths?.filter(
+    ({ type }) => type === strengthEnums.student
+  );
+
+  return (
+    <FlexBox column rowGap="1.25rem">
+      <FlexBox column rowGap="1rem">
+        <Label>Student Identified Strengths</Label>
+
+        {!!studentIDd?.length ? (
+          studentIDd?.map(({ note }) => (
+            <Text key={note} size="0.875rem" color={GRAY_700}>
+              {note}
+            </Text>
+          ))
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
+
+      <FlexBox column rowGap="1rem">
+        <Label>Family Identified Strengths</Label>
+
+        {!!familyIDd?.length ? (
+          familyIDd?.map(({ note }) => (
+            <Text key={note} size="0.875rem" color={GRAY_700}>
+              {note}
+            </Text>
+          ))
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
+    </FlexBox>
+  );
+};
+
+const Concerns = ({ concerns }) => {
+  const familyIDd = concerns?.filter(
+    ({ type }) => type === concernEnums.family
+  );
+
+  const studentIDd = concerns?.filter(
+    ({ type }) => type === concernEnums.student
+  );
+
+  return (
+    <FlexBox column rowGap="1.25rem">
+      <FlexBox column rowGap="1rem">
+        <Label>Student Identified Concerns</Label>
+
+        {!!studentIDd?.length ? (
+          studentIDd?.map(({ note }) => (
+            <Text key={note} size="0.875rem" color={GRAY_700}>
+              {note}
+            </Text>
+          ))
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
+
+      <FlexBox column rowGap="1rem">
+        <Label>Family Identified Concerns</Label>
+
+        {!!familyIDd?.length ? (
+          familyIDd?.map(({ note }) => (
+            <Text key={note} size="0.875rem" color={GRAY_700}>
+              {note}
+            </Text>
+          ))
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
+    </FlexBox>
+  );
+};
 
 const ProfileView = () => {
   const router = useRouter();
   const student = useSelector(state => state?.student?.profile);
 
   const [selectedAssistance, setSelectedAssistance] = useState(
-    assistanceOptions?.selfManaged
+    assistanceOptions?.routine
   );
   const [selectedPersonalOption, setSelectedPersonalOption] = useState(
     personalLifeOptions?.friendsFamily
   );
+  const [selectedStrengthConcern, setSelectedStrengthConcern] = useState(
+    strengthConcernOptions?.strengths
+  );
   const [selectedRecord, setSelectedRecord] = useState(recordOptions?.medical);
 
-  const {
+  let {
     email,
+    fears,
+    family,
+    friends,
     program,
+    worries,
     lastName,
+    dreamJob,
+    concerns,
+    supports,
+    triggers,
     firstName,
+    interests,
+    strengths,
+    allergies,
     middleName,
+    eveningHelp,
+    morningHelp,
     phoneNumber,
+    toughestTime,
+    afternoonHelp,
+    accommodations,
+    medicineRoutine,
+    calmingStrategy,
     primaryDiagnosis,
+    helpRequiredTasks,
+    dreamLivingSituation,
     emergencyContactName,
+    mentalHealthDiagnosis,
     emergencyContactEmail,
+    safetyConceptStruggle,
+    peopleCopingMechanism,
+    objectCopingMechanism,
+    activityCopingMechanism,
+    independentlyCapableTasks,
     emergencyContactPhoneNumber,
+    mentalHealthStudentPerspective,
   } = student || {};
+
+  program = studentPrograms?.find(({ value }) => value === program)?.label;
 
   const name = buildName(firstName, middleName, lastName);
 
@@ -165,26 +698,33 @@ const ProfileView = () => {
 
           <LabelAndText>
             <Label>Name</Label>
-            <Text transform="capitalize">{name}</Text>
+            <Text transform="capitalize" size="0.875rem" color={GRAY_700}>
+              {name}
+            </Text>
           </LabelAndText>
 
-          <FlexBox align="center" justify="space-between">
+          <FlexBox align="center" justify="space-between" colGap="1rem">
             <LabelAndText>
               <Label>Program</Label>
-              <Text>{program}</Text>
+              <Text size="0.875rem" color={GRAY_700}>
+                {program}
+              </Text>
             </LabelAndText>
 
-            <LabelAndText>
-              {/* TODO handle */}
+            {/* <LabelAndText>
               <Label>Term</Label>
               <Text>Year 1 Quarter 2</Text>
-            </LabelAndText>
+            </LabelAndText> */}
           </FlexBox>
 
-          <LabelAndText>
-            <Label>Primary Diagnosis</Label>
-            <Text>{primaryDiagnosis}</Text>
-          </LabelAndText>
+          {primaryDiagnosis && (
+            <LabelAndText>
+              <Label>Primary Diagnosis</Label>
+              <Text size="0.875rem" color={GRAY_700}>
+                {primaryDiagnosis}
+              </Text>
+            </LabelAndText>
+          )}
         </StudentLHS>
 
         <FlexBox align="flex-start" colGap="3rem" color={GRAY_700}>
@@ -214,33 +754,43 @@ const ProfileView = () => {
             Contact Information
           </Text>
 
-          <FlexBox align="center" justify="space-between">
+          <FlexBox align="flex-start" justify="space-between" colGap="1rem">
             <FlexBox column rowGap="1.25rem">
               <LabelAndText>
                 <Label>Email ID</Label>
-                <Text>{email}</Text>
+                <Text size="0.875rem" color={GRAY_700}>
+                  {email}
+                </Text>
               </LabelAndText>
 
               <LabelAndText>
                 <Label>Emergency Contact Name</Label>
-                <Text>{emergencyContactName}</Text>
+                <Text transform="capitalize" size="0.875rem" color={GRAY_700}>
+                  {emergencyContactName}
+                </Text>
               </LabelAndText>
 
               <LabelAndText>
-                <Label>Emergency Contact Name</Label>
-                <Text>{emergencyContactEmail}</Text>
+                <Label>Emergency Contact Email</Label>
+                <Text size="0.875rem" color={GRAY_700}>
+                  {emergencyContactEmail}
+                </Text>
               </LabelAndText>
             </FlexBox>
 
             <FlexBox align="flex-start" column rowGap="1.25rem">
               <LabelAndText>
                 <Label>Phone Number</Label>
-                <Text>{phoneNumber}</Text>
+                <Text size="0.875rem" color={GRAY_700}>
+                  {phoneNumber}
+                </Text>
               </LabelAndText>
 
               <LabelAndText>
                 <Label>Emergency Contact Number</Label>
-                <Text>{emergencyContactPhoneNumber}</Text>
+                <Text size="0.875rem" color={GRAY_700}>
+                  {emergencyContactPhoneNumber}
+                </Text>
               </LabelAndText>
             </FlexBox>
           </FlexBox>
@@ -255,7 +805,7 @@ const ProfileView = () => {
       </ProfileCard>
 
       <ProfileCard>
-        <FlexBox column rowGap="1.25rem">
+        <RecordsLHS>
           <FlexBox align="center" colGap="0.5rem">
             <FiClipboard {...commonIconProps} />
             <Text bold size="1.25rem" color={GRAY_700}>
@@ -263,10 +813,27 @@ const ProfileView = () => {
             </Text>
           </FlexBox>
 
-          <Text>Cami’s medical records place holder 1</Text>
+          {selectedRecord?.slug === recordOptions?.medical?.slug && (
+            <MedicalRecords
+              allergies={allergies}
+              medicineRoutine={medicineRoutine}
+              primaryDiagnosis={primaryDiagnosis}
+            />
+          )}
 
-          <Text>Cami’s medical records place holder 2</Text>
-        </FlexBox>
+          {selectedRecord?.slug === recordOptions?.mental?.slug && (
+            <MentalRecords
+              triggers={triggers}
+              toughestTime={toughestTime}
+              calmingStrategy={calmingStrategy}
+              mentalHealthDiagnosis={mentalHealthDiagnosis}
+              objectCopingMechanism={objectCopingMechanism}
+              peopleCopingMechanism={peopleCopingMechanism}
+              activityCopingMechanism={activityCopingMechanism}
+              mentalHealthStudentPerspective={mentalHealthStudentPerspective}
+            />
+          )}
+        </RecordsLHS>
 
         <FlexBox colGap="2.25rem" align="flex-start">
           <FiEdit2
@@ -281,21 +848,14 @@ const ProfileView = () => {
               onClick={() => setSelectedRecord(recordOptions?.medical)}
               selected={selectedRecord?.slug === recordOptions?.medical?.slug}
             >
-              <Text weight={600}>Medical</Text>
+              <Text>Medical</Text>
             </DropOption>
 
             <DropOption
               onClick={() => setSelectedRecord(recordOptions?.mental)}
               selected={selectedRecord?.slug === recordOptions?.mental?.slug}
             >
-              <Text weight={600}>Mental</Text>
-            </DropOption>
-
-            <DropOption
-              onClick={() => setSelectedRecord(recordOptions?.other)}
-              selected={selectedRecord?.slug === recordOptions?.other?.slug}
-            >
-              <Text weight={600}>Other</Text>
+              <Text>Mental</Text>
             </DropOption>
           </DropSelect>
         </FlexBox>
@@ -310,9 +870,34 @@ const ProfileView = () => {
             </Text>
           </FlexBox>
 
-          <Text>Cami’s personal life place holder 1</Text>
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.friendsFamily?.slug && (
+            <FriendsFamily friends={friends} family={family} />
+          )}
 
-          <Text>Cami’s personal life place holder 2</Text>
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.dreams?.slug && (
+            <Dreams
+              dreamJob={dreamJob}
+              dreamLivingSituation={dreamLivingSituation}
+            />
+          )}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.interests?.slug && (
+            <Interests interests={interests} />
+          )}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.worries?.slug && <Worries worries={worries} />}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.fears?.slug && <Fears fears={fears} />}
+
+          {selectedPersonalOption?.slug ===
+            personalLifeOptions?.hardships?.slug && (
+            <Hardships safetyConceptStruggle={safetyConceptStruggle} />
+          )}
         </FlexBox>
 
         <FlexBox colGap="2.25rem" align="flex-start">
@@ -333,7 +918,7 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.friendsFamily)
               }
             >
-              <Text weight={600}>Friends/Family</Text>
+              <Text>Friends/Family</Text>
             </DropOption>
 
             <DropOption
@@ -345,7 +930,7 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.dreams)
               }
             >
-              <Text weight={600}>Dreams</Text>
+              <Text>Dreams</Text>
             </DropOption>
 
             <DropOption
@@ -357,7 +942,7 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.interests)
               }
             >
-              <Text weight={600}>Interests</Text>
+              <Text>Interests</Text>
             </DropOption>
 
             <DropOption
@@ -369,7 +954,7 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.worries)
               }
             >
-              <Text weight={600}>Worries</Text>
+              <Text>Worries</Text>
             </DropOption>
 
             <DropOption
@@ -381,7 +966,7 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.fears)
               }
             >
-              <Text weight={600}>Fears</Text>
+              <Text>Fears</Text>
             </DropOption>
 
             <DropOption
@@ -393,70 +978,72 @@ const ProfileView = () => {
                 setSelectedPersonalOption(personalLifeOptions?.hardships)
               }
             >
-              <Text weight={600}>Hardships</Text>
+              <Text>Hardships</Text>
             </DropOption>
           </DropSelect>
         </FlexBox>
       </ProfileCard>
 
       <ProfileCard>
-        <FlexBox column rowGap="1.25rem">
+        <AssistanceLHS>
           <FlexBox align="center" colGap="0.5rem">
-            <FiBell {...commonIconProps} />
+            <Image
+              width={24}
+              height={24}
+              alt="Assistance"
+              draggable="false"
+              src="/assets/images/person_raised_hand.svg"
+            />
             <Text bold size="1.25rem" color={GRAY_700}>
               Assistance
             </Text>
           </FlexBox>
 
-          <Text>Cami’s assistance place holder 1</Text>
+          {selectedAssistance?.slug === assistanceOptions?.routine?.slug && (
+            <Routine
+              assistance={{
+                morning: morningHelp,
+                evening: eveningHelp,
+                afternoon: afternoonHelp,
+              }}
+            />
+          )}
 
-          <Text>Cami’s assistance place holder 2</Text>
-        </FlexBox>
+          {selectedAssistance?.slug === assistanceOptions?.support?.slug && (
+            <Support
+              supports={supports}
+              accommodations={accommodations}
+              helpRequiredTasks={helpRequiredTasks}
+              independentlyCapableTasks={independentlyCapableTasks}
+            />
+          )}
+        </AssistanceLHS>
 
         <FlexBox colGap="2.25rem" align="flex-start">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            {...commonIconProps}
+            cursor="pointer"
+            strokeWidth={2.5}
+            onClick={() => goToEdit("/assistance-support")}
+          />
 
           <DropSelect>
             <DropOption
               selected={
-                selectedAssistance?.slug ===
-                assistanceOptions?.selfManaged?.slug
+                selectedAssistance?.slug === assistanceOptions?.routine?.slug
               }
-              onClick={() =>
-                setSelectedAssistance(assistanceOptions?.selfManaged)
-              }
+              onClick={() => setSelectedAssistance(assistanceOptions?.routine)}
             >
-              <Text weight={600}>Self managed</Text>
+              <Text>Routine</Text>
             </DropOption>
 
             <DropOption
               selected={
-                selectedAssistance?.slug ===
-                assistanceOptions?.asstRequired?.slug
+                selectedAssistance?.slug === assistanceOptions?.support?.slug
               }
-              onClick={() =>
-                setSelectedAssistance(assistanceOptions?.asstRequired)
-              }
+              onClick={() => setSelectedAssistance(assistanceOptions?.support)}
             >
-              <Text weight={600}>Asst. Required</Text>
-            </DropOption>
-
-            <DropOption
-              selected={
-                selectedAssistance?.slug === assistanceOptions?.morning?.slug
-              }
-              onClick={() => setSelectedAssistance(assistanceOptions?.morning)}
-            >
-              <Text weight={600}>Morning Asst.</Text>
-            </DropOption>
-
-            <DropOption
-              selected={
-                selectedAssistance?.slug === assistanceOptions?.evening?.slug
-              }
-              onClick={() => setSelectedAssistance(assistanceOptions?.evening)}
-            >
-              <Text weight={600}>Evening Asst.</Text>
+              <Text>Support</Text>
             </DropOption>
           </DropSelect>
         </FlexBox>
@@ -465,52 +1052,59 @@ const ProfileView = () => {
       <ProfileCard>
         <FlexBox column rowGap="2rem">
           <FlexBox align="center" colGap="0.5rem">
-            <FiBell {...commonIconProps} />
+            <Image
+              width={24}
+              height={24}
+              draggable="false"
+              alt="Strengths_Concerns"
+              src="/assets/images/award_star.svg"
+            />
             <Text bold size="1.25rem" color={GRAY_700}>
               Strength & Concern
             </Text>
           </FlexBox>
 
-          <FlexBox column rowGap="1.25rem">
-            <Text size="1.25rem" weight={500}>
-              Student Identified Strength
-            </Text>
+          {selectedStrengthConcern?.slug ===
+            strengthConcernOptions?.strengths?.slug && (
+            <Strengths strengths={strengths} />
+          )}
 
-            <FlexBox column rowGap="1.25rem" margin="0 0 0 1.5rem">
-              <Text>Cami’s self-identified strength 1</Text>
-
-              <Text>Cami’s self-identified strength 2</Text>
-            </FlexBox>
-          </FlexBox>
-
-          <FlexBox column rowGap="1.25rem">
-            <Text size="1.25rem" weight={500}>
-              Family Identified Strength
-            </Text>
-
-            <FlexBox column rowGap="1.25rem" margin="0 0 0 1.5rem">
-              <Text>Cami’s family-identified strength 1</Text>
-
-              <Text>Cami’s family-identified strength 2</Text>
-            </FlexBox>
-          </FlexBox>
+          {selectedStrengthConcern?.slug ===
+            strengthConcernOptions?.concerns?.slug && (
+            <Concerns concerns={concerns} />
+          )}
         </FlexBox>
 
         <FlexBox colGap="2.25rem">
-          <FiEdit2 {...commonIconProps} strokeWidth={2.5} cursor="pointer" />
+          <FiEdit2
+            {...commonIconProps}
+            cursor="pointer"
+            strokeWidth={2.5}
+            onClick={() => goToEdit("/strengths-concerns")}
+          />
 
           <DropSelect>
-            <DropOption selected>
-              <Text weight={600}>Self managed</Text>
+            <DropOption
+              selected={
+                selectedStrengthConcern?.slug ===
+                strengthConcernOptions?.strengths?.slug
+              }
+              onClick={() =>
+                setSelectedStrengthConcern(strengthConcernOptions?.strengths)
+              }
+            >
+              <Text>Strengths</Text>
             </DropOption>
-            <DropOption>
-              <Text weight={600}>Asst. Required</Text>
-            </DropOption>
-            <DropOption>
-              <Text weight={600}>Morning Asst.</Text>
-            </DropOption>
-            <DropOption>
-              <Text weight={600}>Evening Asst.</Text>
+            <DropOption
+              selected={
+                selectedStrengthConcern?.slug ===
+                strengthConcernOptions?.concerns?.slug
+              }
+              onClick={() =>
+                setSelectedStrengthConcern(strengthConcernOptions?.concerns)
+              }
+            >
+              <Text>Concerns</Text>
             </DropOption>
           </DropSelect>
         </FlexBox>

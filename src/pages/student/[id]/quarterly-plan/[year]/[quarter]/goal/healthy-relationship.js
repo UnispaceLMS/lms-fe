@@ -5,12 +5,16 @@ import GoalPageLayout from "@layouts/GoalPageLayout";
 import DashboardLayout from "@layouts/DashboardLayout";
 import QuarterlyPlanLayout from "@layouts/QuarterlyPlanLayout";
 
+import HealthyRelationship from "@components/GoalCreation/HealthyRelationship";
+
 const HealthyRelationshipPage = () => {
   return (
     <StudentProfile>
       <DashboardLayout>
         <GoalPageLayout>
-          <QuarterlyPlanLayout>HealthyRelationshipPage</QuarterlyPlanLayout>
+          <QuarterlyPlanLayout>
+            <HealthyRelationship isQuarterlyPlan />
+          </QuarterlyPlanLayout>
         </GoalPageLayout>
       </DashboardLayout>
     </StudentProfile>

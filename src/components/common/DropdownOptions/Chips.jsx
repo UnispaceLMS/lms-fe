@@ -30,6 +30,7 @@ const Wrapper = styled(FlexBox)`
 `;
 
 const Chip = styled(FlexBox)`
+  width: fit-content;
   border-radius: 1rem;
   padding: 0.125rem 0.5rem;
   background-color: ${({ bgColor }) => bgColor};
@@ -41,7 +42,7 @@ const Chip = styled(FlexBox)`
   }
 `;
 
-const Chips = ({
+export const ChipOptions = ({
   label,
   value,
   innerRef,
@@ -61,4 +62,13 @@ const Chips = ({
   );
 };
 
-export default Chips;
+export const ChipValues = ({ data, optionStyles, ...props }) => {
+  const { label, value } = data || {};
+  const optionStyle = optionStyles?.[value];
+
+  return (
+    <Chip color={optionStyle?.color} bgColor={optionStyle?.bgColor} {...props}>
+      <Text>{label}</Text>
+    </Chip>
+  );
+};

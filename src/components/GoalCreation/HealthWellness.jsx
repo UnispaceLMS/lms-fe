@@ -1,44 +1,32 @@
-import { useRef, useState } from "react";
-import Select from "react-select";
-import { FiPlus } from "react-icons/fi";
-import styled, { css } from "styled-components";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import styled from "styled-components";
+import { useRouter } from "next/router";
+import cloneDeep from "lodash.clonedeep";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextArea from "@common/TextArea";
 import { PrimaryButton } from "@common/Buttons";
-import Base from "@common/DropdownOptions/Base";
-import Chips from "@common/DropdownOptions/Chips";
 
-import { goalOptions } from "@metadata/goals";
-import { WHITE, GRAY_200, GRAY_50, GRAY_500 } from "@constants/colors";
-import { frequencyOptions, frequencyStyles } from "@metadata/frequencies";
-import { assessmentOptions, assessmentStyles } from "@metadata/assessments";
+import EntryTable from "./EntryTable";
 
-const customSelectStyles = {
-  container: baseStyles => ({
-    ...baseStyles,
-    width: "100%",
-  }),
-  control: baseStyles => ({
-    ...baseStyles,
-    border: "none",
-    boxShadow: "none",
-    minHeight: "unset",
-    fontSize: "0.75rem",
-  }),
-  valueContainer: baseStyles => ({
-    ...baseStyles,
-    padding: 0,
-  }),
-  input: baseStyles => ({
-    ...baseStyles,
-    margin: 0,
-    padding: 0,
-  }),
-  indicatorSeparator: () => ({ display: "none" }),
-  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
-};
+import urls from "@urls";
+import axiosInstance from "@axiosInstance";
+
+import { WHITE, GRAY_200 } from "@constants/colors";
+import { statusOptions } from "@metadata/statusOptions";
+import { healthAndWellnessGoals } from "@metadata/goals";
+import { frequencyOptions } from "@metadata/frequencies";
+import { assessmentOptions } from "@metadata/assessments";
+
+dayjs.extend(utc);
+
+const LoaderWrapper = styled(FlexBox)`
+  flex: 1;
+`;
 
 const Container = styled(FlexBox)`
   width: 100%;
@@ -50,226 +38,209 @@ const Container = styled(FlexBox)`
   border: 1px solid ${GRAY_200};
 `;
 
-const Table = styled.div`
-  width: 100%;
-  display: grid;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  border: 1px solid ${GRAY_200};
-  grid-template-columns: 16% 10.5% 27.85% 17.25% 15.75% 12.65%;
-`;
+const defaultTableEntry = Object.freeze({
+  annual: {
+    date: "",
+    goal: null,
+    criteria: "",
+    frequency: null,
+    assessment: null,
+    shortTermGoal: "",
+  },
+  quarterly: {
+    date: "",
+    goal: null,
+    status: "",
+    criteria: "",
+    statusNote: "",
+    frequency: null,
+    assessment: null,
+    shortTermGoal: "",
+  },
+});
 
-const TableCell = styled(FlexBox)`
-  width: 100%;
-  padding: 0.75rem;
-  background-color: ${WHITE};
-  justify-content: space-between;
-  border-top: 1px solid ${GRAY_200};
-  border-right: 1px solid ${GRAY_200};
+const HealthWellness = ({ isQuarterlyPlan }) => {
+  const router = useRouter();
 
-  ${({ lastInRow }) =>
-    lastInRow &&
-    css`
-      border-right: none;
-    `}
+  const key = isQuarterlyPlan ? "quarterly" : "annual";
+  const defaultEntry = cloneDeep(defaultTableEntry?.[key]);
 
-  ${({ header }) =>
-    header &&
-    css`
-      border: none;
-      background-color: ${GRAY_50};
-    `}
+  const [loading, setLoading] = useState(false);
+  const [annualGoal, setAnnualGoal] = useState("");
+  const [ctaDisabled, setCtaDisabled] = useState(false);
+  const [tableEntries, setTableEntries] = useState([{ ...defaultEntry }]);
 
-  ${({ footer }) =>
-    footer &&
-    css`
-      border: none;
-      justify-content: flex-end;
-      background-color: ${GRAY_50};
-      border-top: 1px solid ${GRAY_200};
-    `}
+  useEffect(() => {
+    if (router.isReady) {
+      fetchPlanDetails();
+    }
+  }, [router.isReady]);
 
-  * {
-    cursor: inherit;
+  const fetchPlanDetails = async () => {
+    try {
+      const { id, year, quarter } = router?.query || {};
+
+      if (!id || !year) {
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+      if (isQuarterlyPlan && !quarter) {
+        setLoading(false);
+        setCtaDisabled(false);
+        return;
+      }
+
+      const params = { year: parseInt(year), studentId: parseInt(id) };
+
+      if (isQuarterlyPlan) params.quarterNumber = parseInt(quarter);
+
+      setLoading(true);
+      setCtaDisabled(true);
+
+      const URL = isQuarterlyPlan
+        ? urls.fetchQuarterlyReport
+        : urls.fetchAnnualPlan;
+
+      const res = await axiosInstance.get(URL, { params });
+      let healthWellnessData = res?.data?.goal?.healthWellness || null;
+
+      let entries = [{ ...defaultEntry }];
+
+      if (healthWellnessData) {
+        healthWellnessData = cloneDeep(healthWellnessData);
+        const healthWellnessEntries = healthWellnessData?.healthWellnessEntries;
+
+        if (!!healthWellnessEntries?.length) {
+          entries = healthWellnessEntries?.map(entry => {
+            let {
+              id,
+              date,
+              type,
+              criteria,
+              schedule,
+              assessmentType,
+              shortTermObjective,
+            } = entry || {};
+
+            date = date ? dayjs(date)?.toDate() : "";
+
+            const goal = healthAndWellnessGoals?.find(
+              ({ value }) => type === value
+            );
+            const frequency = frequencyOptions?.find(
+              ({ value }) => schedule === value
+            );
+            const assessment = assessmentOptions?.find(
+              ({ value }) => assessmentType === value
+            );
+
+            const entryObject = {
+              date,
+              criteria,
+              goal: goal || null,
+              frequency: frequency || null,
+              assessment: assessment || null,
+              shortTermGoal: shortTermObjective,
+            };
+
+            if (!isNaN(id)) entryObject.id = id;
+
+            if (!isQuarterlyPlan) {
+              return entryObject;
+            }
+
+            const { status, statusNote } = entry || {};
+
+            const statusOption = statusOptions?.find(
+              ({ value }) => value === status
+            );
+
+            return { ...entryObject, statusNote, status: statusOption || null };
+          });
+        }
+
+        setAnnualGoal(healthWellnessData?.annualGoal);
+      }
+
+      setTableEntries(entries);
+    } catch (error) {
+      console.log(error, "Error in fetching annual plan");
+    } finally {
+      setLoading(false);
+      setCtaDisabled(false);
+    }
+  };
+
+  const onSave = async () => {
+    try {
+      setCtaDisabled(true);
+
+      const { id, year } = router?.query || {};
+
+      if (!id || !year) {
+        setCtaDisabled(false);
+        return;
+      }
+
+      const payload = {
+        year: parseInt(year),
+        studentId: parseInt(id),
+        goal: { healthWellness: { annualGoal } },
+      };
+
+      let healthWellnessEntries = [];
+      if (!!tableEntries?.length) {
+        healthWellnessEntries = tableEntries?.map(entry => {
+          let {
+            id,
+            date,
+            goal,
+            criteria,
+            frequency,
+            assessment,
+            shortTermGoal,
+          } = entry || {};
+
+          date = !!date && dayjs(date)?.utc()?.format();
+
+          const entryObject = {
+            criteria,
+            date: date || null,
+            type: goal?.value || null,
+            shortTermObjective: shortTermGoal,
+            schedule: frequency?.value || null,
+            assessmentType: assessment?.value || null,
+          };
+
+          if (!isNaN(id)) entryObject.id = id;
+
+          if (!isQuarterlyPlan) {
+            return entryObject;
+          }
+
+          const { status, statusNote } = entry || {};
+
+          return { ...entryObject, statusNote, status: status?.value || null };
+        });
+      }
+
+      payload.goal.healthWellness.healthWellnessEntries = healthWellnessEntries;
+
+      await axiosInstance.put(urls.createUpdateAnnualPlan, payload);
+    } catch (error) {
+    } finally {
+      setCtaDisabled(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <LoaderWrapper>
+        <Loader />
+      </LoaderWrapper>
+    );
   }
-`;
-
-const ObjectiveText = styled.textarea`
-  width: 100%;
-  border: none;
-  resize: none;
-  font: inherit;
-  font-size: 0.75rem;
-  padding-top: 0.125rem;
-  height: ${({ height }) => `${height}px`};
-`;
-
-const CriteriaText = styled.input`
-  padding: 0;
-  width: 100%;
-  border: none;
-  font: inherit;
-  height: 1.25rem;
-  font-size: 0.75rem;
-`;
-
-const TableHeader = () => (
-  <>
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Goal
-      </Text>
-    </TableCell>
-
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Date
-      </Text>
-    </TableCell>
-
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Short Term Objective
-      </Text>
-    </TableCell>
-
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Assessment
-      </Text>
-    </TableCell>
-
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Schedule
-      </Text>
-    </TableCell>
-
-    <TableCell header>
-      <Text weight={500} size="0.875rem">
-        Criteria
-      </Text>
-    </TableCell>
-  </>
-);
-
-const TableRow = () => {
-  const areaRef = useRef(null);
-  const [height, setHeight] = useState(areaRef?.current?.scrollHeight);
-
-  return (
-    <>
-      <TableCell>
-        <Select
-          placeholder="Goal"
-          menuPosition="fixed"
-          options={goalOptions}
-          menuShouldBlockScroll
-          styles={customSelectStyles}
-          components={{ Option: Base }}
-        />
-      </TableCell>
-
-      <TableCell>
-        <Select
-          placeholder="Date"
-          menuPosition="fixed"
-          menuShouldBlockScroll
-          styles={customSelectStyles}
-        />
-      </TableCell>
-
-      <TableCell>
-        <ObjectiveText
-          rows={1}
-          ref={areaRef}
-          height={height}
-          placeholder="Short Term Objective"
-          onChange={e => {
-            setHeight(areaRef?.current?.scrollHeight);
-          }}
-        />
-      </TableCell>
-
-      <TableCell>
-        <Select
-          menuPosition="fixed"
-          menuShouldBlockScroll
-          placeholder="Assessment"
-          options={assessmentOptions}
-          styles={customSelectStyles}
-          components={{
-            Option: ({ value, label, innerRef, isSelected, innerProps }) => (
-              <Chips
-                value={value}
-                label={label}
-                innerRef={innerRef}
-                isSelected={isSelected}
-                innerProps={innerProps}
-                optionStyles={assessmentStyles}
-              />
-            ),
-          }}
-        />
-      </TableCell>
-
-      <TableCell>
-        <Select
-          id="freq"
-          menuPosition="fixed"
-          menuShouldBlockScroll
-          placeholder="Frequency"
-          options={frequencyOptions}
-          styles={customSelectStyles}
-          components={{
-            Option: ({ value, label, innerRef, isSelected, innerProps }) => (
-              <Chips
-                value={value}
-                label={label}
-                innerRef={innerRef}
-                isSelected={isSelected}
-                innerProps={innerProps}
-                optionStyles={frequencyStyles}
-              />
-            ),
-          }}
-        />
-      </TableCell>
-
-      <TableCell>
-        <CriteriaText placeholder="Criteria" />
-      </TableCell>
-    </>
-  );
-};
-
-const TableFooter = ({ onClick }) => (
-  <>
-    <TableCell footer />
-
-    <TableCell footer />
-
-    <TableCell footer />
-
-    <TableCell footer />
-
-    <TableCell footer />
-
-    <TableCell footer cursor="pointer" onClick={onClick}>
-      <FlexBox align="center" colGap="0.5rem">
-        <FiPlus color={GRAY_500} />
-        <Text weight={500} size="0.875rem" color={GRAY_500}>
-          Add
-        </Text>
-      </FlexBox>
-    </TableCell>
-  </>
-);
-
-const HealthWellness = () => {
-  const [rows, setRows] = useState(1);
-
-  const incrementRows = () => setRows(prev => prev + 1);
 
   return (
     <FlexBox column width="100%" rowGap="1.5rem">
@@ -283,25 +254,28 @@ const HealthWellness = () => {
         </Text>
 
         <FlexBox column rowGap="0.75rem">
-          <Text weight={500} size="0.875rem">
-            Annual Goal
-          </Text>
-          <TextArea rows={1} placeholder="Enter" />
+          <Text size="0.875rem">Annual Goal</Text>
+          <TextArea
+            rows={1}
+            value={annualGoal}
+            placeholder="Enter"
+            onChange={e => setAnnualGoal(e.target.value)}
+          />
         </FlexBox>
       </Container>
 
       <FlexBox column rowGap="0.75rem" align="flex-end">
-        <Table>
-          <TableHeader />
+        <EntryTable
+          tableEntries={tableEntries}
+          setTableEntries={setTableEntries}
+          isQuarterlyPlan={isQuarterlyPlan}
+          goalOptions={healthAndWellnessGoals}
+          defaultTableEntry={defaultTableEntry}
+        />
 
-          {new Array(rows).fill(1).map(i => (
-            <TableRow key={i} />
-          ))}
-
-          <TableFooter onClick={incrementRows} />
-        </Table>
-
-        <PrimaryButton>Save</PrimaryButton>
+        <PrimaryButton onClick={onSave} disabled={ctaDisabled}>
+          Save
+        </PrimaryButton>
       </FlexBox>
     </FlexBox>
   );

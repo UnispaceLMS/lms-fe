@@ -17,7 +17,7 @@ export const middleware = async (req = NextRequest) => {
     // if token exists and current page is login
     // redirect to home
     if (token && pathname?.includes("/login")) {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/roster", req.url));
     }
 
     // if token exists OR
