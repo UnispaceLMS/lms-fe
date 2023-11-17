@@ -27,6 +27,7 @@ import {
   PRIMARY_500,
 } from "@constants/colors";
 import { toggleSidebar } from "@redux/Slices/sidebarSlice";
+import { logout } from "@/redux/Slices/authSlice";
 
 const Wrapper = styled(FlexBox)`
   top: 0;
@@ -84,7 +85,7 @@ const LogoContainer = styled(FlexBox)`
 const NavItem = styled(FlexBox)`
   width: 100%;
   cursor: pointer;
-  padding: 0.8rem;
+  padding: 0.75rem;
   align-items: center;
   border-radius: 0.75rem;
   justify-content: flex-start;
@@ -156,20 +157,34 @@ const Sidebar = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const sidebarRef = useRef(null);
+  const user = useSelector(state => state?.auth?.user);
+  const expanded = useSelector(state => state.sidebar?.expanded);
 
-  const isRosterPage = router?.pathname?.includes("roster");
-  const isProfilePage = router?.pathname?.includes("profile");
-  const isDashboard = router?.pathname?.includes("dashboard");
-  const expanded = useSelector((state) => state.sidebar?.expanded);
+  const id = router?.query?.id;
+  const year = router?.query?.year;
+  const quarter = router?.query?.quarter || 1;
+  const userName = `${user?.firstName || ""} ${user?.lastName || ""}`;
+
+  // TODO - decide
+  const yearString = year ? `/${year}` : "";
+
+  const isRosterPage = router?.pathname?.includes("/roster");
+  const isStudentPage = router?.pathname?.includes("/student");
+  const isProfilePage = router?.pathname?.includes("/profile");
+  const isDashboard = router?.pathname?.includes("/dashboard");
+  const isAnnualPlanPage = router?.pathname?.includes("/annual-plan");
+  const isQuarterlyReportPage = router?.pathname?.includes("/quarterly-plan");
 
   const toggleExpanded = () => dispatch(toggleSidebar());
 
-  const goHome = () => router.push("/");
+  // const goHome = () => router.push("/");
+
+  const handleLogout = () => dispatch(logout());
 
   return (
     <Wrapper ref={sidebarRef} expanded={expanded}>
       <TopHalf>
-        <LogoContainer onClick={goHome}>
+        <LogoContainer>
           <Image
             priority
             width={36}
@@ -209,43 +224,50 @@ const Sidebar = () => {
 
         <Divider />
 
-        <FlexBox column width="100%">
-          <Link href="/annual-plan">
-            <NavItem padding="0.875rem 0.8rem" selected={false}>
-              <MdOutlineEventNote size="1.25rem" />
+        {isStudentPage && (
+          <FlexBox column width="100%">
+            {/* <Link href={`/student/${id}/annual-plan${yearString}`}> */}
+            <Link href={`/student/${id}/annual-plan`}>
+              <NavItem padding="0.875rem 0.8rem" selected={isAnnualPlanPage}>
+                <MdOutlineEventNote size="1.25rem" />
 
-              <TextContainer>
-                <Text>Annual Plan</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
+                <TextContainer>
+                  <Text>Annual Plan</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
 
-          <Link href="/">
-            <NavItem padding="0.875rem 0.8rem" selected={false}>
-              <MdOutlineDonutSmall size="1.25rem" />
+            {/* <Link href={`/student/${id}/quarterly-plan/${year}/${quarter}`}> */}
+            <Link href={`/student/${id}/quarterly-plan`}>
+              <NavItem
+                padding="0.875rem 0.8rem"
+                selected={isQuarterlyReportPage}
+              >
+                <MdOutlineDonutSmall size="1.25rem" />
 
-              <TextContainer>
-                <Text>Quarterly Report</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
+                <TextContainer>
+                  <Text>Quarterly Report</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
 
-          <Link href="/profile">
-            <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
-              <MdPersonOutline size="1.25rem" />
+            <Link href={`/student/${id}/profile`}>
+              <NavItem padding="0.875rem 0.8rem" selected={isProfilePage}>
+                <MdPersonOutline size="1.25rem" />
 
-              <TextContainer>
-                <Text>Profile</Text>
-              </TextContainer>
-            </NavItem>
-          </Link>
-        </FlexBox>
+                <TextContainer>
+                  <Text>Profile</Text>
+                </TextContainer>
+              </NavItem>
+            </Link>
+          </FlexBox>
+        )}
       </TopHalf>
 
       <BottomHalf>
         <NavItem padding="0.875rem 0.8rem" selected={false}>
           <InitialsContainer>
-            <NameInitials name="Aryaman Rishabh" />
+            <NameInitials name={userName} />
           </InitialsContainer>
 
           <TextContainer>
@@ -253,7 +275,7 @@ const Sidebar = () => {
           </TextContainer>
         </NavItem>
 
-        <NavItem padding="0.875rem 0.8rem" selected={false}>
+        <NavItem padding="0.875rem 0.8rem" onClick={handleLogout}>
           <MdLogout size="1.25rem" />
 
           <TextContainer>

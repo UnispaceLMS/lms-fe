@@ -27,7 +27,7 @@ const MainContainer = styled(FlexBox)`
 `;
 
 const DashboardLayout = ({ children }) => {
-  const sidebarExpanded = useSelector((state) => state?.sidebar?.expanded);
+  const sidebarExpanded = useSelector(state => state?.sidebar?.expanded);
 
   return (
     <Wrapper>

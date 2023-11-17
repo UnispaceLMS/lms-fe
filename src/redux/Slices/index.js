@@ -1,11 +1,13 @@
 import { combineReducers } from "@reduxjs/toolkit";
 
-import rosterSlice from "./rosterSlice";
+import authSlice from "./authSlice";
 import sidebarSlice from "./sidebarSlice";
+import studentSlice from "./studentSlice";
 
 const rootReducer = combineReducers({
-  roster: rosterSlice,
+  auth: authSlice,
   sidebar: sidebarSlice,
+  student: studentSlice,
 });
 
 export default rootReducer;

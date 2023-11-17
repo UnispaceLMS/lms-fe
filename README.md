@@ -12,4 +12,4 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Visit
 
-https://unispacelms-staging.vercel.app/
+https://unispace-staging.vercel.app/
