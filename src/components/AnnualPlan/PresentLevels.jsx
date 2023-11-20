@@ -54,7 +54,7 @@ const PresentLevels = () => {
     academicAchievementImpactResultNeeded,
     independentLivingSkillsImpactResultNeeded,
     communityParticipationSkillsImpactResultNeeded,
-  } = presentLevel;
+  } = presentLevel || {};
 
   useEffect(() => {
     if (router?.isReady) {

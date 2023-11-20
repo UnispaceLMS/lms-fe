@@ -41,7 +41,6 @@ const ContactInformation = () => {
 
   const saveDisabled =
     !email ||
-    !phoneNumber ||
     !emergencyContactName ||
     !emergencyContactEmail ||
     !emergencyContactPhoneNumber;
@@ -118,7 +117,7 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Student Contact Number*</Text>
+              <Text color={GRAY_800}>Student Contact Number</Text>
               <TextInput
                 type="number"
                 name="phoneNumber"
