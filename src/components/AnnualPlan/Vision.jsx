@@ -46,7 +46,7 @@ const Vision = () => {
     independentLivingGoals,
     communityParticipation,
     postSecondaryEducationTraining,
-  } = vision;
+  } = vision || {};
 
   useEffect(() => {
     if (router?.isReady) {
