@@ -29,19 +29,12 @@ const MentalHealth = () => {
     mentalHealthStudentPerspective:
       studentProfile?.mentalHealthStudentPerspective || "",
     mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
-    peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
-    objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
-    activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
   });
 
   const {
     triggers,
-    toughestTime,
     calmingStrategy,
     mentalHealthDiagnosis,
-    peopleCopingMechanism,
-    objectCopingMechanism,
-    activityCopingMechanism,
     mentalHealthStudentPerspective,
   } = mentalHealthInfo;
 
@@ -62,9 +55,6 @@ const MentalHealth = () => {
         mentalHealthStudentPerspective:
           studentProfile?.mentalHealthStudentPerspective || "",
         mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
-        peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
-        objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
-        activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
       }));
     }
   }, [studentProfile]);
@@ -174,50 +164,9 @@ const MentalHealth = () => {
             handleChange={handleTriggerInput}
           />
 
+          {/* Changes post phase 1 - calming strategy -> coping strategy */}
           <InputContainer>
-            <Text color={GRAY_800}>Toughest Time</Text>
-            <TextInput
-              name="toughestTime"
-              value={toughestTime}
-              onChange={handleInput}
-              placeholder="Type Here"
-            />
-          </InputContainer>
-
-          <FlexBox colGap="2rem">
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : Objects</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="objectCopingMechanism"
-                value={objectCopingMechanism}
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : Activities</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="activityCopingMechanism"
-                value={activityCopingMechanism}
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : People</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="peopleCopingMechanism"
-                value={peopleCopingMechanism}
-              />
-            </InputContainer>
-          </FlexBox>
-
-          <InputContainer>
-            <Text color={GRAY_800}>Calming Strategy</Text>
+            <Text color={GRAY_800}>Coping Strategy</Text>
             <TextInput
               onChange={handleInput}
               name="calmingStrategy"

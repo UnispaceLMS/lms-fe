@@ -24,9 +24,11 @@ const AssessmentGrid = styled.div`
 const GridEntry = styled(FlexBox)`
   width: 100%;
   padding: 0.625rem;
+  column-gap: 0.5rem;
+  align-items: flex-end;
 
   input {
-    width: 100%;
+    width: 5rem;
     border: none;
     font-size: 0.75rem;
   }
@@ -66,6 +68,7 @@ const GridRow = ({ label, name, value, handleChange }) => (
         onChange={handleChange}
         placeholder="Type Here"
       />
+      <Text size="0.75rem">%</Text>
     </GridEntry>
   </>
 );
