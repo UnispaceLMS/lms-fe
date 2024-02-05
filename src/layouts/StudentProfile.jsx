@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 
+import DashboardLayout from "@layouts/DashboardLayout";
+
 import { getStudentProfile } from "@redux/Slices/studentSlice";
 
 const PageWrapper = styled(FlexBox)`
@@ -36,7 +38,9 @@ const StudentProfile = ({ children }) => {
   if (!student || studentLoading) {
     return (
       <PageWrapper>
-        <Loader />
+        <DashboardLayout>
+          <Loader />
+        </DashboardLayout>
       </PageWrapper>
     );
   }

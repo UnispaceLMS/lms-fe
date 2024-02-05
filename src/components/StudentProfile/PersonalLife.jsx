@@ -4,15 +4,12 @@ import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
 import FlexBox from "@common/FlexBox";
-import TextInput from "@common/TextInput";
 import MultipleEntryTable from "@common/MultipleEntryTable";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
-import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
-import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const defaultEntries = Object.freeze({
@@ -21,6 +18,7 @@ const defaultEntries = Object.freeze({
   worries: { worry: "" },
   friends: { friend: "" },
   interests: { interest: "" },
+  safetyConceptStruggles: { struggle: "" },
 });
 
 const PersonalLife = () => {
@@ -34,21 +32,11 @@ const PersonalLife = () => {
     friends: [],
     worries: [],
     interests: [],
-    dreamJob: studentProfile?.dreamJob || "",
-    dreamLivingSituation: studentProfile?.dreamLivingSituation || "",
-    safetyConceptStruggle: studentProfile?.safetyConceptStruggle || "",
+    safetyConceptStruggles: [],
   });
 
-  const {
-    fears,
-    family,
-    friends,
-    worries,
-    dreamJob,
-    interests,
-    dreamLivingSituation,
-    safetyConceptStruggle,
-  } = personalLifeInfo;
+  const { fears, family, friends, worries, interests, safetyConceptStruggles } =
+    personalLifeInfo;
 
   useEffect(() => {
     if (studentProfile) {
@@ -57,6 +45,9 @@ const PersonalLife = () => {
       let friends = [{ ...defaultEntries.friends }];
       let worries = [{ ...defaultEntries.worries }];
       let interests = [{ ...defaultEntries.interests }];
+      let safetyConceptStruggles = [
+        { ...defaultEntries.safetyConceptStruggles },
+      ];
 
       if (!!studentProfile?.fears?.length) {
         fears = studentProfile?.fears?.map(fear => ({ fear }));
@@ -70,6 +61,11 @@ const PersonalLife = () => {
       if (!!studentProfile?.worries?.length) {
         worries = studentProfile?.worries?.map(worry => ({ worry }));
       }
+      if (!!studentProfile?.safetyConceptStruggles?.length) {
+        safetyConceptStruggles = studentProfile?.safetyConceptStruggles?.map(
+          struggle => ({ struggle })
+        );
+      }
       if (!!studentProfile?.interests?.length) {
         interests = studentProfile?.interests?.map(interest => ({ interest }));
       }
@@ -81,22 +77,10 @@ const PersonalLife = () => {
         friends,
         worries,
         interests,
-        dreamJob: studentProfile?.dreamJob || "",
-        dreamLivingSituation: studentProfile?.dreamLivingSituation || "",
-        safetyConceptStruggle: studentProfile?.safetyConceptStruggle || "",
+        safetyConceptStruggles,
       }));
     }
   }, [studentProfile]);
-
-  const handleInput = e => {
-    try {
-      const { name, value } = e.target;
-
-      setPersonalLifeInfo(prev => ({ ...prev, [name]: value }));
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const onSave = () => {
     try {
@@ -123,6 +107,10 @@ const PersonalLife = () => {
         ?.filter(({ interest }) => !!interest)
         ?.map(({ interest }) => interest);
 
+      const struggles = personalLifeInfo?.safetyConceptStruggles
+        ?.filter(({ struggle }) => !!struggle)
+        ?.map(({ struggle }) => struggle);
+
       Object.keys(personalLifeInfo)
         ?.filter(
           key =>
@@ -138,6 +126,7 @@ const PersonalLife = () => {
       if (!!friends?.length) payload.friends = friends;
       if (!!worries?.length) payload.worries = worries;
       if (!!interests?.length) payload.interests = interests;
+      if (!!struggles?.length) payload.safetyConceptStruggles = struggles;
 
       dispatch(
         saveUpdateProfile({
@@ -245,6 +234,25 @@ const PersonalLife = () => {
     }
   };
 
+  const handleStrugglesInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const strugglesCopy = [...safetyConceptStruggles];
+      let struggle = strugglesCopy?.[i];
+
+      struggle = { ...struggle, [name]: value };
+      strugglesCopy[i] = struggle;
+
+      setPersonalLifeInfo(prev => ({
+        ...prev,
+        safetyConceptStruggles: strugglesCopy,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Wrapper>
       <ProfileCompletionWizard currentStep={5} />
@@ -263,15 +271,6 @@ const PersonalLife = () => {
           />
 
           <FlexBox colGap="2rem" align="flex-start">
-            {/* <InputContainer>
-              <Text color={GRAY_800}>Family</Text>
-              <TextInput
-                name="family"
-                value={family}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer> */}
             <MultipleEntryTable
               entries={family}
               columns={["Family"]}
@@ -279,43 +278,12 @@ const PersonalLife = () => {
               addEntry={() => addEntry("family")}
             />
 
-            {/* <InputContainer>
-              <Text color={GRAY_800}>Friends</Text>
-              <TextInput
-                name="friends"
-                value={friends}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer> */}
             <MultipleEntryTable
               entries={friends}
               columns={["Friends"]}
               handleChange={handleFriendsInput}
               addEntry={() => addEntry("friends")}
             />
-          </FlexBox>
-
-          <FlexBox colGap="2rem">
-            <InputContainer>
-              <Text color={GRAY_800}>Dream Job</Text>
-              <TextInput
-                name="dreamJob"
-                value={dreamJob}
-                onChange={handleInput}
-                placeholder="Type Here"
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Dream Living Situation</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="dreamLivingSituation"
-                value={dreamLivingSituation}
-              />
-            </InputContainer>
           </FlexBox>
 
           <FlexBox colGap="2rem" align="flex-start">
@@ -332,17 +300,14 @@ const PersonalLife = () => {
               handleChange={handleFearsInput}
               addEntry={() => addEntry("fears")}
             />
-
-            <InputContainer>
-              <Text color={GRAY_800}>Safety Struggle</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="safetyConceptStruggle"
-                value={safetyConceptStruggle}
-              />
-            </InputContainer>
           </FlexBox>
+
+          <MultipleEntryTable
+            columns={["Safety Concerns"]}
+            entries={safetyConceptStruggles}
+            handleChange={handleStrugglesInput}
+            addEntry={() => addEntry("safetyConceptStruggles")}
+          />
         </FlexBox>
 
         <FlexBox align="center" colGap="1.5rem">

@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { FiPlus } from "react-icons/fi";
 import styled, { css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -42,6 +43,11 @@ const GridEntry = styled(FlexBox)`
 
 const defaultEntries = Object.freeze({
   helpRequiredTasks: { task: "" },
+  supportEntry: {
+    condition: "",
+    location: "",
+    supportAndModificationToEnv: "",
+  },
   independentlyCapableTasks: { capability: "" },
 });
 
@@ -65,28 +71,22 @@ const GridHeader = () => (
   </>
 );
 
-const GridRow = ({ id, label, condition, location, handleChange }) => (
+const GridFooter = ({ addEntry }) => (
   <>
-    <GridEntry>
-      <Text size="0.75rem">{label}</Text>
-    </GridEntry>
-    <GridEntry>
-      <input
-        id={id}
-        name="condition"
-        value={condition}
-        onChange={handleChange}
-        placeholder="Type Here"
-      />
-    </GridEntry>
-    <GridEntry>
-      <input
-        id={id}
-        name="location"
-        value={location}
-        onChange={handleChange}
-        placeholder="Type Here"
-      />
+    <GridEntry header />
+    <GridEntry header />
+    <GridEntry header justify="end">
+      <FlexBox
+        align="center"
+        cursor="pointer"
+        colGap="0.25rem"
+        onClick={addEntry}
+      >
+        <FiPlus strokeWidth={2.5} />
+        <Text bold size="0.75rem">
+          Add
+        </Text>
+      </FlexBox>
     </GridEntry>
   </>
 );
@@ -96,53 +96,25 @@ const AssistanceSupport = () => {
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
-  const [supportData, setSupportData] = useState({
-    "Access to Fidget": {
-      location: "",
-      condition: "",
-    },
-    "Breaks/ Alone Time": {
-      location: "",
-      condition: "",
-    },
-    "Reminder to Fill Medication": {
-      location: "",
-      condition: "",
-    },
-    "Mental Health Check Ins": {
-      location: "",
-      condition: "",
-    },
-    "Positive Reinforcement": {
-      location: "",
-      condition: "",
-    },
-  });
+  const [supportData, setSupportData] = useState([
+    { condition: "", location: "", supportAndModificationToEnv: "" },
+  ]);
 
   const [assistanceData, setAssistanceData] = useState({
     helpRequiredTasks: [],
     independentlyCapableTasks: [],
     morningHelp: studentProfile?.morningHelp || "",
     eveningHelp: studentProfile?.eveningHelp || "",
-    afternoonHelp: studentProfile?.afternoonHelp || "",
     accommodations: studentProfile?.accommodations || "",
   });
 
   const {
     morningHelp,
     eveningHelp,
-    afternoonHelp,
     accommodations,
     helpRequiredTasks,
     independentlyCapableTasks,
   } = assistanceData;
-  const {
-    "Access to Fidget": fidget,
-    "Breaks/ Alone Time": breaks,
-    "Reminder to Fill Medication": reminder,
-    "Mental Health Check Ins": mentalHealth,
-    "Positive Reinforcement": positiveReinforcement,
-  } = supportData;
 
   useEffect(() => {
     if (studentProfile) {
@@ -166,33 +138,36 @@ const AssistanceSupport = () => {
         independentlyCapableTasks: capabilities,
         morningHelp: studentProfile?.morningHelp || "",
         eveningHelp: studentProfile?.eveningHelp || "",
-        afternoonHelp: studentProfile?.afternoonHelp || "",
         accommodations: studentProfile?.accommodations || "",
       }));
 
-      const suppData = { ...supportData };
-      studentProfile?.supports?.forEach?.(
-        ({ location, condition, supportAndModificationToEnv }) => {
-          suppData[supportAndModificationToEnv].location = location;
-          suppData[supportAndModificationToEnv].condition = condition;
-        }
-      );
-
-      setSupportData(prev => ({ ...prev, ...suppData }));
+      if (!!studentProfile?.supports?.length) {
+        setSupportData(studentProfile?.supports);
+      }
     }
   }, [studentProfile]);
 
-  const handleSupportInput = e => {
+  const handleSupportInput = (e, i) => {
     try {
-      const { id, name, value } = e.target;
+      const { name, value } = e.target;
 
-      setSupportData(prev => ({
-        ...prev,
-        [id]: {
-          ...prev?.[id],
-          [name]: value,
-        },
-      }));
+      const supportDataCopy = structuredClone(supportData);
+      let supportInstance = supportDataCopy?.[i];
+
+      supportInstance = { ...supportInstance, [name]: value };
+      supportDataCopy[i] = supportInstance;
+
+      setSupportData(supportDataCopy);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addSupportEntry = () => {
+    try {
+      const newEntry = structuredClone(defaultEntries.supportEntry);
+
+      setSupportData(prev => [...prev, newEntry]);
     } catch (error) {
       console.log(error);
     }
@@ -211,7 +186,6 @@ const AssistanceSupport = () => {
   const onSave = () => {
     try {
       const id = router?.query?.id;
-      let supports = [];
       const payload = { id };
 
       const helpRequiredTasks = assistanceData?.helpRequiredTasks
@@ -231,20 +205,10 @@ const AssistanceSupport = () => {
           payload[key] = assistanceData?.[key];
         });
 
-      Object?.keys(supportData)
-        ?.filter(
-          key =>
-            !!supportData?.[key]?.location && !!supportData?.[key]?.condition
-        )
-        ?.forEach(key => {
-          const { location, condition } = supportData?.[key];
-
-          supports?.push({
-            location,
-            condition,
-            supportAndModificationToEnv: key,
-          });
-        });
+      const supports = supportData?.filter(
+        ({ location, condition, supportAndModificationToEnv }) =>
+          !!location && !!condition && !!supportAndModificationToEnv
+      );
 
       if (!!helpRequiredTasks?.length)
         payload.helpRequiredTasks = helpRequiredTasks;
@@ -336,16 +300,6 @@ const AssistanceSupport = () => {
               </InputContainer>
 
               <InputContainer>
-                <Text color={GRAY_800}>Afternoon Assistance</Text>
-                <TextInput
-                  name="afternoonHelp"
-                  value={afternoonHelp}
-                  placeholder="Type Here"
-                  onChange={handleAssistanceInput}
-                />
-              </InputContainer>
-
-              <InputContainer>
                 <Text color={GRAY_800}>Evening Assistance</Text>
                 <TextInput
                   name="eveningHelp"
@@ -382,7 +336,7 @@ const AssistanceSupport = () => {
           </FlexBox>
         </FlexBox>
 
-        <FlexBox column rowGap="3rem">
+        <FlexBox column width="90%" rowGap="3rem">
           <Text bold size="1.25rem">
             Support
           </Text>
@@ -390,45 +344,38 @@ const AssistanceSupport = () => {
           <SupportGrid>
             <GridHeader />
 
-            <GridRow
-              id="Access to Fidget"
-              label="Access to Fidget"
-              location={fidget?.location}
-              condition={fidget?.condition}
-              handleChange={handleSupportInput}
-            />
+            {supportData?.map(
+              ({ location, condition, supportAndModificationToEnv }, i) => (
+                <Fragment key={i}>
+                  <GridEntry>
+                    <input
+                      placeholder="Type Here"
+                      name="supportAndModificationToEnv"
+                      value={supportAndModificationToEnv}
+                      onChange={e => handleSupportInput(e, i)}
+                    />
+                  </GridEntry>
+                  <GridEntry>
+                    <input
+                      name="condition"
+                      value={condition}
+                      placeholder="Type Here"
+                      onChange={e => handleSupportInput(e, i)}
+                    />
+                  </GridEntry>
+                  <GridEntry>
+                    <input
+                      name="location"
+                      value={location}
+                      placeholder="Type Here"
+                      onChange={e => handleSupportInput(e, i)}
+                    />
+                  </GridEntry>
+                </Fragment>
+              )
+            )}
 
-            <GridRow
-              id="Breaks/ Alone Time"
-              label="Breaks/ Alone Time"
-              location={breaks?.location}
-              condition={breaks?.condition}
-              handleChange={handleSupportInput}
-            />
-
-            <GridRow
-              id="Mental Health Check Ins"
-              label="Mental Health Check Ins"
-              location={mentalHealth?.location}
-              handleChange={handleSupportInput}
-              condition={mentalHealth?.condition}
-            />
-
-            <GridRow
-              location={reminder?.location}
-              condition={reminder?.condition}
-              id="Reminder to Fill Medication"
-              handleChange={handleSupportInput}
-              label="Reminder to Fill Medication"
-            />
-
-            <GridRow
-              id="Positive Reinforcement"
-              label="Positive Reinforcement"
-              handleChange={handleSupportInput}
-              location={positiveReinforcement?.location}
-              condition={positiveReinforcement?.condition}
-            />
+            <GridFooter addEntry={addSupportEntry} />
           </SupportGrid>
 
           <FlexBox align="center" colGap="1.5rem">

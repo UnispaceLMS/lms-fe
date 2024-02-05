@@ -132,7 +132,8 @@ const Checkbox = styled(FlexBox)`
   transition: all 250ms ease-in-out;
 
   svg {
-    color: ${GRAY_100};
+    opacity: 0;
+    color: ${WHITE};
     font-size: 0.75rem;
   }
 
@@ -143,7 +144,8 @@ const Checkbox = styled(FlexBox)`
       background-color: ${PRIMARY_600};
 
       svg {
-        color: ${WHITE};
+        opacity: 1;
+        transition: opacity 250ms ease-in-out;
       }
     `}
 `;

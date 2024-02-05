@@ -24,10 +24,14 @@ const ContactInformation = () => {
     phoneNumber: studentProfile?.phoneNumber || "",
     emergencyContactPhoneNumber:
       studentProfile?.emergencyContactPhoneNumber || "",
-    emergencyContactSecondaryPhoneNumber:
-      studentProfile?.emergencyContactSecondaryPhoneNumber || "",
     emergencyContactName: studentProfile?.emergencyContactName || "",
     emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
+    secondaryEmergencyContactName:
+      studentProfile?.secondaryEmergencyContactName || "",
+    secondaryEmergencyContactEmail:
+      studentProfile?.secondaryEmergencyContactEmail || "",
+    secondaryEmergencyContactPhoneNumber:
+      studentProfile?.secondaryEmergencyContactPhoneNumber || "",
   });
 
   const {
@@ -36,7 +40,9 @@ const ContactInformation = () => {
     emergencyContactName,
     emergencyContactEmail,
     emergencyContactPhoneNumber,
-    emergencyContactSecondaryPhoneNumber,
+    secondaryEmergencyContactName,
+    secondaryEmergencyContactEmail,
+    secondaryEmergencyContactPhoneNumber,
   } = contactInfo || {};
 
   const saveDisabled =
@@ -53,10 +59,14 @@ const ContactInformation = () => {
         phoneNumber: studentProfile?.phoneNumber || "",
         emergencyContactPhoneNumber:
           studentProfile?.emergencyContactPhoneNumber || "",
-        emergencyContactSecondaryPhoneNumber:
-          studentProfile?.emergencyContactSecondaryPhoneNumber || "",
         emergencyContactName: studentProfile?.emergencyContactName || "",
         emergencyContactEmail: studentProfile?.emergencyContactEmail || "",
+        secondaryEmergencyContactName:
+          studentProfile?.secondaryEmergencyContactName || "",
+        secondaryEmergencyContactEmail:
+          studentProfile?.secondaryEmergencyContactEmail || "",
+        secondaryEmergencyContactPhoneNumber:
+          studentProfile?.secondaryEmergencyContactPhoneNumber || "",
       }));
     }
   }, [studentProfile]);
@@ -128,35 +138,26 @@ const ContactInformation = () => {
             </InputContainer>
           </FlexBox>
 
-          <InputContainer>
-            <Text color={GRAY_800}>Emergency Contact Name*</Text>
-            <TextInput
-              onChange={handleInput}
-              placeholder="Type Here"
-              name="emergencyContactName"
-              value={emergencyContactName}
-            />
-          </InputContainer>
-
-          <InputContainer>
-            <Text color={GRAY_800}>Emergency Contact Email*</Text>
-            <TextInput
-              onChange={handleInput}
-              placeholder="Type Here"
-              name="emergencyContactEmail"
-              value={emergencyContactEmail}
-            />
-          </InputContainer>
-
           <FlexBox colGap="2rem">
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Number*</Text>
+              <Text color={GRAY_800}>Emergency Contact Name</Text>
               <TextInput
-                type="number"
+                type="text"
                 onChange={handleInput}
                 placeholder="Type Here"
-                name="emergencyContactPhoneNumber"
-                value={emergencyContactPhoneNumber}
+                name="emergencyContactName"
+                value={emergencyContactName}
+              />
+            </InputContainer>
+
+            <InputContainer>
+              <Text color={GRAY_800}>Emergency Contact Email</Text>
+              <TextInput
+                type="email"
+                onChange={handleInput}
+                placeholder="Type Here"
+                name="emergencyContactEmail"
+                value={emergencyContactEmail}
               />
             </InputContainer>
 
@@ -166,8 +167,43 @@ const ContactInformation = () => {
                 type="number"
                 onChange={handleInput}
                 placeholder="Type Here"
-                name="emergencyContactSecondaryPhoneNumber"
-                value={emergencyContactSecondaryPhoneNumber}
+                name="emergencyContactPhoneNumber"
+                value={emergencyContactPhoneNumber}
+              />
+            </InputContainer>
+          </FlexBox>
+
+          <FlexBox colGap="2rem">
+            <InputContainer>
+              <Text color={GRAY_800}>Emergency Contact Name</Text>
+              <TextInput
+                type="text"
+                onChange={handleInput}
+                placeholder="Type Here"
+                name="secondaryEmergencyContactName"
+                value={secondaryEmergencyContactName}
+              />
+            </InputContainer>
+
+            <InputContainer>
+              <Text color={GRAY_800}>Emergency Contact Email</Text>
+              <TextInput
+                type="email"
+                onChange={handleInput}
+                placeholder="Type Here"
+                name="secondaryEmergencyContactEmail"
+                value={secondaryEmergencyContactEmail}
+              />
+            </InputContainer>
+
+            <InputContainer>
+              <Text color={GRAY_800}>Emergency Contact Number</Text>
+              <TextInput
+                type="number"
+                onChange={handleInput}
+                placeholder="Type Here"
+                name="secondaryEmergencyContactPhoneNumber"
+                value={secondaryEmergencyContactPhoneNumber}
               />
             </InputContainer>
           </FlexBox>
