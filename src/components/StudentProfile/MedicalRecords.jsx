@@ -57,11 +57,10 @@ const MedicalRecords = () => {
   const [allergyInfo, setAllergyInfo] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState({
     bloodGroup: null,
-    medicineRoutine: studentProfile?.medicineRoutine || "",
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
   });
 
-  const { bloodGroup, medicineRoutine, primaryDiagnosis } = medicalRecords;
+  const { bloodGroup, primaryDiagnosis } = medicalRecords;
 
   useEffect(() => {
     if (studentProfile) {
@@ -197,16 +196,6 @@ const MedicalRecords = () => {
             handleChange={handleAllergyInput}
             columns={["Allergies", "Allergies Reaction"]}
           />
-
-          <InputContainer>
-            <Text color={GRAY_800}>Medicine Routine</Text>
-            <TextInput
-              onChange={handleInput}
-              name="medicineRoutine"
-              value={medicineRoutine}
-              placeholder="Type Here"
-            />
-          </InputContainer>
         </FlexBox>
 
         <FlexBox align="center" colGap="1.5rem">

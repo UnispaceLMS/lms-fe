@@ -85,10 +85,10 @@ const RenderPlanCard = ({ plan, link = "", disabled, PlanImage }) => (
       </Text>
 
       {disabled ? (
-        <SecondaryButton disabled>Create</SecondaryButton>
+        <SecondaryButton disabled>View</SecondaryButton>
       ) : (
         <Link href={link}>
-          <SecondaryButton>Create</SecondaryButton>
+          <SecondaryButton>View</SecondaryButton>
         </Link>
       )}
     </PlanFooter>
