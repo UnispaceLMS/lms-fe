@@ -127,7 +127,7 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Student Contact Number</Text>
+              <Text color={GRAY_800}>Student Contact Number*</Text>
               <TextInput
                 type="number"
                 name="phoneNumber"
@@ -140,7 +140,7 @@ const ContactInformation = () => {
 
           <FlexBox colGap="2rem">
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Name</Text>
+              <Text color={GRAY_800}>Emergency Contact Name*</Text>
               <TextInput
                 type="text"
                 onChange={handleInput}
@@ -151,7 +151,7 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Email</Text>
+              <Text color={GRAY_800}>Emergency Contact Email*</Text>
               <TextInput
                 type="email"
                 onChange={handleInput}
@@ -162,7 +162,7 @@ const ContactInformation = () => {
             </InputContainer>
 
             <InputContainer>
-              <Text color={GRAY_800}>Emergency Contact Number</Text>
+              <Text color={GRAY_800}>Emergency Contact Number*</Text>
               <TextInput
                 type="number"
                 onChange={handleInput}

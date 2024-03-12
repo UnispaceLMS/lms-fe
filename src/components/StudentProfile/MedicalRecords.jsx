@@ -56,22 +56,21 @@ const MedicalRecords = () => {
 
   const [allergyInfo, setAllergyInfo] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState({
-    bloodGroup: null,
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
   });
 
-  const { bloodGroup, primaryDiagnosis } = medicalRecords;
+  const { primaryDiagnosis } = medicalRecords;
 
   useEffect(() => {
     if (studentProfile) {
-      let bloodGroup = null;
+      // let bloodGroup = null;
       let allergies = [{ allergy: "", reaction: "" }];
 
-      if (studentProfile?.bloodGroup) {
-        bloodGroup = bloodGroups?.find(
-          ({ value }) => studentProfile?.bloodGroup === value
-        );
-      }
+      // if (studentProfile?.bloodGroup) {
+      //   bloodGroup = bloodGroups?.find(
+      //     ({ value }) => studentProfile?.bloodGroup === value
+      //   );
+      // }
 
       if (!!studentProfile?.allergies?.length) {
         allergies = studentProfile?.allergies;
@@ -80,7 +79,7 @@ const MedicalRecords = () => {
       setAllergyInfo(allergies);
       setMedicalRecords(prev => ({
         ...prev,
-        bloodGroup,
+        // bloodGroup,
         medicineRoutine: studentProfile?.medicineRoutine || "",
         primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
       }));
@@ -116,7 +115,7 @@ const MedicalRecords = () => {
         });
 
       if (!!allergies?.length) payload.allergies = allergies;
-      if (!!bloodGroup) payload.bloodGroup = bloodGroup?.value;
+      // if (!!bloodGroup) payload.bloodGroup = bloodGroup?.value;
 
       dispatch(
         saveUpdateProfile({
@@ -177,7 +176,7 @@ const MedicalRecords = () => {
             />
           </InputContainer>
 
-          <InputContainer>
+          {/* <InputContainer>
             <Text color={GRAY_800}>Blood Group</Text>
             <Select
               value={bloodGroup}
@@ -188,7 +187,7 @@ const MedicalRecords = () => {
                 setMedicalRecords(prev => ({ ...prev, bloodGroup: option }))
               }
             />
-          </InputContainer>
+          </InputContainer> */}
 
           <MultipleEntryTable
             entries={allergyInfo}
