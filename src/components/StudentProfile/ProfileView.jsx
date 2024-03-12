@@ -505,11 +505,9 @@ const Strengths = ({ strengths }) => {
         <Label>Student Identified Strengths</Label>
 
         {!!studentIDd?.length ? (
-          studentIDd?.map(({ note }) => (
-            <Text key={note} size="0.875rem" color={GRAY_700}>
-              {note}
-            </Text>
-          ))
+          <Text size="0.875rem" color={GRAY_700}>
+            {studentIDd?.[0]?.note}
+          </Text>
         ) : (
           <Text size="0.875rem" color={GRAY_700}>
             N/A
@@ -521,11 +519,9 @@ const Strengths = ({ strengths }) => {
         <Label>Family Identified Strengths</Label>
 
         {!!familyIDd?.length ? (
-          familyIDd?.map(({ note }) => (
-            <Text key={note} size="0.875rem" color={GRAY_700}>
-              {note}
-            </Text>
-          ))
+          <Text size="0.875rem" color={GRAY_700}>
+            {familyIDd?.[0]?.note}
+          </Text>
         ) : (
           <Text size="0.875rem" color={GRAY_700}>
             N/A
@@ -551,11 +547,9 @@ const Concerns = ({ concerns }) => {
         <Label>Student Identified Concerns</Label>
 
         {!!studentIDd?.length ? (
-          studentIDd?.map(({ note }) => (
-            <Text key={note} size="0.875rem" color={GRAY_700}>
-              {note}
-            </Text>
-          ))
+          <Text size="0.875rem" color={GRAY_700}>
+            {studentIDd?.[0]?.note}
+          </Text>
         ) : (
           <Text size="0.875rem" color={GRAY_700}>
             N/A
@@ -567,11 +561,9 @@ const Concerns = ({ concerns }) => {
         <Label>Family Identified Concerns</Label>
 
         {!!familyIDd?.length ? (
-          familyIDd?.map(({ note }) => (
-            <Text key={note} size="0.875rem" color={GRAY_700}>
-              {note}
-            </Text>
-          ))
+          <Text key={note} size="0.875rem" color={GRAY_700}>
+            {familyIDd?.[0]?.note}
+          </Text>
         ) : (
           <Text size="0.875rem" color={GRAY_700}>
             N/A
