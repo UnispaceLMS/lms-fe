@@ -35,11 +35,9 @@ const PresentLevels = () => {
   const [loading, setLoading] = useState(false);
   const [presentLevel, setPresentLevel] = useState({
     employmentSkills: "",
-    academicAchievement: "",
     independentLivingSkills: "",
     communityParticipationSkills: "",
     employmentSkillsImpactResultNeeded: "",
-    academicAchievementImpactResultNeeded: "",
     independentLivingSkillsImpactResultNeeded: "",
     communityParticipationSkillsImpactResultNeeded: "",
   });
@@ -47,11 +45,9 @@ const PresentLevels = () => {
 
   const {
     employmentSkills,
-    academicAchievement,
     independentLivingSkills,
     communityParticipationSkills,
     employmentSkillsImpactResultNeeded,
-    academicAchievementImpactResultNeeded,
     independentLivingSkillsImpactResultNeeded,
     communityParticipationSkillsImpactResultNeeded,
   } = presentLevel || {};
@@ -132,30 +128,6 @@ const PresentLevels = () => {
         <Text weight={500} size="1.125rem">
           Present Levels
         </Text>
-
-        <Container>
-          <Text weight={500} size="1.125rem">
-            Academic Achievement
-          </Text>
-          <TextArea
-            rows={1}
-            placeholder="Enter"
-            onChange={handleInput}
-            name="academicAchievement"
-            value={academicAchievement}
-          />
-
-          <Text weight={500} size="0.875rem">
-            Impact and Resulting Need
-          </Text>
-          <TextArea
-            rows={1}
-            placeholder="Enter"
-            onChange={handleInput}
-            name="academicAchievementImpactResultNeeded"
-            value={academicAchievementImpactResultNeeded}
-          />
-        </Container>
 
         <Container>
           <Text weight={500} size="1.125rem">
