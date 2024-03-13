@@ -85,19 +85,17 @@ const CreateStudent = ({ toggleModal }) => {
 
   const handleInput = e => {
     try {
-      setLoading(true);
       const { name, value } = e.target;
 
       setStudentDetails(prev => ({ ...prev, [name]: value }));
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
 
   const createStudent = async () => {
     try {
+      setLoading(true);
       const res = await axiosInstance.post(urls.studentCreateUpdate, {
         lastName,
         firstName,
@@ -109,6 +107,7 @@ const CreateStudent = ({ toggleModal }) => {
       if (studentID)
         router.push(`/student/${studentID}/profile/personal-information`);
     } catch (error) {
+      setLoading(false);
       console.log("Error in creating student", error);
     }
   };
