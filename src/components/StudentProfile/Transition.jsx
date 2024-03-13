@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
+import { useDispatch } from "react-redux";
 import styled, { css } from "styled-components";
-import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
@@ -24,9 +25,11 @@ const AssessmentGrid = styled.div`
 const GridEntry = styled(FlexBox)`
   width: 100%;
   padding: 0.625rem;
+  column-gap: 0.5rem;
+  align-items: flex-end;
 
   input {
-    width: 100%;
+    width: 5rem;
     border: none;
     font-size: 0.75rem;
   }
@@ -66,6 +69,7 @@ const GridRow = ({ label, name, value, handleChange }) => (
         onChange={handleChange}
         placeholder="Type Here"
       />
+      <Text size="0.75rem">%</Text>
     </GridEntry>
   </>
 );
@@ -73,8 +77,8 @@ const GridRow = ({ label, name, value, handleChange }) => (
 const Transition = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const studentProfile = useSelector(state => state?.student?.profile);
 
+  const [requestLoading, setRequestLoading] = useState(false);
   const [assessments, setAssessments] = useState({
     healthWellness: {
       label: "Health & Wellness",
@@ -128,6 +132,7 @@ const Transition = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
       const transitionAssessments = [];
@@ -152,11 +157,20 @@ const Transition = () => {
         saveUpdateProfile({ data: payload, nextLink: `/student/${id}/profile` })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
 
   const handleBack = () => router?.back();
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>

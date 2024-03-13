@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Select from "react-select";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import MultipleEntryTable from "@common/MultipleEntryTable";
@@ -13,41 +13,40 @@ import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
-import { bloodGroups } from "@metadata/bloodGroups";
+import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@redux/Slices/studentSlice";
-import { GRAY_200, GRAY_300, GRAY_800 } from "@constants/colors";
 
 const defaultAllergyEntry = Object.freeze({ allergy: "", reaction: "" });
 
-const customSelectStyles = {
-  container: baseStyles => ({
-    ...baseStyles,
-    width: "100%",
-  }),
-  control: baseStyles => ({
-    ...baseStyles,
-    padding: "1rem",
-    fontSize: "1rem",
-    boxShadow: "none",
-    minHeight: "unset",
-    borderColor: GRAY_200,
-    "&:hover": {
-      borderColor: GRAY_200,
-    },
-  }),
-  valueContainer: baseStyles => ({
-    ...baseStyles,
-    padding: 0,
-  }),
-  input: baseStyles => ({
-    ...baseStyles,
-    margin: 0,
-    padding: 0,
-  }),
-  indicatorSeparator: () => ({ display: "none" }),
-  placeholder: baseStyles => ({ ...baseStyles, color: GRAY_300 }),
-  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
-};
+// const customSelectStyles = {
+//   container: baseStyles => ({
+//     ...baseStyles,
+//     width: "100%",
+//   }),
+//   control: baseStyles => ({
+//     ...baseStyles,
+//     padding: "1rem",
+//     fontSize: "1rem",
+//     boxShadow: "none",
+//     minHeight: "unset",
+//     borderColor: GRAY_200,
+//     "&:hover": {
+//       borderColor: GRAY_200,
+//     },
+//   }),
+//   valueContainer: baseStyles => ({
+//     ...baseStyles,
+//     padding: 0,
+//   }),
+//   input: baseStyles => ({
+//     ...baseStyles,
+//     margin: 0,
+//     padding: 0,
+//   }),
+//   indicatorSeparator: () => ({ display: "none" }),
+//   placeholder: baseStyles => ({ ...baseStyles, color: GRAY_300 }),
+//   dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
+// };
 
 const MedicalRecords = () => {
   const router = useRouter();
@@ -56,23 +55,22 @@ const MedicalRecords = () => {
 
   const [allergyInfo, setAllergyInfo] = useState([]);
   const [medicalRecords, setMedicalRecords] = useState({
-    bloodGroup: null,
-    medicineRoutine: studentProfile?.medicineRoutine || "",
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
   });
+  const [requestLoading, setRequestLoading] = useState(false);
 
-  const { bloodGroup, medicineRoutine, primaryDiagnosis } = medicalRecords;
+  const { primaryDiagnosis } = medicalRecords;
 
   useEffect(() => {
     if (studentProfile) {
-      let bloodGroup = null;
+      // let bloodGroup = null;
       let allergies = [{ allergy: "", reaction: "" }];
 
-      if (studentProfile?.bloodGroup) {
-        bloodGroup = bloodGroups?.find(
-          ({ value }) => studentProfile?.bloodGroup === value
-        );
-      }
+      // if (studentProfile?.bloodGroup) {
+      //   bloodGroup = bloodGroups?.find(
+      //     ({ value }) => studentProfile?.bloodGroup === value
+      //   );
+      // }
 
       if (!!studentProfile?.allergies?.length) {
         allergies = studentProfile?.allergies;
@@ -81,7 +79,7 @@ const MedicalRecords = () => {
       setAllergyInfo(allergies);
       setMedicalRecords(prev => ({
         ...prev,
-        bloodGroup,
+        // bloodGroup,
         medicineRoutine: studentProfile?.medicineRoutine || "",
         primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
       }));
@@ -100,6 +98,7 @@ const MedicalRecords = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -117,7 +116,7 @@ const MedicalRecords = () => {
         });
 
       if (!!allergies?.length) payload.allergies = allergies;
-      if (!!bloodGroup) payload.bloodGroup = bloodGroup?.value;
+      // if (!!bloodGroup) payload.bloodGroup = bloodGroup?.value;
 
       dispatch(
         saveUpdateProfile({
@@ -126,6 +125,7 @@ const MedicalRecords = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
@@ -158,6 +158,14 @@ const MedicalRecords = () => {
     }
   };
 
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
+
   return (
     <Wrapper>
       <ProfileCompletionWizard currentStep={3} />
@@ -178,7 +186,7 @@ const MedicalRecords = () => {
             />
           </InputContainer>
 
-          <InputContainer>
+          {/* <InputContainer>
             <Text color={GRAY_800}>Blood Group</Text>
             <Select
               value={bloodGroup}
@@ -189,7 +197,7 @@ const MedicalRecords = () => {
                 setMedicalRecords(prev => ({ ...prev, bloodGroup: option }))
               }
             />
-          </InputContainer>
+          </InputContainer> */}
 
           <MultipleEntryTable
             entries={allergyInfo}
@@ -197,16 +205,6 @@ const MedicalRecords = () => {
             handleChange={handleAllergyInput}
             columns={["Allergies", "Allergies Reaction"]}
           />
-
-          <InputContainer>
-            <Text color={GRAY_800}>Medicine Routine</Text>
-            <TextInput
-              onChange={handleInput}
-              name="medicineRoutine"
-              value={medicineRoutine}
-              placeholder="Type Here"
-            />
-          </InputContainer>
         </FlexBox>
 
         <FlexBox align="center" colGap="1.5rem">

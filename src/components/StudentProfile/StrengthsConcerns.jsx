@@ -1,17 +1,29 @@
 import { useRouter } from "next/router";
+import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
-import MultipleEntryTable from "@common/MultipleEntryTable";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
 
 import Wrapper from "./Wrapper";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
+import { GRAY_300 } from "@/constants/colors";
 import { saveUpdateProfile } from "@redux/Slices/studentSlice";
 import { concernEnums, strengthEnums } from "@metadata/strengthsConcerns";
+
+const TextArea = styled.textarea`
+  width: 80%;
+  resize: none;
+  height: 7rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid ${GRAY_300};
+`;
 
 const defaultEntries = Object.freeze({
   concerns: { note: "" },
@@ -23,13 +35,18 @@ const StrengthsConcerns = () => {
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
+  const [requestLoading, setRequestLoading] = useState(false);
   const [familyIdentified, setFamilyIdentified] = useState({
-    concerns: [],
-    strengths: [],
+    concerns: [{ note: "" }],
+    strengths: [{ note: "" }],
   });
   const [studentIdentified, setStudentIdentified] = useState({
-    concerns: [],
-    strengths: [],
+    concerns: [{ note: "" }],
+    strengths: [{ note: "" }],
+  });
+  const [teacherIdentified, setTeacherIdentified] = useState({
+    concerns: [{ note: "" }],
+    strengths: [{ note: "" }],
   });
 
   useEffect(() => {
@@ -39,6 +56,10 @@ const StrengthsConcerns = () => {
         strengths: [{ ...defaultEntries.strengths }],
       };
       let studentIdentified = {
+        concerns: [{ ...defaultEntries.concerns }],
+        strengths: [{ ...defaultEntries.strengths }],
+      };
+      let teacherIdentified = {
         concerns: [{ ...defaultEntries.concerns }],
         strengths: [{ ...defaultEntries.strengths }],
       };
@@ -52,11 +73,18 @@ const StrengthsConcerns = () => {
           ?.filter(({ type }) => type === strengthEnums.student)
           ?.map(({ note }) => ({ note }));
 
+        const teacherStrengths = studentProfile?.strengths
+          ?.filter(({ type }) => type === strengthEnums.teacher)
+          ?.map(({ note }) => ({ note }));
+
         if (!!familyStrengths?.length) {
           familyIdentified.strengths = familyStrengths;
         }
         if (!!studentStrengths?.length) {
           studentIdentified.strengths = studentStrengths;
+        }
+        if (!!teacherStrengths?.length) {
+          teacherIdentified.strengths = teacherStrengths;
         }
       }
 
@@ -69,11 +97,18 @@ const StrengthsConcerns = () => {
           ?.filter(({ type }) => type === concernEnums.student)
           ?.map(({ note }) => ({ note }));
 
+        const teacherConcerns = studentProfile?.concerns
+          ?.filter(({ type }) => type === concernEnums.teacher)
+          ?.map(({ note }) => ({ note }));
+
         if (!!familyConcerns?.length) {
           familyIdentified.concerns = familyConcerns;
         }
         if (!!studentConcerns?.length) {
           studentIdentified.concerns = studentConcerns;
+        }
+        if (!!teacherConcerns?.length) {
+          teacherIdentified.concerns = teacherConcerns;
         }
       }
 
@@ -87,11 +122,17 @@ const StrengthsConcerns = () => {
         concerns: familyIdentified?.concerns,
         strengths: familyIdentified?.strengths,
       }));
+      setTeacherIdentified(prev => ({
+        ...prev,
+        concerns: teacherIdentified?.concerns,
+        strengths: teacherIdentified?.strengths,
+      }));
     }
   }, [studentProfile]);
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -104,6 +145,9 @@ const StrengthsConcerns = () => {
       const studentIdentifiedConcerns = studentIdentified?.concerns
         ?.filter(({ note }) => !!note)
         ?.map(({ note }) => ({ note, type: concernEnums.student }));
+      const teacherIdentifiedConcerns = teacherIdentified?.concerns
+        ?.filter(({ note }) => !!note)
+        ?.map(({ note }) => ({ note, type: concernEnums.teacher }));
 
       const familyIdentifiedStrengths = familyIdentified?.strengths
         ?.filter(({ note }) => !!note)
@@ -111,6 +155,9 @@ const StrengthsConcerns = () => {
       const studentIdentifiedStrengths = studentIdentified?.strengths
         ?.filter(({ note }) => !!note)
         ?.map(({ note }) => ({ note, type: strengthEnums.student }));
+      const teacherIdentifiedStrengths = teacherIdentified?.strengths
+        ?.filter(({ note }) => !!note)
+        ?.map(({ note }) => ({ note, type: strengthEnums.teacher }));
 
       if (!!familyIdentifiedConcerns?.length) {
         concerns = [...concerns, ...familyIdentifiedConcerns];
@@ -118,12 +165,18 @@ const StrengthsConcerns = () => {
       if (!!studentIdentifiedConcerns?.length) {
         concerns = [...concerns, ...studentIdentifiedConcerns];
       }
+      if (!!teacherIdentifiedConcerns?.length) {
+        concerns = [...concerns, ...teacherIdentifiedConcerns];
+      }
 
       if (!!familyIdentifiedStrengths?.length) {
         strengths = [...strengths, ...familyIdentifiedStrengths];
       }
       if (!!studentIdentifiedStrengths?.length) {
         strengths = [...strengths, ...studentIdentifiedStrengths];
+      }
+      if (!!teacherIdentifiedStrengths?.length) {
+        strengths = [...strengths, ...teacherIdentifiedStrengths];
       }
 
       if (!!concerns?.length) payload.concerns = concerns;
@@ -136,108 +189,77 @@ const StrengthsConcerns = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
 
   const handleBack = () => router?.back();
 
-  const addEntry = (identifiedBy, type) => {
-    try {
-      const isFamilyIdentified = identifiedBy === "family";
-
-      const defaultEntry = defaultEntries?.[type];
-      const identifiedEntries = isFamilyIdentified
-        ? familyIdentified
-        : studentIdentified;
-
-      const entries = [...identifiedEntries?.[type], { ...defaultEntry }];
-
-      if (isFamilyIdentified) {
-        setFamilyIdentified(prev => ({ ...prev, [type]: entries }));
-      } else {
-        setStudentIdentified(prev => ({ ...prev, [type]: entries }));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleStudentIDConcerns = (e, i) => {
+  const handleStudentID = e => {
     try {
       const { name, value } = e.target;
 
-      const studentConcernsCopy = [...studentIdentified?.concerns];
-      let concern = studentConcernsCopy?.[i];
+      const entriesCopy = [...studentIdentified?.[name]];
+      let entry = entriesCopy?.[0];
 
-      concern = { ...concern, [name]: value };
-      studentConcernsCopy[i] = concern;
+      entry = { ...entry, note: value };
+      entriesCopy[0] = entry;
 
       setStudentIdentified(prev => ({
         ...prev,
-        concerns: studentConcernsCopy,
+        [name]: entriesCopy,
       }));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleStudentIDstrengths = (e, i) => {
+  const handleFamilyID = e => {
     try {
       const { name, value } = e.target;
 
-      const studentStrengthsCopy = [...studentIdentified?.strengths];
-      let strength = studentStrengthsCopy?.[i];
+      const entriesCopy = [...familyIdentified?.[name]];
+      let entry = entriesCopy?.[0];
 
-      strength = { ...strength, [name]: value };
-      studentStrengthsCopy[i] = strength;
-
-      setStudentIdentified(prev => ({
-        ...prev,
-        strengths: studentStrengthsCopy,
-      }));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleFamilyIDConcerns = (e, i) => {
-    try {
-      const { name, value } = e.target;
-
-      const familyConcernsCopy = [...familyIdentified?.concerns];
-      let concern = familyConcernsCopy?.[i];
-
-      concern = { ...concern, [name]: value };
-      familyConcernsCopy[i] = concern;
+      entry = { ...entry, note: value };
+      entriesCopy[0] = entry;
 
       setFamilyIdentified(prev => ({
         ...prev,
-        concerns: familyConcernsCopy,
+        [name]: entriesCopy,
       }));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleFamilyIDstrengths = (e, i) => {
+  const handleTeacherID = e => {
     try {
       const { name, value } = e.target;
 
-      const studentStrengthsCopy = [...familyIdentified?.strengths];
-      let strength = studentStrengthsCopy?.[i];
+      const entriesCopy = [...teacherIdentified?.[name]];
+      let entry = entriesCopy?.[0];
 
-      strength = { ...strength, [name]: value };
-      studentStrengthsCopy[i] = strength;
+      entry = { ...entry, note: value };
+      entriesCopy[0] = entry;
 
-      setFamilyIdentified(prev => ({
+      setTeacherIdentified(prev => ({
         ...prev,
-        strengths: studentStrengthsCopy,
+        [name]: entriesCopy,
       }));
     } catch (error) {
       console.log(error);
     }
   };
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -248,36 +270,58 @@ const StrengthsConcerns = () => {
           Strengths & Concerns
         </Text>
 
-        <FlexBox column rowGap="1.5rem" align="flex-start">
-          <FlexBox colGap="2rem" align="flex-start">
-            <MultipleEntryTable
-              entries={studentIdentified.strengths}
-              handleChange={handleStudentIDstrengths}
-              columns={["Student Identified Strengths"]}
-              addEntry={() => addEntry("student", "strengths")}
-            />
-
-            <MultipleEntryTable
-              entries={studentIdentified.concerns}
-              handleChange={handleStudentIDConcerns}
-              columns={["Student Identified Concerns"]}
-              addEntry={() => addEntry("student", "concerns")}
+        <FlexBox column rowGap="1.5rem">
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Student Identified Strengths</Text>
+            <TextArea
+              name="strengths"
+              onChange={handleStudentID}
+              value={studentIdentified?.strengths?.[0]?.note}
             />
           </FlexBox>
 
-          <FlexBox colGap="2rem" align="flex-start">
-            <MultipleEntryTable
-              entries={familyIdentified.strengths}
-              handleChange={handleFamilyIDstrengths}
-              columns={["Family Identified Strengths"]}
-              addEntry={() => addEntry("family", "strengths")}
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Student Identified Concerns</Text>
+            <TextArea
+              name="concerns"
+              onChange={handleStudentID}
+              value={studentIdentified?.concerns?.[0]?.note}
             />
+          </FlexBox>
 
-            <MultipleEntryTable
-              entries={familyIdentified.concerns}
-              handleChange={handleFamilyIDConcerns}
-              columns={["Family Identified Concerns"]}
-              addEntry={() => addEntry("family", "concerns")}
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Family Identified Strengths</Text>
+            <TextArea
+              name="strengths"
+              onChange={handleFamilyID}
+              value={familyIdentified?.strengths?.[0]?.note}
+            />
+          </FlexBox>
+
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Family Identified Concerns</Text>
+            <TextArea
+              name="concerns"
+              onChange={handleFamilyID}
+              value={familyIdentified?.concerns?.[0]?.note}
+            />
+          </FlexBox>
+
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Teacher Identified Strengths</Text>
+            <TextArea
+              name="strengths"
+              onChange={handleTeacherID}
+              value={teacherIdentified?.strengths?.[0]?.note}
+            />
+          </FlexBox>
+
+          <FlexBox column rowGap="1rem">
+            <Text weight={500}>Teacher Identified Concerns</Text>
+            <TextArea
+              name="concerns"
+              onChange={handleTeacherID}
+              value={teacherIdentified?.concerns?.[0]?.note}
             />
           </FlexBox>
         </FlexBox>

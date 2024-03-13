@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import MultipleEntryTable from "@common/MultipleEntryTable";
@@ -16,55 +17,54 @@ import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@/redux/Slices/studentSlice";
 
 const defaultTriggerInfo = Object.freeze({ trigger: "" });
+const defaultCalmingStrategyInfo = Object.freeze({ strategy: "" });
 
 const MentalHealth = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
+  const [requestLoading, setRequestLoading] = useState(false);
   const [mentalHealthInfo, setMentalHealthInfo] = useState({
     triggers: [],
+    calmingStrategies: [],
     toughestTime: studentProfile?.toughestTime || "",
-    calmingStrategy: studentProfile?.calmingStrategy || "",
     mentalHealthStudentPerspective:
       studentProfile?.mentalHealthStudentPerspective || "",
     mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
-    peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
-    objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
-    activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
   });
 
   const {
     triggers,
-    toughestTime,
-    calmingStrategy,
+    calmingStrategies,
     mentalHealthDiagnosis,
-    peopleCopingMechanism,
-    objectCopingMechanism,
-    activityCopingMechanism,
     mentalHealthStudentPerspective,
   } = mentalHealthInfo;
 
   useEffect(() => {
     if (studentProfile) {
-      const { triggers } = studentProfile || {};
+      const { triggers, calmingStrategies } = studentProfile || {};
       let triggersArr = [{ ...defaultTriggerInfo }];
+      let calmingStrategiesArr = [{ ...defaultCalmingStrategyInfo }];
 
       if (!!triggers?.length) {
         triggersArr = triggers?.map(trigger => ({ trigger }));
+      }
+      if (!!calmingStrategies?.length) {
+        calmingStrategiesArr = calmingStrategies?.map(strategy => ({
+          strategy,
+        }));
       }
 
       setMentalHealthInfo(prev => ({
         ...prev,
         triggers: triggersArr,
+        calmingStrategies: calmingStrategiesArr,
         toughestTime: studentProfile?.toughestTime || "",
         calmingStrategy: studentProfile?.calmingStrategy || "",
         mentalHealthStudentPerspective:
           studentProfile?.mentalHealthStudentPerspective || "",
         mentalHealthDiagnosis: studentProfile?.mentalHealthDiagnosis || "",
-        peopleCopingMechanism: studentProfile?.peopleCopingMechanism || "",
-        objectCopingMechanism: studentProfile?.objectCopingMechanism || "",
-        activityCopingMechanism: studentProfile?.activityCopingMechanism || "",
       }));
     }
   }, [studentProfile]);
@@ -81,20 +81,31 @@ const MentalHealth = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
       const triggers = mentalHealthInfo?.triggers
         ?.filter(({ trigger }) => !!trigger)
         ?.map(({ trigger }) => trigger);
+      const calmingStrategies = mentalHealthInfo?.calmingStrategies
+        ?.filter(({ strategy }) => !!strategy)
+        ?.map(({ strategy }) => strategy);
 
       Object.keys(mentalHealthInfo)
-        ?.filter(key => key !== "triggers" && !!mentalHealthInfo?.[key])
+        ?.filter(
+          key =>
+            key !== "triggers" &&
+            key !== "calmingStrategies" &&
+            !!mentalHealthInfo?.[key]
+        )
         ?.forEach(key => {
           payload[key] = mentalHealthInfo?.[key];
         });
 
       if (!!triggers?.length) payload.triggers = triggers;
+      if (!!calmingStrategies?.length)
+        payload.calmingStrategies = calmingStrategies;
 
       dispatch(
         saveUpdateProfile({
@@ -103,17 +114,25 @@ const MentalHealth = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
 
   const handleBack = () => router?.back();
 
-  const addTrigger = () => {
+  const addEntry = entryType => {
     try {
-      const entries = [...triggers, { ...defaultTriggerInfo }];
+      const isEntryTypeTrigger = entryType === "triggers";
+      let entries = isEntryTypeTrigger ? triggers : calmingStrategies;
 
-      setMentalHealthInfo(prev => ({ ...prev, triggers: entries }));
+      if (isEntryTypeTrigger) {
+        entries = [...entries, { ...defaultTriggerInfo }];
+      } else {
+        entries = [...entries, { ...defaultCalmingStrategyInfo }];
+      }
+
+      setMentalHealthInfo(prev => ({ ...prev, [entryType]: entries }));
     } catch (error) {
       console.log(error);
     }
@@ -134,6 +153,33 @@ const MentalHealth = () => {
       console.log(error);
     }
   };
+
+  const handleStrategiesInput = (e, i) => {
+    try {
+      const { name, value } = e.target;
+
+      const strategiesCopy = [...calmingStrategies];
+      let entry = strategiesCopy?.[i];
+
+      entry = { ...entry, [name]: value };
+      strategiesCopy[i] = entry;
+
+      setMentalHealthInfo(prev => ({
+        ...prev,
+        calmingStrategies: strategiesCopy,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
@@ -169,62 +215,18 @@ const MentalHealth = () => {
 
           <MultipleEntryTable
             entries={triggers}
-            addEntry={addTrigger}
             columns={["Triggers"]}
             handleChange={handleTriggerInput}
+            addEntry={() => addEntry("triggers")}
           />
 
-          <InputContainer>
-            <Text color={GRAY_800}>Toughest Time</Text>
-            <TextInput
-              name="toughestTime"
-              value={toughestTime}
-              onChange={handleInput}
-              placeholder="Type Here"
-            />
-          </InputContainer>
-
-          <FlexBox colGap="2rem">
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : Objects</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="objectCopingMechanism"
-                value={objectCopingMechanism}
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : Activities</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="activityCopingMechanism"
-                value={activityCopingMechanism}
-              />
-            </InputContainer>
-
-            <InputContainer>
-              <Text color={GRAY_800}>Coping Mechanism : People</Text>
-              <TextInput
-                onChange={handleInput}
-                placeholder="Type Here"
-                name="peopleCopingMechanism"
-                value={peopleCopingMechanism}
-              />
-            </InputContainer>
-          </FlexBox>
-
-          <InputContainer>
-            <Text color={GRAY_800}>Calming Strategy</Text>
-            <TextInput
-              onChange={handleInput}
-              name="calmingStrategy"
-              placeholder="Type Here"
-              value={calmingStrategy}
-            />
-          </InputContainer>
+          {/* Changes post phase 1 - calming strategy -> coping strategies */}
+          <MultipleEntryTable
+            entries={calmingStrategies}
+            columns={["Coping Strategies"]}
+            handleChange={handleStrategiesInput}
+            addEntry={() => addEntry("calmingStrategies")}
+          />
         </FlexBox>
 
         <FlexBox align="center" colGap="1.5rem">
