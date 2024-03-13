@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
@@ -19,6 +20,7 @@ const ContactInformation = () => {
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
+  const [requestLoading, setRequestLoading] = useState(false);
   const [contactInfo, setContactInfo] = useState({
     email: studentProfile?.email || "",
     phoneNumber: studentProfile?.phoneNumber || "",
@@ -83,6 +85,7 @@ const ContactInformation = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -99,11 +102,20 @@ const ContactInformation = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
 
   const handleBack = () => router?.back();
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
