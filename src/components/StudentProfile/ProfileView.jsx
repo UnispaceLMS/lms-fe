@@ -267,7 +267,7 @@ const MedicalRecords = ({ allergies, primaryDiagnosis }) => (
 
 const MentalRecords = ({
   triggers,
-  calmingStrategy,
+  calmingStrategies,
   mentalHealthDiagnosis,
   mentalHealthStudentPerspective,
 }) => (
@@ -295,7 +295,7 @@ const MentalRecords = ({
     <FlexBox column rowGap="0.25rem">
       <Label>Coping Mechanism</Label>
       <Text size="0.875rem" color={GRAY_700}>
-        {calmingStrategy || "N/A"}
+        {!!calmingStrategies?.length ? calmingStrategies?.join(", ") : "N/A"}
       </Text>
     </FlexBox>
   </>
@@ -494,9 +494,11 @@ const Strengths = ({ strengths }) => {
   const familyIDd = strengths?.filter(
     ({ type }) => type === strengthEnums.family
   );
-
   const studentIDd = strengths?.filter(
     ({ type }) => type === strengthEnums.student
+  );
+  const teacherIDd = strengths?.filter(
+    ({ type }) => type === strengthEnums.teacher
   );
 
   return (
@@ -528,6 +530,20 @@ const Strengths = ({ strengths }) => {
           </Text>
         )}
       </FlexBox>
+
+      <FlexBox column rowGap="1rem">
+        <Label>Teacher Identified Strengths</Label>
+
+        {!!teacherIDd?.length ? (
+          <Text size="0.875rem" color={GRAY_700}>
+            {teacherIDd?.[0]?.note}
+          </Text>
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
     </FlexBox>
   );
 };
@@ -536,9 +552,11 @@ const Concerns = ({ concerns }) => {
   const familyIDd = concerns?.filter(
     ({ type }) => type === concernEnums.family
   );
-
   const studentIDd = concerns?.filter(
     ({ type }) => type === concernEnums.student
+  );
+  const teacherIDd = concerns?.filter(
+    ({ type }) => type === concernEnums.teacher
   );
 
   return (
@@ -561,8 +579,22 @@ const Concerns = ({ concerns }) => {
         <Label>Family Identified Concerns</Label>
 
         {!!familyIDd?.length ? (
-          <Text key={note} size="0.875rem" color={GRAY_700}>
+          <Text size="0.875rem" color={GRAY_700}>
             {familyIDd?.[0]?.note}
+          </Text>
+        ) : (
+          <Text size="0.875rem" color={GRAY_700}>
+            N/A
+          </Text>
+        )}
+      </FlexBox>
+
+      <FlexBox column rowGap="1rem">
+        <Label>Teacher Identified Concerns</Label>
+
+        {!!teacherIDd?.length ? (
+          <Text size="0.875rem" color={GRAY_700}>
+            {teacherIDd?.[0]?.note}
           </Text>
         ) : (
           <Text size="0.875rem" color={GRAY_700}>
@@ -609,9 +641,9 @@ const ProfileView = () => {
     morningHelp,
     phoneNumber,
     accommodations,
-    calmingStrategy,
     primaryDiagnosis,
     helpRequiredTasks,
+    calmingStrategies,
     emergencyContactName,
     mentalHealthDiagnosis,
     emergencyContactEmail,
@@ -794,7 +826,7 @@ const ProfileView = () => {
           {selectedRecord?.slug === recordOptions?.mental?.slug && (
             <MentalRecords
               triggers={triggers}
-              calmingStrategy={calmingStrategy}
+              calmingStrategies={calmingStrategies}
               mentalHealthDiagnosis={mentalHealthDiagnosis}
               mentalHealthStudentPerspective={mentalHealthStudentPerspective}
             />
