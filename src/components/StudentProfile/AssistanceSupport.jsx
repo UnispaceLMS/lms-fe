@@ -5,6 +5,7 @@ import styled, { css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import MultipleEntryTable from "@common/MultipleEntryTable";
@@ -96,6 +97,7 @@ const AssistanceSupport = () => {
   const dispatch = useDispatch();
   const studentProfile = useSelector(state => state?.student?.profile);
 
+  const [requestLoading, setRequestLoading] = useState(false);
   const [supportData, setSupportData] = useState([
     { condition: "", location: "", supportAndModificationToEnv: "" },
   ]);
@@ -185,6 +187,7 @@ const AssistanceSupport = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -223,6 +226,7 @@ const AssistanceSupport = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
@@ -276,6 +280,14 @@ const AssistanceSupport = () => {
       console.log(error);
     }
   };
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>

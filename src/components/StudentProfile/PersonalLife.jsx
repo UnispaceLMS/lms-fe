@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import MultipleEntryTable from "@common/MultipleEntryTable";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
@@ -34,6 +35,7 @@ const PersonalLife = () => {
     interests: [],
     safetyConceptStruggles: [],
   });
+  const [requestLoading, setRequestLoading] = useState(false);
 
   const { fears, family, friends, worries, interests, safetyConceptStruggles } =
     personalLifeInfo;
@@ -84,6 +86,7 @@ const PersonalLife = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -135,6 +138,7 @@ const PersonalLife = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
@@ -252,6 +256,14 @@ const PersonalLife = () => {
       console.log(error);
     }
   };
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>

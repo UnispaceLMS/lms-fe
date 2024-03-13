@@ -79,15 +79,10 @@ const studentSlice = createSlice({
       state.profile = initialState.profile;
     });
 
-    builder.addCase(saveUpdateProfile.pending, state => {
-      state.loading = true;
-    });
-
     builder.addCase(saveUpdateProfile.fulfilled, (state, { payload }) => {
       const { profile, nextLink } = payload || {};
 
       if (profile) state.profile = profile;
-      state.loading = false;
       state.error = initialState.error;
 
       if (nextLink) window.location.href = nextLink;
@@ -95,7 +90,6 @@ const studentSlice = createSlice({
 
     builder.addCase(saveUpdateProfile.rejected, (state, { error }) => {
       state.error = error;
-      state.loading = false;
       state.profile = initialState.profile;
     });
   },

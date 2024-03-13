@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Select from "react-select";
 import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import MultipleEntryTable from "@common/MultipleEntryTable";
@@ -13,41 +13,40 @@ import Wrapper from "./Wrapper";
 import InputContainer from "./InputContainer";
 import ProfileCompletionWizard from "./ProfileCompletionWizard";
 
-import { bloodGroups } from "@metadata/bloodGroups";
+import { GRAY_800 } from "@constants/colors";
 import { saveUpdateProfile } from "@redux/Slices/studentSlice";
-import { GRAY_200, GRAY_300, GRAY_800 } from "@constants/colors";
 
 const defaultAllergyEntry = Object.freeze({ allergy: "", reaction: "" });
 
-const customSelectStyles = {
-  container: baseStyles => ({
-    ...baseStyles,
-    width: "100%",
-  }),
-  control: baseStyles => ({
-    ...baseStyles,
-    padding: "1rem",
-    fontSize: "1rem",
-    boxShadow: "none",
-    minHeight: "unset",
-    borderColor: GRAY_200,
-    "&:hover": {
-      borderColor: GRAY_200,
-    },
-  }),
-  valueContainer: baseStyles => ({
-    ...baseStyles,
-    padding: 0,
-  }),
-  input: baseStyles => ({
-    ...baseStyles,
-    margin: 0,
-    padding: 0,
-  }),
-  indicatorSeparator: () => ({ display: "none" }),
-  placeholder: baseStyles => ({ ...baseStyles, color: GRAY_300 }),
-  dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
-};
+// const customSelectStyles = {
+//   container: baseStyles => ({
+//     ...baseStyles,
+//     width: "100%",
+//   }),
+//   control: baseStyles => ({
+//     ...baseStyles,
+//     padding: "1rem",
+//     fontSize: "1rem",
+//     boxShadow: "none",
+//     minHeight: "unset",
+//     borderColor: GRAY_200,
+//     "&:hover": {
+//       borderColor: GRAY_200,
+//     },
+//   }),
+//   valueContainer: baseStyles => ({
+//     ...baseStyles,
+//     padding: 0,
+//   }),
+//   input: baseStyles => ({
+//     ...baseStyles,
+//     margin: 0,
+//     padding: 0,
+//   }),
+//   indicatorSeparator: () => ({ display: "none" }),
+//   placeholder: baseStyles => ({ ...baseStyles, color: GRAY_300 }),
+//   dropdownIndicator: baseStyles => ({ ...baseStyles, padding: 0 }),
+// };
 
 const MedicalRecords = () => {
   const router = useRouter();
@@ -58,6 +57,7 @@ const MedicalRecords = () => {
   const [medicalRecords, setMedicalRecords] = useState({
     primaryDiagnosis: studentProfile?.primaryDiagnosis || "",
   });
+  const [requestLoading, setRequestLoading] = useState(false);
 
   const { primaryDiagnosis } = medicalRecords;
 
@@ -98,6 +98,7 @@ const MedicalRecords = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -124,6 +125,7 @@ const MedicalRecords = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
@@ -155,6 +157,14 @@ const MedicalRecords = () => {
       console.log(error);
     }
   };
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>

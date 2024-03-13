@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 
 import Text from "@common/Text";
+import Loader from "@common/Loader";
 import FlexBox from "@common/FlexBox";
 import TextInput from "@common/TextInput";
 import { PrimaryButton, SecondaryButton } from "@common/Buttons";
@@ -68,6 +69,7 @@ const PersonalInformation = () => {
     legalGuardianName: studentProfile?.legalGuardianName || "",
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
 
   const {
     program,
@@ -122,6 +124,7 @@ const PersonalInformation = () => {
 
   const onSave = () => {
     try {
+      setRequestLoading(true);
       const id = router?.query?.id;
       const payload = { id };
 
@@ -145,11 +148,20 @@ const PersonalInformation = () => {
         })
       );
     } catch (error) {
+      setRequestLoading(false);
       console.log(error, "Error in saving profile");
     }
   };
 
   const handleBack = () => router?.back();
+
+  if (requestLoading) {
+    return (
+      <Wrapper>
+        <Loader />
+      </Wrapper>
+    );
+  }
 
   return (
     <Wrapper>
