@@ -39,6 +39,8 @@ const InputContainer = styled(FlexBox)`
 const Login = () => {
   const dispatch = useDispatch();
   const authLoading = useSelector(state => state?.auth?.loading);
+
+  const [loading, setLoading] = useState(false); // workaround of auth loading persisting on closing app
   const [userCreds, setUserCreds] = useState({ email: "", password: "" });
 
   const { email, password } = userCreds;
@@ -55,8 +57,10 @@ const Login = () => {
 
   const handleLogin = () => {
     try {
+      setLoading(true);
       dispatch(login(userCreds));
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
   };
@@ -105,7 +109,7 @@ const Login = () => {
         <InputContainer>
           <PrimaryButton
             onClick={handleLogin}
-            disabled={!email || !password || authLoading}
+            disabled={!email || !password || (loading && authLoading)}
           >
             Log in
           </PrimaryButton>
